@@ -1,0 +1,4 @@
+recursive-include wangguo/public *
+include wangguo/public/favicon.ico
+recursive-include wangguo/i18n *
+recursive-include wangguo/templates *
