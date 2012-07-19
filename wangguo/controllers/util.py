@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Fallback controller."""
-from tg import expose, flash, require, url, lurl, request, redirect
+from tg import expose, flash, require, url,  request, redirect
 from tg.i18n import ugettext as _, lazy_ugettext as l_
 from wangguo import model
 from repoze.what import predicates
