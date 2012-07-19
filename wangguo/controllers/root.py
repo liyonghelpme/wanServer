@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Main Controller"""
 
-from tg import expose, flash, require, url, lurl, request, redirect
+from tg import expose, flash, require, url, request, redirect
 from tg.i18n import ugettext as _, lazy_ugettext as l_
 from wangguo import model
 from repoze.what import predicates
@@ -292,14 +292,9 @@ class RootController(BaseController):
 
         return dict(id=1, uid = user.uid, resource = userData, starNum = stars, buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips, soldierEquip=solEquip, herbs=herbs, tasks=tasks, serverTime=getTime()) 
 
-
+    """
     @expose()
     def post_login(self, came_from=lurl('/')):
-        """
-        Redirect the user to the initially requested page on successful
-        authentication or redirect her back to the login page if login failed.
-
-        """
         if not request.identity:
             login_counter = request.environ['repoze.who.logins'] + 1
             redirect('/login',
@@ -310,10 +305,6 @@ class RootController(BaseController):
 
     @expose()
     def post_logout(self, came_from=lurl('/')):
-        """
-        Redirect the user to the initially requested page on logout and say
-        goodbye as well.
-
-        """
         flash(_('We hope to see you soon!'))
         redirect(came_from)
+    """
