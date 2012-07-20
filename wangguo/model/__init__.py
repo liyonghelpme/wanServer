@@ -107,6 +107,8 @@ def init_model(engine):
     mapper(UserHerb, userHerbTable)
     userTaskTable = Table("UserTask", metadata, autoload=True, autoload_with=engine)
     mapper(UserTask, userTaskTable)
+    userFriendTable = Table("UserFriend", metadata, autoload=True, autoload_with=engine)
+    mapper(UserFriend, userFriendTable)
 
 # Import your model modules here.
 from wangguo.model.auth import User, Group, Permission
@@ -119,3 +121,4 @@ from wangguo.model.userSoldiers import UserSoldiers
 from wangguo.model.userSolEquip import UserSolEquip
 from wangguo.model.userHerb import UserHerb
 from wangguo.model.userTask import UserTask
+from wangguo.model.userFriend import UserFriend

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "testSoldier.py", line 74, in <module>
+    res(r)
+NameError: name 'res' is not defined

@@ -17,6 +17,7 @@ from wangguo.controllers.challenge import ChallengeController
 from wangguo.controllers.goods import GoodsController
 from wangguo.controllers.building import BuildingController
 from wangguo.controllers.soldier import SoldierController
+from wangguo.controllers.friend import FriendController
 
 #from wangguo.model import DBSession, metadata
 from wangguo.model import *
@@ -46,6 +47,7 @@ class RootController(BaseController):
     goodsC = GoodsController()
     buildingC = BuildingController()
     soldierC = SoldierController()
+    friendC = FriendController()
 
     error = ErrorController()
 
@@ -180,12 +182,6 @@ class RootController(BaseController):
         for i in buildings:
             res[i.bid] = dict(id=i.kind, px=i.px, py=i.py, state=i.state, dir=i.dir, objectId=i.objectId, objectTime=i.objectTime)
         return res
-    def getSoldiers(self, uid):
-        soldiers = DBSession.query(UserSoldiers).filter_by(uid=uid).all()
-        res = dict()
-        for i in soldiers:
-            res[i.sid] = dict(id=i.kind, name=i.name, level=i.level, exp=i.exp, health=i.health, addAttack = i.addAttack, addDefense = i.addDefense, addAttackTime=i.addAttackTime, addDefenseTime=i.addDefenseTime, dead=i.dead)
-        return res
     def getDrugs(self, uid):
         drugs = DBSession.query(UserDrugs).filter_by(uid=uid).all()
         res = dict()
@@ -283,7 +279,7 @@ class RootController(BaseController):
         userData = self.getUserData(user)
         stars = self.getStars(user.uid)
         buildings = self.getBuildings(user.uid)
-        soldiers = self.getSoldiers(user.uid)
+        soldiers = getSoldiers(user.uid)
         drugs = self.getDrugs(user.uid)
         equips = self.getEquips(user.uid)
         solEquip = self.getSolEquip(user.uid)
