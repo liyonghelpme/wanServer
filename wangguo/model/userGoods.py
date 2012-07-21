@@ -10,10 +10,9 @@ from sqlalchemy.types import Integer, Unicode
 from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
-class UserEquips(object):
-    def __init__(self, uid, eid, equipKind):
+class UserGoods(object):
+    def __init__(self, uid, kind, id, num):
         self.uid = uid
-        self.eid = eid
-        self.equipKind = equipKind
-        self.level = 0
-        self.owner = -1
+        self.kind = kind
+        self.id = id
+        self.num = num

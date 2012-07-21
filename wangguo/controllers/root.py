@@ -156,12 +156,14 @@ class RootController(BaseController):
 
     def initEquip(self, user):
         uid = user.uid
-        equip = UserEquips(uid=uid, equipKind=0, num=1)
+        equip = UserEquips(uid=uid, eid = 0, equipKind=0)
         DBSession.add(equip)
+    """
     def initSolEquip(self, user):
         uid = user.uid
         solEquip = UserSolEquip(uid=uid, eid=0, kind=0, sid=0)
         DBSession.add(solEquip)
+    """
 
     #闯关保存在本地就可以了
     #用户数据保存在服务器上
@@ -188,18 +190,21 @@ class RootController(BaseController):
         for i in drugs:
             res[i.drugKind] = i.num
         return res
+    #eid ---> kind level
     def getEquips(self, uid):
         equips = DBSession.query(UserEquips).filter_by(uid=uid).all()
-        res = dict()
+        res = {}
         for i in equips:
-            res[i.equipKind] = i.num
+            res[i.eid] = {'kind':i.equipKind, 'level':i.level, 'owner':i.owner}
         return res
+    """
     def getSolEquip(self, uid):
         solEquip = DBSession.query(UserSolEquip).filter_by(uid=uid).all()
         res = dict()
         for i in solEquip:
             res[i.eid] = [i.kind, i.sid]
         return res
+    """
     def getHerb(self, uid):
         herbs = DBSession.query(UserHerb).filter_by(uid=uid).all()
         res = dict()
@@ -272,7 +277,7 @@ class RootController(BaseController):
             self.initSoldiers(user)
             self.initDrug(user)
             self.initEquip(user)
-            self.initSolEquip(user)
+            #self.initSolEquip(user)
 
         #loginReward = self.getLoginReward(user)
 
@@ -282,11 +287,11 @@ class RootController(BaseController):
         soldiers = getSoldiers(user.uid)
         drugs = self.getDrugs(user.uid)
         equips = self.getEquips(user.uid)
-        solEquip = self.getSolEquip(user.uid)
+        #solEquip = self.getSolEquip(user.uid)
         herbs = self.getHerb(user.uid)
         tasks = self.getTask(user.uid)
-
-        return dict(id=1, uid = user.uid, resource = userData, starNum = stars, buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips, soldierEquip=solEquip, herbs=herbs, tasks=tasks, serverTime=getTime()) 
+        #soldierEquip=solEquip,
+        return dict(id=1, uid = user.uid, resource = userData, starNum = stars, buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime()) 
 
     """
     @expose()

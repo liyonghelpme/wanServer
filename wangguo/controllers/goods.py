@@ -43,8 +43,9 @@ class GoodsController(BaseController):
         return dict(id=1)
         
     @expose('json')
-    def buyEquip(self, uid, equipKind):
+    def buyEquip(self, uid, eid, equipKind):
         uid = int(uid)
+        eid = int(eid)
         equipKind = int(equipKind)
 
         cost = getCost('equip', equipKind)
@@ -52,14 +53,29 @@ class GoodsController(BaseController):
         if not ret:
             return dict(id=0)
 
-        try:
-            equip = DBSession.query(UserEquips).filter_by(uid=uid).filter_by(equipKind=equipKind).one()
-        except:
-            equip = UserEquips(uid=uid, equipKind=equipKind, num=0)
-            DBSession.add(equip)
-        equip.num += 1
+        #try:
+        #    equip = DBSession.query(UserEquips).filter_by(uid=uid).filter_by(equipKind=equipKind).one()
+        #except:
+        equip = UserEquips(uid=uid, eid=eid, equipKind=equipKind)
+        DBSession.add(equip)
 
         doCost(uid, cost)
+        return dict(id=1)
+
+    @expose('json')
+    def upgradeEquip(self, uid, eid):
+        uid = int(uid)
+        eid = int(eid)
+        equip = DBSession.query(UserEquips).filter_by(uid=uid, eid=eid).one()
+        try:
+            goods = DBSession.query(UserGoods).filter_by(uid=uid, kind=TREASURE_STONE).one()
+        except:
+            return dict(id=0)
+        if goods.num > 0:
+            goods.num -= 1
+            equip.level += 1
+        else:
+            return dict(id=0)
         return dict(id=1)
     @expose('json')
     def pickObj(self, uid, silver, crystal, gold):

@@ -4,8 +4,9 @@ import urllib
 import json
 import sys
 import random
+from config import *
 con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
-base = 'http://localhost:8080/soldierC/'
+base = '%ssoldierC/' % (base2)
 
 def exe(sql):
     print sql
@@ -24,7 +25,7 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-r = 'http://localhost:8080/' +'login/%d/ppp' % random.randint(10, 100)
+r = '%slogin/%d/ppp' % (base2, random.randint(10, 100))
 l = req(r)
 
 uid = l.get('uid')
@@ -53,10 +54,10 @@ drug = req(r)
 r = base+'useDrug/'+str(uid)+'/'+str(sid)+'/'+str(4)
 drug = req(r)
 
-r = base+'useEquip/'+str(uid)+'/'+str(sid)+'/'+str(0)+'/'+str(2)
+r = base+'useEquip/'+str(uid)+'/'+str(sid)+'/'+str(0)
 equip = req(r)
 
-r = base+'unloadThing/%d/%d' % (uid, 2)
+r = base+'unloadThing/%d/%d' % (uid, 0)
 unload = req(r)
 
 r = base+'useState/'+str(uid)+'/'+str(sid)

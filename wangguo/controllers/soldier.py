@@ -20,10 +20,24 @@ __all__ = ['SoldierController']
 
 
 class SoldierController(BaseController):
-    def getHealthBoundary(self, soldier):
-        data = getData('soldier', soldier.kind)
-        healthBoundary = data.get("health")+soldier.level*data.get("addHealth")
+    def calculateStage(self, soldier):
+        stage = stagePool.get(soldier.sid)
+        for i in range(1, len(stage)):
+            if soldier.level < stage[i][0]:
+                break
+        begin = stage[i-1]
+        end = stage[i]
+        levelDiff = end[0]-begin[0]
+
+        addHealth = end[1][0]-begin[1][0];
+        healthBoundary = begin[1][0]+(soldier.level-begin[0])*int(addHealth)/levelDiff;
         return healthBoundary
+            
+    def getHealthBoundary(self, soldier):
+        return self.calculateStage(soldier)
+        #data = getData('soldier', soldier.kind)
+        #healthBoundary = data.get("health")+soldier.level*data.get("addHealth")
+        #return healthBoundary
     @expose('json')
     def buySoldier(self, uid, sid, kind):
         uid = int(uid)
@@ -92,6 +106,7 @@ class SoldierController(BaseController):
 
     #ToDo 检测 装备数量是否足够
     #士兵卖出之后 士兵使用的装备 全被归还
+    """
     @expose('json')
     def useEquip(self, uid, sid, tid, sequipId):
         uid = int(uid)
@@ -102,6 +117,16 @@ class SoldierController(BaseController):
         equips.num -= 1
         solEquip = UserSolEquip(uid=uid, eid=sequipId, kind=tid, sid = sid)
         DBSession.add(solEquip)
+        return dict(id=1)
+    """
+    
+    @expose('json')
+    def useEquip(self, uid, sid, eid):
+        uid = int(uid)
+        sid = int(sid)
+        eid = int(eid)
+        equip = DBSession.query(UserEquips).filter_by(uid=uid, eid=eid).one()
+        equip.owner = sid
         return dict(id=1)
 
     #奖励之后可能升级
@@ -162,7 +187,11 @@ class SoldierController(BaseController):
         cost = getCost('soldier', soldier.kind)
         cost = changeToSilver(cost)
         doGain(uid, cost)
-        solEquip = DBSession.query(UserSolEquip).filter_by(uid=uid).filter_by(sid=sid).all()
+        #solEquip = DBSession.query(UserSolEquip).filter_by(uid=uid).filter_by(sid=sid).all()
+        equips = DBSession.query(UserEquips).filter_by(uid=uid, owner=sid).all()
+        for i in equips:
+            equips.owner = -1
+        """
         for i in solEquip:
             try:
                 equips = DBSession.query(UserEquips).filter_by(uid=uid).filter_by(equipKind=i.kind).one() 
@@ -171,6 +200,7 @@ class SoldierController(BaseController):
                 DBSession.add(equips)
             equips.num += 1
             DBSession.delete(i)
+        """
         return dict(id=1)
     #sid health exp dead level
     #士兵闯关成功升级
@@ -210,6 +240,7 @@ class SoldierController(BaseController):
             user.crystal += addCry
         curStar.star = star
         return dict(id=1)
+    """
     @expose('json')
     def unloadThing(self, uid, eid):
         uid = int(uid)
@@ -222,6 +253,14 @@ class SoldierController(BaseController):
             DBSession.add(equips)
         equips.num += 1
         DBSession.delete(solEquip)
+        return dict(id=1)
+    """
+    @expose('json')
+    def unloadThing(self, uid, eid):
+        uid = int(uid)
+        eid = int(eid)
+        equip = DBSession.query(UserEquips).filter_by(uid=uid, eid=eid).one()
+        equip.owner = -1
         return dict(id=1)
 
 

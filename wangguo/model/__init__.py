@@ -15,7 +15,9 @@ import json
 con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 cur = con.cursor()
 
-name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierLevelExp', 'task']
+name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
+'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
+'soldierLevelExp', 'task']
 
 datas = dict()
 for i in name:
@@ -27,12 +29,67 @@ for i in name:
     for a in allData:
         if i == 'levelExp':
             datas[i] = json.loads(a['exp'])
+        elif i == 'soldierAttBase':
+            datas[i] = json.loads(a['base'])
+        elif i == 'soldierGrade':
+            datas[i] = json.loads(a['grade'])
+        elif i == 'soldierKind':
+            datas[i] = json.loads(a['kinds'])
+        elif i == 'soldierLevel':
+            datas[i] = json.loads(a['levelData'])
+        elif i == 'soldierTransfer':
+            datas[i] = json.loads(a['level'])
         else:
             datas[i][a['id']] = a
         
 print datas
+
+#每种士兵类型和层级对应的各个等级的属性系数
+stagePool = {}
+def getStage(id):
+    soldiers = datas.get("soldier")
+    data = soldiers.get(id)
+    soldierLevel = datas.get("soldierLevel")
+    soldierAttBase = datas.get("soldierAttBase")
+    soldierGrade = datas.get("soldierGrade")
+    soldierKind = datas.get("soldierKind")
+
+    category = soldierKind[data.get("category")]
+    grade = soldierGrade[data.get("grade")]
+    magic = data.get("kind") == 2
+    res = []
+    for i in range(0, len(soldierLevel)):
+        r = []
+        r.append(soldierAttBase[i][0]*category[0]*grade)
+        r.append(soldierAttBase[i][1]*category[1]*grade)
+        r.append(soldierAttBase[i][2]*category[2]*grade)
+        if magic == False:
+            r.append(soldierAttBase[i][3]*category[3]*grade)
+        else:
+            r.append(0)
+        if magic == True:
+            r.append(soldierAttBase[i][3]*category[3]*grade)
+        else:
+            r.append(0)
+        r = [soldierLevel[i], r]
+        res.append(r)
+    stagePool[id] = res
+
+#计算所有士兵的stage
+def initStage():
+    sql = 'select id from soldier'
+    con.query(sql)
+    res = con.store_result()
+    rows = res.fetch_row(0, 1)
+    for r in rows:
+        getStage(r['id'])
+        
+initStage()
+print "getStagePool", stagePool
+
 con.close()
 
+TREASURE_STONE = 15
         
 
 
@@ -101,14 +158,17 @@ def init_model(engine):
     mapper(UserEquips, userEquipsTable)
     userSoldiersTable = Table("UserSoldiers", metadata, autoload=True, autoload_with=engine)
     mapper(UserSoldiers, userSoldiersTable)
-    userSolEquipTable = Table("UserSolEquip", metadata, autoload=True, autoload_with=engine)
-    mapper(UserSolEquip, userSolEquipTable)
+
+    #userSolEquipTable = Table("UserSolEquip", metadata, autoload=True, autoload_with=engine)
+    #mapper(UserSolEquip, userSolEquipTable)
     userHerbTable = Table("UserHerb", metadata, autoload=True, autoload_with=engine)
     mapper(UserHerb, userHerbTable)
     userTaskTable = Table("UserTask", metadata, autoload=True, autoload_with=engine)
     mapper(UserTask, userTaskTable)
     userFriendTable = Table("UserFriend", metadata, autoload=True, autoload_with=engine)
     mapper(UserFriend, userFriendTable)
+    userGoodsTable = Table("UserGoods", metadata, autoload=True, autoload_with=engine)
+    mapper(UserGoods, userGoodsTable)
 
 # Import your model modules here.
 from wangguo.model.auth import User, Group, Permission
@@ -118,7 +178,8 @@ from wangguo.model.userChallenge import UserChallenge
 from wangguo.model.userDrugs import UserDrugs
 from wangguo.model.userEquips import UserEquips
 from wangguo.model.userSoldiers import UserSoldiers
-from wangguo.model.userSolEquip import UserSolEquip
+#from wangguo.model.userSolEquip import UserSolEquip
 from wangguo.model.userHerb import UserHerb
 from wangguo.model.userTask import UserTask
 from wangguo.model.userFriend import UserFriend
+from wangguo.model.userGoods import UserGoods
