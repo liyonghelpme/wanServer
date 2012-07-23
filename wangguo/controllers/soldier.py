@@ -20,21 +20,57 @@ __all__ = ['SoldierController']
 
 
 class SoldierController(BaseController):
-    def calculateStage(self, soldier):
-        stage = stagePool.get(soldier.sid)
+    @expose('json')
+    def recoverHealth(self, uid, sid, addHealth):
+        uid = int(uid)
+        sid = int(sid)
+        addHealth = int(addHealth)
+        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid, sid=sid).one()
+        soldier.health += addHealth
+        return dict(id=1)
+    def calculateStage(self, id, level):
+        stage = stagePool.get(id)
         for i in range(1, len(stage)):
-            if soldier.level < stage[i][0]:
+            if level < stage[i][0]:
                 break
         begin = stage[i-1]
         end = stage[i]
         levelDiff = end[0]-begin[0]
 
         addHealth = end[1][0]-begin[1][0];
-        healthBoundary = begin[1][0]+(soldier.level-begin[0])*int(addHealth)/levelDiff;
-        return healthBoundary
+        addMagicDefense = end[1][1]-begin[1][1];
+        addPhysicDefense = end[1][2]-begin[1][2];
+        addPhysicAttack = end[1][3]-begin[1][3];
+        addMagicAttack = end[1][4]-begin[1][4];
+
+
+        physicAttack = begin[1][3]+(level-begin[0])*addPhysicAttack/levelDiff; 
+        physicDefense = begin[1][2]+(level-begin[0])*addPhysicDefense/levelDiff; 
+
+        magicAttack = begin[1][4]+(level-begin[0])*addMagicAttack/levelDiff; 
+        magicDefense = begin[1][1]+(level-begin[0])*addMagicDefense/levelDiff; 
+        healthBoundary = begin[1][0]+(level-begin[0])*int(addHealth)/levelDiff;
+        return [physicAttack, magicAttack, physicDefense, magicDefense, healthBoundary]
+    def getBasicAbility(self, id, level):
+        pureData = self.calculateStage(id, level)
+        cat = getData('soldier', id).get("category")
+        pcoff = datas['soldierKind'][cat][4]
+        mcoff = datas['soldierKind'][cat][5]
+    	phyBasic = int(pureData[4]*pureData[0]/pcoff)
+    	magBasic = int(pureData[4]*pureData[2]/mcoff)
+    	ab = max(phyBasic, magBasic)/(33*13)
+        return ab
+
+    def getAddExp(self, id, level):
+        basic = self.getBasicAbility(id, level)
+        exp = (2*basic-1)*3
+        return exp
+    def getLevelUpExp(self, id, level):
+        exp = self.getAddExp(id, level)
+        return exp
             
     def getHealthBoundary(self, soldier):
-        return self.calculateStage(soldier)
+        return self.calculateStage(soldier.kind, soldier.level)[4]
         #data = getData('soldier', soldier.kind)
         #healthBoundary = data.get("health")+soldier.level*data.get("addHealth")
         #return healthBoundary
@@ -106,19 +142,6 @@ class SoldierController(BaseController):
 
     #ToDo 检测 装备数量是否足够
     #士兵卖出之后 士兵使用的装备 全被归还
-    """
-    @expose('json')
-    def useEquip(self, uid, sid, tid, sequipId):
-        uid = int(uid)
-        sid = int(sid)
-        tid = int(tid)
-        sequipId = int(sequipId)
-        equips = DBSession.query(UserEquips).filter_by(uid=uid).filter_by(equipKind = tid).one()
-        equips.num -= 1
-        solEquip = UserSolEquip(uid=uid, eid=sequipId, kind=tid, sid = sid)
-        DBSession.add(solEquip)
-        return dict(id=1)
-    """
     
     @expose('json')
     def useEquip(self, uid, sid, eid):
@@ -157,15 +180,18 @@ class SoldierController(BaseController):
         return expData[min(len(expData)-1, level)]
     #正常服务器刷新怪物 客户端 来处理
     #但是这里只是服务器记录数据
+    #升级需要的经验
     def getLevelUp(self, soldier):
-        solData = getData('soldier', soldier.kind)
-        expData = getData('soldierLevelExp', solData.get("expId"))
-        expData = json.loads(expData.get("exp"))
-        print expData
+        #solData = getData('soldier', soldier.kind)
+        #expData = getData('soldierLevelExp', solData.get("expId"))
+        #expData = json.loads(expData.get("exp"))
+        #expData = getLevelUpExp(soldier.kind, soldier.level)
+        #print expData
 
         level = False
         while True:
-            ne = self.getLevelNeedExp(expData, soldier.level)
+            #ne = self.getLevelNeedExp(expData, soldier.level)
+            ne = self.getLevelUpExp(soldier.kind, soldier.level)
             if soldier.exp >= ne:
                 soldier.level += 1
                 soldier.exp -= ne
@@ -191,16 +217,6 @@ class SoldierController(BaseController):
         equips = DBSession.query(UserEquips).filter_by(uid=uid, owner=sid).all()
         for i in equips:
             equips.owner = -1
-        """
-        for i in solEquip:
-            try:
-                equips = DBSession.query(UserEquips).filter_by(uid=uid).filter_by(equipKind=i.kind).one() 
-            except:
-                equips = UserEquips(uid=uid, equipKind=solEquip.kind, num=0)
-                DBSession.add(equips)
-            equips.num += 1
-            DBSession.delete(i)
-        """
         return dict(id=1)
     #sid health exp dead level
     #士兵闯关成功升级
