@@ -10,9 +10,10 @@ from sqlalchemy.types import Integer, Unicode
 from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
-class UserChallenge(object):
-    def __init__(self, uid, big, small, star):
+class UserTask(object):
+    def __init__(self, uid, tid, number, finish, stage):
         self.uid = uid
-        self.big = big
-        self.small = small
-        self.star = star
+        self.tid = tid
+        self.number = number
+        self.finish = finish
+        self.stage = stage
