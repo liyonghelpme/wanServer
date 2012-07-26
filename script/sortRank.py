@@ -12,7 +12,7 @@ def sortRank(tableName):
     res = res.fetch_row(0, 1)
     oid = 0
     for i in res:
-        sql = 'update %s set rank = %d' % (tableName, oid)
+        sql = 'update %s set rank = %d where uid = %d' % (tableName, oid, i['uid'])
         con.query(sql)
         con.commit()
         oid += 1
