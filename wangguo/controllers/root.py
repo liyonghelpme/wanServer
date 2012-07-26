@@ -139,7 +139,8 @@ class RootController(BaseController):
     def initSoldiers(self, user):
         uid = user.uid
         sid = 0
-        soldier = UserSoldiers(uid=uid, sid=0, kind=0, name='剑')
+        data = calculateStage(0, 0)[4]
+        soldier = UserSoldiers(uid=uid, sid=0, kind=0, name='剑', health = data)
         DBSession.add(soldier)
     def initDrug(self, user):
         uid = user.uid
@@ -158,12 +159,22 @@ class RootController(BaseController):
         uid = user.uid
         equip = UserEquips(uid=uid, eid = 0, equipKind=0)
         DBSession.add(equip)
-    """
-    def initSolEquip(self, user):
-        uid = user.uid
-        solEquip = UserSolEquip(uid=uid, eid=0, kind=0, sid=0)
-        DBSession.add(solEquip)
-    """
+
+    #保证rank唯一性
+    def initRank(self, user):
+        num = DBSession.query(UserNewRank).filter("score >= 100").count()
+        rank = UserNewRank(uid=user.uid, score=100, rank=num, papayaId = user.papayaId, papayaName=user.papayaName, finish=0)
+        DBSession.add(rank)
+        """
+        num = DBSession.query(UserGroupRank).filter("score >= 100").count()
+        rank = UserGroupRank(uid=user.uid, score=100, rank=num, papayaId = user.papayaId, papayaName=user.papayaName)
+        DBSession.add(rank)
+        """
+    def initChallengeFriend(self, user):
+        now = getTime()
+        challenge = UserChallengeFriend(uid=user.uid, challengeNum=0, challengeTime=now, lastMinusTime = now)
+        DBSession.add(challenge)
+
 
     #闯关保存在本地就可以了
     #用户数据保存在服务器上
@@ -177,7 +188,8 @@ class RootController(BaseController):
         print res
         return res
     def getUserData(self, user):
-        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp) 
+        challenge = DBSession.query(UserChallengeFriend).filter_by(uid=user.uid).one()
+        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime) 
     def getBuildings(self, uid):
         buildings = DBSession.query(UserBuildings).filter_by(uid=uid).all()
         res = {}
@@ -191,20 +203,6 @@ class RootController(BaseController):
             res[i.drugKind] = i.num
         return res
     #eid ---> kind level
-    def getEquips(self, uid):
-        equips = DBSession.query(UserEquips).filter_by(uid=uid).all()
-        res = {}
-        for i in equips:
-            res[i.eid] = {'kind':i.equipKind, 'level':i.level, 'owner':i.owner}
-        return res
-    """
-    def getSolEquip(self, uid):
-        solEquip = DBSession.query(UserSolEquip).filter_by(uid=uid).all()
-        res = dict()
-        for i in solEquip:
-            res[i.eid] = [i.kind, i.sid]
-        return res
-    """
     def getHerb(self, uid):
         herbs = DBSession.query(UserHerb).filter_by(uid=uid).all()
         res = dict()
@@ -217,7 +215,37 @@ class RootController(BaseController):
         for i in tasks:
             res[i.tid] = [i.number, i.finish, i.stage]#当前累计任务的阶段
         return res
+
+
+    #用户挑战其它用户的记录
+    #每天第一次登录清除挑战记录
+    #每天第一次登录清除访问记录
+    def getChallengeRecord(self, uid):
+        res = DBSession.query(UserChallengeRecord).filter_by(uid=uid).all()
+        res = [i.oid for i in res]
+        return res
+    def getRankData(self, uid):
+        rank = getRank(uid)
+        return [rank.score, rank.rank]
         
+    #3天没有挑战 第一天减去5%积分 之后每天减去1%积分
+    def minusChallengeScore(self, uid):
+        challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
+        now = getTime()
+        today = now/(24*3600)
+        lastChaDay = challenge.challengeTime/(24*3600)
+        chaDiff = today-lastChaDay
+
+        lastMinusTime = challenge.lastMinusTime
+        diff = today-lastMinusTime/(24*3600)
+
+        #三天没有挑战 且 今天没有减去
+        if chaDiff >= 3 and diff >= 1:
+            rank = getRank(uid)
+            rank.score -= rank.score/100*diff
+            rank.score = max(0, rank.score)
+            challenge.lastMinusTime = now
+
 
     #肯能需要客户端主动请求登录奖励保证登录奖励被客户端看到
     @expose('json')
@@ -244,6 +272,7 @@ class RootController(BaseController):
             silver = int(100*(user.level+1)*(0.97+0.03*user.loginDays))
         else:#本天内再次登录
             pass
+
         user.silver += silver
         user.crystal += crystal
         #奖励都是0 则已经奖励
@@ -277,21 +306,29 @@ class RootController(BaseController):
             self.initSoldiers(user)
             self.initDrug(user)
             self.initEquip(user)
+            self.initRank(user)
+            self.initChallengeFriend(user)
             #self.initSolEquip(user)
 
         #loginReward = self.getLoginReward(user)
+        #在getUserData 获取积分之前 减去积分
+        self.minusChallengeScore(user.uid)
 
         userData = self.getUserData(user)
         stars = self.getStars(user.uid)
         buildings = self.getBuildings(user.uid)
         soldiers = getSoldiers(user.uid)
         drugs = self.getDrugs(user.uid)
-        equips = self.getEquips(user.uid)
+        equips = getEquips(user.uid)
         #solEquip = self.getSolEquip(user.uid)
         herbs = self.getHerb(user.uid)
         tasks = self.getTask(user.uid)
+        challengeRecord = self.getChallengeRecord(user.uid)
+        rank = self.getRankData(user.uid)
         #soldierEquip=solEquip,
-        return dict(id=1, uid = user.uid, resource = userData, starNum = stars, buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime()) 
+
+
+        return dict(id=1, uid = user.uid, resource = userData, starNum = stars, buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank) 
 
     """
     @expose()

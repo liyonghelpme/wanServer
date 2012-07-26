@@ -14,46 +14,100 @@ from wangguo.controllers.error import ErrorController
 
 #from wangguo.model import DBSession, metadata
 from wangguo.model import *
+from wangguo.controllers.util import *
 
 __all__ = ['ChallengeController']
 
-
+#位置上升之后调整所有在我位置之后的用户rank+1
 class ChallengeController(BaseController):
-    pass
-    """
-    The fallback controller for wangGuo.
-    
-    By default, the final controller tried to fulfill the request
-    when no other routes match. It may be used to display a template
-    when all else fails, e.g.::
-    
-        def view(self, url):
-            return render('/%s' % url)
-    
-    Or if you're using Mako and want to explicitly send a 404 (Not
-    Found) response code when the requested template doesn't exist::
-    
-        import mako.exceptions
-        
-        def view(self, url):
-            try:
-                return render('/%s' % url)
-            except mako.exceptions.TopLevelLookupException:
-                abort(404)
-    
-    """
-    #def finishChallenge(self, uid, big, small, star, reward):
-
-    """
-    def updateChallenge(self, uid, big, small, star):
+    #得到排行榜数据
+    @expose('json')
+    def getRank(self, uid, offset, limit):  
         uid = int(uid)
-        big = int(big)
-        small = int(small)
-        star = int(star)
-        #没有拿到任务数据    
-        challenge = DBSession.query(UserChallenge).filter_by(uid=uid).filter_by(big=big).filter_by(small=small).one()
-        challenge.star = star
+        offset = int(offset)
+        limit = int(limit)
+        #user = getUser(uid)
+        challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
+        #10次以上为普通挑战
+        if challenge.challengeNum > NEW_RANK:
+            ranks = DBSession.query(UserGroupRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
+            res = [[i.uid, i.papayaId, i.score, i.rank, i.papayaName] for i in ranks]
+        #10次下新手 新手finish 表示不能挑战 在生成新的排名的时候才可以消除这些finish=1 首先删除
+        else:
+            ranks = DBSession.query(UserNewRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
+            res = [[i.uid, i.papayaId, i.score, i.rank, i.papayaName, i.finish] for i in ranks]
+        return dict(id=1, res=res)
+    #敌人满血满魔 
+    @expose('json')
+    def challengeOther(self, uid, oid):
+        uid = int(uid)
+        oid = int(oid)
+        curTime = getTime()
+        try:
+            exist = DBSession.query(UserChallengeRecord).filter_by(uid=uid, oid=oid).one()
+            #今天已经挑战过了
+            return dict(id=0)
+        except:
+            pass
+        record = UserChallengeRecord(uid=uid, oid=oid, time=curTime)
+        DBSession.add(record)
+        #soldiers = getSoldiers(oid)
+        soldiers = getChallengeSoldiers(oid)
+        #equips = getEquips(oid)
+        equips = getChallengeEquips(oid)
+
+        #user = getUser(uid)
+        #user.challengeNum += 1
+        challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
+        challenge.challengeNum += 1
+        now = getTime()
+        challenge.challengeTime = now
+        challenge.lastMinusTime = now
+        #第10次挑战迁移数据 新手阶段已经结束 
+        if challenge.challengeNum == NEW_RANK:
+            user = getUser(uid)
+            oldRank = DBSession.query(UserNewRank).filter_by(uid=uid).one()
+            oldRank.finish = 1
+
+            num = DBSession.query(UserGroupRank).filter("score >= %d" % (oldRank.score)).count()
+            newRank = UserGroupRank(uid=uid, score=oldRank.score, rank=num, papayaId=user.papayaId, papayaName=user.papayaName)
+            DBSession.add(newRank)
+            
+            #删除旧的新手rank 排名可能不连续 导致新手获取数据失败 标记新手阶段结束
+            #DBSession.delete(oldRank)
+            #newRank = DBSession.query(UserGroupRank).filter_by(uid=uid).one()
+            #newRank.score = oldRank.score
+        return dict(id=1, soldiers=soldiers, equips=equips)
+    #胜利积分增级 登录返回用户排名的时候刷新排名
+    #排名只在1个小时更新一次
+    #士兵状态更新 需要一并发出
+    @expose('json')
+    def challengeResult(self, uid, crystal, score, sols): 
+        uid = int(uid)
+        crystal = int(crystal)
+        score = int(score)
+        sols = json.loads(sols)
+
+        user = getUser(uid)
+        rank = getRank(uid)
+        rank.score += score
+        rank.score = max(0, rank.score)
+        user.crystal += crystal
+        
+        for i in sols:
+            soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=i[0]).one()
+            soldier.health = i[1]
+            soldier.exp = i[2]
+            soldier.dead = i[3]
+            soldier.level = i[4]
+
         return dict(id=1)
-    """
+        
+
+            
+
+            
+            
+
         
 

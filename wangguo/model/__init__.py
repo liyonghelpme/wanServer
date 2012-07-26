@@ -169,6 +169,14 @@ def init_model(engine):
     mapper(UserFriend, userFriendTable)
     userGoodsTable = Table("UserGoods", metadata, autoload=True, autoload_with=engine)
     mapper(UserGoods, userGoodsTable)
+    userChallengeRecordTable = Table("UserChallengeRecord", metadata, autoload=True, autoload_with=engine)
+    mapper(UserChallengeRecord, userChallengeRecordTable)
+    userNewRankTable = Table("UserNewRank", metadata, autoload=True, autoload_with=engine)
+    mapper(UserNewRank, userNewRankTable)
+    userGroupRankTable = Table("UserGroupRank", metadata, autoload=True, autoload_with=engine)
+    mapper(UserGroupRank, userGroupRankTable)
+    userChallengeFriendTable = Table("UserChallengeFriend", metadata, autoload=True, autoload_with=engine)
+    mapper(UserChallengeFriend, userChallengeFriendTable)
 
 # Import your model modules here.
 from wangguo.model.auth import User, Group, Permission
@@ -183,3 +191,7 @@ from wangguo.model.userHerb import UserHerb
 from wangguo.model.userTask import UserTask
 from wangguo.model.userFriend import UserFriend
 from wangguo.model.userGoods import UserGoods
+from wangguo.model.userChallengeRecord import UserChallengeRecord
+from wangguo.model.userNewRank import UserNewRank
+from wangguo.model.userGroupRank import UserGroupRank
+from wangguo.model.userChallengeFriend import UserChallengeFriend

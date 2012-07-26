@@ -28,6 +28,7 @@ class SoldierController(BaseController):
         soldier = DBSession.query(UserSoldiers).filter_by(uid=uid, sid=sid).one()
         soldier.health += addHealth
         return dict(id=1)
+    """
     def calculateStage(self, id, level):
         stage = stagePool.get(id)
         for i in range(1, len(stage)):
@@ -51,8 +52,9 @@ class SoldierController(BaseController):
         magicDefense = begin[1][1]+(level-begin[0])*addMagicDefense/levelDiff; 
         healthBoundary = begin[1][0]+(level-begin[0])*int(addHealth)/levelDiff;
         return [physicAttack, magicAttack, physicDefense, magicDefense, healthBoundary]
+    """
     def getBasicAbility(self, id, level):
-        pureData = self.calculateStage(id, level)
+        pureData = calculateStage(id, level)
         cat = getData('soldier', id).get("category")
         pcoff = datas['soldierKind'][cat][4]
         mcoff = datas['soldierKind'][cat][5]
@@ -70,7 +72,7 @@ class SoldierController(BaseController):
         return exp
             
     def getHealthBoundary(self, soldier):
-        return self.calculateStage(soldier.kind, soldier.level)[4]
+        return calculateStage(soldier.kind, soldier.level)[4]
         #data = getData('soldier', soldier.kind)
         #healthBoundary = data.get("health")+soldier.level*data.get("addHealth")
         #return healthBoundary
@@ -84,7 +86,7 @@ class SoldierController(BaseController):
         if not ret:
             return dict(id=0)
         doCost(uid, cost)
-        soldier = UserSoldiers(uid=uid, sid=sid, kind=kind, name="")
+        soldier = UserSoldiers(uid=uid, sid=sid, kind=kind, name="", health = calculateStage(kind, 0)[4])
         DBSession.add(soldier)
         return dict(id=1)
     @expose('json')

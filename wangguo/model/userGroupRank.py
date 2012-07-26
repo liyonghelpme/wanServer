@@ -10,10 +10,10 @@ from sqlalchemy.types import Integer, Unicode
 from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
-class UserSoldiers(object):
-    def __init__(self, uid, sid, kind, name, health):
+class UserGroupRank(object):
+    def __init__(self, uid, score, rank, papayaId, papayaName):
         self.uid = uid
-        self.sid = sid
-        self.kind = kind
-        self.name = name
-        self.health = health
+        self.score = score
+        self.rank = rank
+        self.papayaId = papayaId
+        self.papayaName = papayaName
