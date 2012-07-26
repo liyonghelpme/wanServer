@@ -5,7 +5,6 @@ import time
 con = None
 
 def sortRank(tableName):
-
     sql = 'select * from %s order by score' % (tableName)
     con.query(sql)
     res = con.store_result()
@@ -19,6 +18,7 @@ def sortRank(tableName):
 
 def main():
     while True:
+        global con
         con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
         sortRank('UserNewRank')
         sortRank('UserGroupRank')
