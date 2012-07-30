@@ -26,21 +26,28 @@ for i in name:
     res = con.store_result()
     allData = res.fetch_row(0, 1)
     datas[i] = dict()
-    for a in allData:
-        if i == 'levelExp':
-            datas[i] = json.loads(a['exp'])
-        elif i == 'soldierAttBase':
-            datas[i] = json.loads(a['base'])
-        elif i == 'soldierGrade':
-            datas[i] = json.loads(a['grade'])
-        elif i == 'soldierKind':
-            datas[i] = json.loads(a['kinds'])
-        elif i == 'soldierLevel':
-            datas[i] = json.loads(a['levelData'])
-        elif i == 'soldierTransfer':
-            datas[i] = json.loads(a['level'])
-        else:
-            datas[i][a['id']] = a
+    if i == 'mapMonster':
+        for a in allData:
+            k = a['big']*10+a['small']
+            mons = datas[i].get(k, [])
+            mons.append(a)
+            datas[i][k] = mons
+    else:
+        for a in allData:
+            if i == 'levelExp':
+                datas[i] = json.loads(a['exp'])
+            elif i == 'soldierAttBase':
+                datas[i] = json.loads(a['base'])
+            elif i == 'soldierGrade':
+                datas[i] = json.loads(a['grade'])
+            elif i == 'soldierKind':
+                datas[i] = json.loads(a['kinds'])
+            elif i == 'soldierLevel':
+                datas[i] = json.loads(a['levelData'])
+            elif i == 'soldierTransfer':
+                datas[i] = json.loads(a['level'])
+            else:
+                datas[i][a['id']] = a
         
 print datas
 

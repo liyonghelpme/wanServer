@@ -86,6 +86,7 @@ class BuildingController(BaseController):
         return dict(id=1)
     @expose('json')
     def harvestPlant(self, uid, bid):
+        print "harvestPlant"
         uid = int(uid)
         bid = int(bid)
         #time.sleep(3)

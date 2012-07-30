@@ -189,7 +189,7 @@ class RootController(BaseController):
         return res
     def getUserData(self, user):
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=user.uid).one()
-        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime) 
+        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime) 
     def getBuildings(self, uid):
         buildings = DBSession.query(UserBuildings).filter_by(uid=uid).all()
         res = {}
@@ -249,8 +249,10 @@ class RootController(BaseController):
 
     #肯能需要客户端主动请求登录奖励保证登录奖励被客户端看到
     @expose('json')
-    def getLoginReward(self, uid):
+    def getLoginReward(self, uid, silver, crystal):
         uid = int(uid)
+        silver = int(silver)
+        crystal = int(crystal)
         user = getUser(uid)
 
         lastTime = user.loginTime
@@ -259,20 +261,12 @@ class RootController(BaseController):
         today = int(curTime/(3600*24))
         diff = today-lastDay
         user.loginTime = curTime
-        silver = 0
-        crystal = 0
         if diff == 1:#连续登录
             user.loginDays += 1
-            if user.loginDays % 2 == 0:#偶数奖励水晶
-                crystal = int(2+user.loginDays)
-            else:#奇数奖励银币
-                silver = int(100*(user.level+1)*(0.97+0.03*user.loginDays))
         elif diff > 1:#超过1天第一次登录
             user.loginDays = 1
-            silver = int(100*(user.level+1)*(0.97+0.03*user.loginDays))
         else:#本天内再次登录
             pass
-
         user.silver += silver
         user.crystal += crystal
         #奖励都是0 则已经奖励

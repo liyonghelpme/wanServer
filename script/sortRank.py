@@ -20,6 +20,9 @@ def main():
     while True:
         global con
         con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
+        sql = 'delete from UserNewRank where finish = 1'
+        con.query(sql)
+        con.commit()
         sortRank('UserNewRank')
         sortRank('UserGroupRank')
         con.close()

@@ -29,14 +29,68 @@ class ChallengeController(BaseController):
         #user = getUser(uid)
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
         #10次以上为普通挑战
-        if challenge.challengeNum > NEW_RANK:
+        if challenge.challengeNum >= NEW_RANK:
             ranks = DBSession.query(UserGroupRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
             res = [[i.uid, i.papayaId, i.score, i.rank, i.papayaName] for i in ranks]
         #10次下新手 新手finish 表示不能挑战 在生成新的排名的时候才可以消除这些finish=1 首先删除
         else:
             ranks = DBSession.query(UserNewRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
             res = [[i.uid, i.papayaId, i.score, i.rank, i.papayaName, i.finish] for i in ranks]
+
+        #返回的数据按照rank 排好序
+        #数据中没有重复的rank  rank重复则保留uid 为自身的排名数据
+        """
+        res.sort(cmp=lambda x,y: x[3]-y[3])
+        temp = []
+        for i in range(0, len(res)):
+            if len(temp) == 0:
+                temp.append(res[i])
+            else:
+                if temp[-1][3] != res[i][3]:
+                    temp.append(res[i])
+                else:
+                    if res[i][0] == uid:
+                        temp[-1] = res[i]
+        """
         return dict(id=1, res=res)
+    #big = 0 small = 0
+    @expose('json')
+    def challengeSelf(self, uid, oid):
+        con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+        sql = 'select * from mapMonster'
+        con.query(sql)
+        res = con.store_result()
+        allData = res.fetch_row(0, 1)
+
+
+        allMapData = {}
+        for a in allData:
+            k = a['big']*10+a['small']
+            mons = allMapData.get(k, [])
+            mons.append(a)
+            allMapData[k] = mons
+
+        mons = allMapData[0]
+
+        print mons
+        #for i in mons:
+        #    i['sid'] = -1
+
+        sql = 'select * from mapEquip'
+        con.query(sql)
+        res = con.store_result()
+        allData = res.fetch_row(0, 1)
+        allEquip = {}
+        for a in allData:
+            k = a['big']*10+a['small']
+            equip = allEquip.get(k, [])
+            equip.append({'kind':a['id'], 'level':a['level'], 'owner':a['owner']})
+            allEquip[k] = equip
+        equip = allEquip.get(0, [])
+        
+
+        con.close()
+        return dict(id=1, soldiers=mons, equips=equip, cityDefense=100)
     #敌人满血满魔 
     @expose('json')
     def challengeOther(self, uid, oid):
@@ -63,9 +117,10 @@ class ChallengeController(BaseController):
         now = getTime()
         challenge.challengeTime = now
         challenge.lastMinusTime = now
+        user = getUser(uid)
         #第10次挑战迁移数据 新手阶段已经结束 
         if challenge.challengeNum == NEW_RANK:
-            user = getUser(uid)
+
             oldRank = DBSession.query(UserNewRank).filter_by(uid=uid).one()
             oldRank.finish = 1
 
@@ -77,7 +132,7 @@ class ChallengeController(BaseController):
             #DBSession.delete(oldRank)
             #newRank = DBSession.query(UserGroupRank).filter_by(uid=uid).one()
             #newRank.score = oldRank.score
-        return dict(id=1, soldiers=soldiers, equips=equips)
+        return dict(id=1, soldiers=soldiers, equips=equips, cityDefense = user.cityDefense)
     #胜利积分增级 登录返回用户排名的时候刷新排名
     #排名只在1个小时更新一次
     #士兵状态更新 需要一并发出
