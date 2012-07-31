@@ -39,9 +39,9 @@ for i in name:
             elif i == 'soldierAttBase':
                 datas[i] = json.loads(a['base'])
             elif i == 'soldierGrade':
-                datas[i] = json.loads(a['grade'])
+                datas[i][a['id']] = a['level']
             elif i == 'soldierKind':
-                datas[i] = json.loads(a['kinds'])
+                datas[i][a['id']] = json.loads(a['attribute'])
             elif i == 'soldierLevel':
                 datas[i] = json.loads(a['levelData'])
             elif i == 'soldierTransfer':

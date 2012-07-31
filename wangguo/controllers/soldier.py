@@ -28,31 +28,6 @@ class SoldierController(BaseController):
         soldier = DBSession.query(UserSoldiers).filter_by(uid=uid, sid=sid).one()
         soldier.health += addHealth
         return dict(id=1)
-    """
-    def calculateStage(self, id, level):
-        stage = stagePool.get(id)
-        for i in range(1, len(stage)):
-            if level < stage[i][0]:
-                break
-        begin = stage[i-1]
-        end = stage[i]
-        levelDiff = end[0]-begin[0]
-
-        addHealth = end[1][0]-begin[1][0];
-        addMagicDefense = end[1][1]-begin[1][1];
-        addPhysicDefense = end[1][2]-begin[1][2];
-        addPhysicAttack = end[1][3]-begin[1][3];
-        addMagicAttack = end[1][4]-begin[1][4];
-
-
-        physicAttack = begin[1][3]+(level-begin[0])*addPhysicAttack/levelDiff; 
-        physicDefense = begin[1][2]+(level-begin[0])*addPhysicDefense/levelDiff; 
-
-        magicAttack = begin[1][4]+(level-begin[0])*addMagicAttack/levelDiff; 
-        magicDefense = begin[1][1]+(level-begin[0])*addMagicDefense/levelDiff; 
-        healthBoundary = begin[1][0]+(level-begin[0])*int(addHealth)/levelDiff;
-        return [physicAttack, magicAttack, physicDefense, magicDefense, healthBoundary]
-    """
     def getBasicAbility(self, id, level):
         pureData = calculateStage(id, level)
         cat = getData('soldier', id).get("category")
@@ -258,21 +233,6 @@ class SoldierController(BaseController):
             user.crystal += addCry
         curStar.star = star
         return dict(id=1)
-    """
-    @expose('json')
-    def unloadThing(self, uid, eid):
-        uid = int(uid)
-        eid = int(eid)
-        solEquip = DBSession.query(UserSolEquip).filter_by(uid=uid).filter_by(eid=eid).one()
-        try:
-            equips = DBSession.query(UserEquips).filter_by(uid=uid).filter_by(equipKind =solEquip.kind).one() 
-        except:
-            equips = UserEquips(uid=uid, equipKind=solEquip.kind, num=0)
-            DBSession.add(equips)
-        equips.num += 1
-        DBSession.delete(solEquip)
-        return dict(id=1)
-    """
     @expose('json')
     def unloadThing(self, uid, eid):
         uid = int(uid)
