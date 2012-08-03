@@ -109,13 +109,13 @@ def getSoldiers(uid):
     soldiers = DBSession.query(UserSoldiers).filter_by(uid=uid).all()
     res = dict()
     for i in soldiers:
-        res[i.sid] = dict(id=i.kind, name=i.name, level=i.level, exp=i.exp, health=i.health, addAttack = i.addAttack, addDefense = i.addDefense, addAttackTime=i.addAttackTime, addDefenseTime=i.addDefenseTime, dead=i.dead)
+        res[i.sid] = dict(id=i.kind, name=i.name, level=i.level, exp=i.exp, health=i.health, addAttack = i.addAttack, addDefense = i.addDefense, addAttackTime=i.addAttackTime, addDefenseTime=i.addDefenseTime, dead=i.dead, addHealthBoundary=i.addHealthBoundary, addHealthBoundaryTime=i.addHealthBoundaryTime)
     return res
 def getChallengeSoldiers(uid):
     soldiers = DBSession.query(UserSoldiers).filter_by(uid=uid).all()
     res = []
     for i in soldiers:
-        res.append(dict(sid=i.sid, id=i.kind, level=i.level, addAttack = i.addAttack, addDefense = i.addDefense, addAttackTime=i.addAttackTime, addDefenseTime=i.addDefenseTime))
+        res.append(dict(sid=i.sid, id=i.kind, level=i.level, addAttack = i.addAttack, addDefense = i.addDefense, addAttackTime=i.addAttackTime, addDefenseTime=i.addDefenseTime, addHealthBoundary=i.addHealthBoundary, addHealthBoundaryTime=i.addHealthBoundaryTime))
     return res
 
 def getEquips(uid):

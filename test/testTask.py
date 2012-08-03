@@ -3,8 +3,8 @@ import urllib
 import json
 import sys
 import random
-con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
-base = 'http://localhost:8080/taskC/'
+from config import *
+base = '%staskC/' % (base2)
 
 def exe(sql):
     print sql
@@ -23,7 +23,7 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-r = 'http://localhost:8080/' +'login/%d/ppp' % random.randint(10, 100)
+r = '%slogin/%d/ppp' % (base2, random.randint(5000, 6000))
 l = req(r)
 
 uid = l.get('uid')
@@ -51,3 +51,9 @@ task = req(r)
 
 r = base+'finishTask/%d/%d' % (uid, 1)
 t2 = req(r)
+
+r = base+'getBuyTask/%d' % (uid)
+req(r)
+
+r = base+'finishBuyTask/%d/%d' % (uid, 0)
+req(r)

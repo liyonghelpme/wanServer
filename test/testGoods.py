@@ -3,8 +3,8 @@ import urllib
 import json
 import sys
 import random
-con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
-base = 'http://localhost:8080/goodsC/'
+from config import *
+base = '%sgoodsC/' % (base2)
 
 def exe(sql):
     print sql
@@ -23,7 +23,7 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-r = 'http://localhost:8080/' +'login/%d/ppp' % random.randint(10, 100)
+r = '%slogin/%d/ppp' % (base2, random.randint(10, 100))
 l = req(r)
 
 uid = l.get('uid')
@@ -33,7 +33,33 @@ print uid, sid
 r = base+'buyDrug/%d/%d' % (uid, 0)
 drug = req(r)
 
-r = base+'buyEquip/%d/%d' % (uid, 0)
+r = base+'buyEquip/%d/%d/%d' % (uid, 2, 0)
 equip = req(r)
 
 
+
+r = base+'makeDrug/%d/%d' % (uid, 0)
+res = req(r)
+
+r = base+'makeEquip/%d/%d/%d' % (uid, 5, 20)
+res = req(r)
+
+
+sql = 'insert into UserHerb (uid, kind, num) values (%d, %d, %d)' % (uid, 0, 10)
+print sql
+con.query(sql)
+sql = 'insert into UserHerb (uid, kind, num) values (%d, %d, %d)' % (uid, 1, 10)
+con.query(sql)
+sql = 'insert into UserHerb (uid, kind, num) values (%d, %d, %d)' % (uid, 100, 10)
+con.query(sql)
+sql = 'insert into UserHerb (uid, kind, num) values (%d, %d, %d)' % (uid, 107, 10)
+con.query(sql)
+con.commit()
+
+r = base+'makeDrug/%d/%d' % (uid, 0)
+res = req(r)
+
+r = base+'makeEquip/%d/%d/%d' % (uid, 5, 20)
+res = req(r)
+
+con.close()

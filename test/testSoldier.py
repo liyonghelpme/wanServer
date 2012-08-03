@@ -63,7 +63,7 @@ unload = req(r)
 r = base+'useState/'+str(uid)+'/'+str(sid)
 state = req(r)
 
-r = base+'challengeOver/%d/%s/%s/%d/%d/%d' %(uid, str([[sid, 10, 100, 1, 20]]), str([0, 10]), 2, 0, 0)
+r = base+'challengeOver/%d/%s/%s/%d/%d/%d' %(uid, str([[sid, 10, 100, 1, 20]]), str([[0, 2], [1, 2]]), 2, 0, 0)
 over = req(r)
 
 r = base+'inspireMe/'+str(uid)+'/'+str(sid)+'/'+str(100)

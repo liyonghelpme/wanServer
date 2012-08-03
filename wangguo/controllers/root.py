@@ -105,7 +105,7 @@ class RootController(BaseController):
         user.crystal = 1000
         user.level = 0
         user.people = 5
-        user.cityDefense = 100
+        user.cityDefense = 831
         user.loginDays = 0
         user.exp = 0
     #state = 1 Free
@@ -174,6 +174,9 @@ class RootController(BaseController):
         now = getTime()
         challenge = UserChallengeFriend(uid=user.uid, challengeNum=0, challengeTime=now, lastMinusTime = now)
         DBSession.add(challenge)
+    def initBuyTask(self, user):
+        task = UserBuyTask(uid=user.uid)
+        DBSession.add(task)
 
 
     #闯关保存在本地就可以了
@@ -302,6 +305,7 @@ class RootController(BaseController):
             self.initEquip(user)
             self.initRank(user)
             self.initChallengeFriend(user)
+            self.initBuyTask(user)
             #self.initSolEquip(user)
 
         #loginReward = self.getLoginReward(user)

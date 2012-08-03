@@ -47,7 +47,17 @@ class SoldierController(BaseController):
         return exp
             
     def getHealthBoundary(self, soldier):
-        return calculateStage(soldier.kind, soldier.level)[4]
+        healthBoundary = calculateStage(soldier.kind, soldier.level)[4]
+        #药品增加的生命值上限
+        if soldier.addHealthBoundaryTime > 0:
+            healthBoundary += soldier.addHealthBoundary
+        equips = DBSession.query(UserEquips).filter_by(uid=soldier.uid).all()
+        #计算装备增加生命值上限
+        for e in equips:
+            if e.owner == soldier.sid:
+                edata = getData('equip', e.equipKind)
+                healthBoundary += edata['healthBoundary']
+        return healthBoundary
         #data = getData('soldier', soldier.kind)
         #healthBoundary = data.get("health")+soldier.level*data.get("addHealth")
         #return healthBoundary
@@ -87,12 +97,19 @@ class SoldierController(BaseController):
         if drugs.num <= 0:
             return dict(id=0)
 
-        data = getData('drug', tid)
+        pureData = calculateStage(soldier.kind, soldier.level) 
+        purePhyAttack = pureData[0];
+        pureMagAttack = pureData[1];
+        purePhyDef = pureData[2];
+        pureMagDef = pureData[3];
         healthBoundary = self.getHealthBoundary(soldier)
+
+        data = getData('drug', tid)
         soldier.health += data.get("health", 0)
         soldier.health = min(healthBoundary, soldier.health)
-        soldier.exp += data.get("exp", 0)
-        self.getLevelUp(soldier)
+        
+        #soldier.exp += data.get("exp", 0)
+        #self.getLevelUp(soldier)
 
         if data.get("attack") != 0:
             soldier.addAttack = data.get("attack")
@@ -104,6 +121,19 @@ class SoldierController(BaseController):
             add = data.get("effectTime")*healthBoundary/100
             soldier.dead = 0
             soldier.health = add
+        elif data.get("percentHealth") != 0:
+            soldier.health += data.get("percentHealth")*healthBoundary/100
+            soldier.health = min(soldier.health, healthBoundary)
+        elif data.get("percentAttack") != 0:
+            soldier.addAttack = data.get("percentAttack")*max(purePhyAttack, pureMagAttack)/100
+            soldier.addAttackTime = data.get("")
+        elif data.get("percentHealthBoundary") != 0:
+            soldier.addHealthBoundary = data.get("percentHealthBoundary")*healthBoundary/100
+            soldier.addHealthBoundaryTime = data.get("effectTime")
+        elif data.get("percentDefense") != 0:
+            soldier.addDefense = data.get("percentDefense")*max(purePhyDef, pureMagDef)/100
+            soldier.addDefenseTime = data.get("effectTime")
+            
 
         #drugs = DBSession.query(Drugs).filter_by(uid=uid).filter_by(drugKind = tid).one()
         drugs.num -= 1
@@ -115,6 +145,11 @@ class SoldierController(BaseController):
         soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
         soldier.addAttackTime -= 1
         soldier.addDefenseTime -= 1
+        soldier.addHealthBoundaryTime -= 1
+
+        soldier.addAttackTime = max(soldier.addAttackTime, 0)
+        soldier.addDefenseTime = max(soldier.addDefenseTime, 0)
+        soldier.addHealthBoundaryTime = max(soldier.addHealthBoundaryTime, 0)
         return dict(id=1)
 
     #ToDo 检测 装备数量是否足够
@@ -208,19 +243,23 @@ class SoldierController(BaseController):
         star = int(star)
         big = int(big)
         small = int(small)
+
+        print sols
         for i in sols:
+            #print i
             soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=i[0]).one()
             soldier.health = i[1]
             soldier.exp = i[2]
             soldier.dead = i[3]
             soldier.level = i[4]
+        print reward
         for i in reward:
             try:
-                herb = DBSession.query(UserHerb).filter_by(uid=uid).filter_by(kind=i).one()
+                herb = DBSession.query(UserHerb).filter_by(uid=uid).filter_by(kind=i[0]).one()
             except:
-                herb = UserHerb(uid=uid, kind=i, num=0)
+                herb = UserHerb(uid=uid, kind=i[0], num=0)
                 DBSession.add(herb)
-            herb.num += 1
+            herb.num += i[1]
         curStar = DBSession.query(UserChallenge).filter_by(uid=uid).filter_by(big=big).filter_by(small=small).one()
 
         if curStar.star < 2:

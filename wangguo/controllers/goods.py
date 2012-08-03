@@ -89,5 +89,62 @@ class GoodsController(BaseController):
         user.gold += gold
         return dict(id=1)
 
+    @expose('json')
+    def makeDrug(self, uid, pid):
+        uid = int(uid)
+        pid = int(pid)
+        prescription = getData('prescription', pid)
+        needs = prescription['needs']
+        kind = prescription['kind']
+        tid = prescription['tid']
+        #print needs
+        print needs
 
+        allHerb = []
+        for i in needs:
+            try:
+                herb = DBSession.query(UserHerb).filter_by(uid=uid, kind=i[0]).one()
+                allHerb.append(herb)
+                if herb.num < i[1]:
+                    return dict(id=0, reason='herb not')
+            except:
+                return dict(id=0, reason='herb not')
 
+        for i in range(0, len(allHerb)):
+            allHerb[i].num -= needs[i][1]
+
+        try:
+            drug = DBSession.query(UserDrugs).filter_by(uid=uid, drugKind=kind).one()
+        except:
+            drug = UserDrugs(uid=uid, drugKind=kind, num=0)
+            DBSession.add(drug)
+        drug.num += 1
+        return dict(id=1)
+
+    @expose('json')
+    def makeEquip(self, uid, eid, pid):
+        uid = int(uid)
+        pid = int(pid)
+        prescription = getData('prescription', pid)
+        needs = prescription['needs']
+        kind = prescription['kind']
+        tid = prescription['tid']
+        
+        print needs
+
+        allHerb = []
+        for i in needs:
+            try:
+                herb = DBSession.query(UserHerb).filter_by(uid=uid, kind=i[0]).one()
+                allHerb.append(herb)
+                if herb.num < i[1]:
+                    return dict(id=0, reason='herb not')
+            except:
+                return dict(id=0, reason='herb not')
+        for i in range(0, len(allHerb)):
+            allHerb[i].num -= needs[i][1]
+            #print allHerb[i].num
+
+        equip = UserEquips(uid=uid, eid=eid, equipKind=pid)
+        DBSession.add(equip)
+        return dict(id=1)

@@ -13,11 +13,22 @@ import MySQLdb
 import json
 
 con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
-cur = con.cursor()
+#cur = con.cursor()
 
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
 'soldierLevelExp', 'task']
+
+def getPrescriptionNum():
+    sql = 'select * from prescriptionNum'
+    con.query(sql)
+    res = con.store_result().fetch_row(0, 1)
+    nums = {}
+    for i in res:
+        nums[i['id']] = i
+    return nums
+
+prescriptionNum = getPrescriptionNum()
 
 datas = dict()
 for i in name:
@@ -26,7 +37,27 @@ for i in name:
     res = con.store_result()
     allData = res.fetch_row(0, 1)
     datas[i] = dict()
-    if i == 'mapMonster':
+    if i == 'prescription':
+        for a in allData:
+            needs = []
+            numId = a['numId']
+            r = prescriptionNum[numId]
+            a['num1'] = r['xNum']
+            a['num2'] = r['yNum']
+            a['num3'] = r['zNum']
+
+            if a['num1'] != 0:
+                needs.append([a['id1'], a['num1']])
+            if a['num2'] != 0:
+                needs.append([a['id2'], a['num2']])
+            if a['num3'] != 0:
+                needs.append([a['id3'], a['num3']])
+                    
+            #res.append([i['id'], [i['id'], i['kind'], i['level'], i['tid'], needs]])
+            a.update({'needs':needs})
+            datas[i][a['id']] = a
+            
+    elif i == 'mapMonster':
         for a in allData:
             k = a['big']*10+a['small']
             mons = datas[i].get(k, [])
@@ -49,7 +80,8 @@ for i in name:
             else:
                 datas[i][a['id']] = a
         
-print datas
+print datas['prescription']
+#print datas
 
 #每种士兵类型和层级对应的各个等级的属性系数
 stagePool = {}
@@ -92,7 +124,7 @@ def initStage():
         getStage(r['id'])
         
 initStage()
-print "getStagePool", stagePool
+#print "getStagePool", stagePool
 
 con.close()
 
@@ -184,6 +216,8 @@ def init_model(engine):
     mapper(UserGroupRank, userGroupRankTable)
     userChallengeFriendTable = Table("UserChallengeFriend", metadata, autoload=True, autoload_with=engine)
     mapper(UserChallengeFriend, userChallengeFriendTable)
+    userBuyTaskTable = Table("UserBuyTask", metadata, autoload=True, autoload_with=engine)
+    mapper(UserBuyTask, userBuyTaskTable)
 
 # Import your model modules here.
 from wangguo.model.auth import User, Group, Permission
@@ -202,3 +236,4 @@ from wangguo.model.userChallengeRecord import UserChallengeRecord
 from wangguo.model.userNewRank import UserNewRank
 from wangguo.model.userGroupRank import UserGroupRank
 from wangguo.model.userChallengeFriend import UserChallengeFriend
+from wangguo.model.userBuyTask import UserBuyTask

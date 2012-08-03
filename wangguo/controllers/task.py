@@ -34,6 +34,27 @@ class TaskController(BaseController):
         task.number += num
         return dict(id=1)
 
+    @expose('json')
+    def getBuyTask(self, uid):
+        uid = int(uid)
+        tasks = DBSession.query(UserBuyTask).filter_by(uid=uid).one()
+        try:
+            tasks = json.loads(tasks.task)
+        except:
+            tasks = []
+        return dict(id=1, tasks=tasks)
+    @expose('json')
+    def finishBuyTask(self, uid, tid):
+        uid = int(uid)
+        tid = int(tid)
+        tasks = DBSession.query(UserBuyTask).filter_by(uid=uid).one()
+        try:
+            task = json.loads(tasks.task)
+        except:
+            task = []
+        task.append(tid)
+        tasks.task = json.dumps(task)
+        return dict(id=1)
         
     
     #完成任务   finish = 1 获得奖励 累计任务进入下一个阶段
