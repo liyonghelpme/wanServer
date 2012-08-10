@@ -38,6 +38,8 @@ for i in range(0, OTHER_NUM):
     r = '%slogin/%d/ppp' % (base2, random.randint(110, 30000))
     l = req(r)
     oids.append(l.get('uid')) 
+    r = '%sgetLoginReward/%d/%d/%d' % (base2, l['uid'], 10, 10)
+    req(r)
 
 r = base+'getRank/%d/%d/%d' % (uid, 0, 10)
 soldier = req(r)

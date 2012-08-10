@@ -18,6 +18,7 @@ from wangguo.controllers.goods import GoodsController
 from wangguo.controllers.building import BuildingController
 from wangguo.controllers.soldier import SoldierController
 from wangguo.controllers.friend import FriendController
+from wangguo.controllers.mine import MineController
 
 #from wangguo.model import DBSession, metadata
 from wangguo.model import *
@@ -27,19 +28,6 @@ __all__ = ['RootController']
 
 
 class RootController(BaseController):
-    """
-    The root controller for the wangGuo application.
-
-    All the other controllers and WSGI applications should be mounted on this
-    controller. For example::
-
-        panel = ControlPanelController()
-        another_app = AnotherWSGIApplication()
-
-    Keep in mind that WSGI applications shouldn't be mounted directly: They
-    must be wrapped around with :class:`tg.controllers.WSGIAppController`.
-
-    """
     secc = SecureController()
     admin = AdminController(model, DBSession, config_type=TGAdminConfig)
     taskC = TaskController()
@@ -48,6 +36,7 @@ class RootController(BaseController):
     buildingC = BuildingController()
     soldierC = SoldierController()
     friendC = FriendController()
+    mineC = MineController()
 
     error = ErrorController()
 
@@ -108,6 +97,8 @@ class RootController(BaseController):
         user.cityDefense = 831
         user.loginDays = 0
         user.exp = 0
+        user.neiborMax = 10
+        user.colorCrystal = 5
     #state = 1 Free
     def initBuildings(self, user):
         uid = user.uid
@@ -163,7 +154,7 @@ class RootController(BaseController):
     #保证rank唯一性
     def initRank(self, user):
         num = DBSession.query(UserNewRank).filter("score >= 100").count()
-        rank = UserNewRank(uid=user.uid, score=100, rank=num, papayaId = user.papayaId, papayaName=user.papayaName, finish=0)
+        rank = UserNewRank(uid=user.uid, score=100, rank=num, papayaId = user.papayaId, name=user.name, finish=0)
         DBSession.add(rank)
         """
         num = DBSession.query(UserGroupRank).filter("score >= 100").count()
@@ -177,6 +168,12 @@ class RootController(BaseController):
     def initBuyTask(self, user):
         task = UserBuyTask(uid=user.uid)
         DBSession.add(task)
+    #state == 0 Moving
+    #1 Free
+    #2 Working
+    def initCrystalMine(self, user):
+        mine = UserCrystalMine(uid=user.uid, px=768, py =352, state = 1, objectTime=getTime(), level=0)
+        DBSession.add(mine)
 
 
     #闯关保存在本地就可以了
@@ -188,11 +185,11 @@ class RootController(BaseController):
 
         for i in challenge:
             res[i.big][i.small][0] = i.star
-        print res
+        #print res
         return res
     def getUserData(self, user):
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=user.uid).one()
-        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime) 
+        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, colorCrystal=user.colorCrystal) 
     def getBuildings(self, uid):
         buildings = DBSession.query(UserBuildings).filter_by(uid=uid).all()
         res = {}
@@ -230,6 +227,12 @@ class RootController(BaseController):
     def getRankData(self, uid):
         rank = getRank(uid)
         return [rank.score, rank.rank]
+
+    #buildid 300 crystalMine
+    def getCrystalMine(self, uid):
+        mine = DBSession.query(UserCrystalMine).filter_by(uid=uid).one()
+        return dict(px=mine.px, py=mine.py, state=mine.state, objectTime=mine.objectTime, level=mine.level)
+        
         
     #3天没有挑战 第一天减去5%积分 之后每天减去1%积分
     def minusChallengeScore(self, uid):
@@ -273,6 +276,13 @@ class RootController(BaseController):
         user.silver += silver
         user.crystal += crystal
         #奖励都是0 则已经奖励
+
+
+        #第一次登录清空邻居挑战信息
+        neibors = DBSession.query(UserNeiborRelation).filter_by(uid=uid).all()
+        for i in neibors:
+            i.challengeYet = 0
+
         return dict(id=1, silver=silver, crystal=crystal, loginDays = user.loginDays)
 
 
@@ -284,6 +294,17 @@ class RootController(BaseController):
         doGain(uid, rew);
         return dict(id=1)
 
+    @expose('json')
+    def setName(self, uid, name):
+        uid = int(uid)
+        sameName = DBSession.query(UserInWan).filter_by(name=name).all()
+        #重名且不是自身 则出错
+        if len(sameName) > 0 and sameName[0].uid != uid:
+            return dict(id=0, status=0, name = sameName[0].name)
+        user = getUser(uid)
+        user.name = name
+        return dict(id=1)
+
     global Keys
     Keys = ['uid', 'silver', 'gold', 'crystal', 'level', 'people', 'cityDefense', 'loginDays', 'exp']
     @expose('json')
@@ -293,7 +314,7 @@ class RootController(BaseController):
         try:
             user = DBSession.query(UserInWan).filter_by(papayaId=papayaId).one()
         except:
-            user = UserInWan(papayaId=papayaId, papayaName=papayaName)
+            user = UserInWan(papayaId=papayaId, papayaName=papayaName, name=papayaName)
             DBSession.add(user)
             DBSession.flush()#get Use Id
 
@@ -306,6 +327,7 @@ class RootController(BaseController):
             self.initRank(user)
             self.initChallengeFriend(user)
             self.initBuyTask(user)
+            self.initCrystalMine(user)
             #self.initSolEquip(user)
 
         #loginReward = self.getLoginReward(user)
@@ -323,10 +345,11 @@ class RootController(BaseController):
         tasks = self.getTask(user.uid)
         challengeRecord = self.getChallengeRecord(user.uid)
         rank = self.getRankData(user.uid)
+        mine = self.getCrystalMine(user.uid)
         #soldierEquip=solEquip,
 
 
-        return dict(id=1, uid = user.uid, resource = userData, starNum = stars, buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank) 
+        return dict(id=1, uid = user.uid, resource = userData, starNum = stars, buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank, mine=mine) 
 
     """
     @expose()

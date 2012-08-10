@@ -11,6 +11,8 @@ from sqlalchemy.ext.declarative import declarative_base
 #从数据库获取当前消耗和增加数据
 import MySQLdb
 import json
+from threading import Thread
+import time
 
 con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 #cur = con.cursor()
@@ -166,6 +168,19 @@ metadata = DeclarativeBase.metadata
 
 #allCost Data
 
+AllRecommandUsers = None
+
+
+class RecommandThread(Thread):
+    finish = False
+    def run(self):
+        while not self.finish:
+            global AllRecommandUsers
+            AllRecommandUsers = DBSession.query(UserRecommand).all()
+            time.sleep(24*3600)
+
+thr = RecommandThread()
+
 def init_model(engine):
     """Call me before using any of the tables or classes in the model."""
     DBSession.configure(bind=engine)
@@ -218,6 +233,20 @@ def init_model(engine):
     mapper(UserChallengeFriend, userChallengeFriendTable)
     userBuyTaskTable = Table("UserBuyTask", metadata, autoload=True, autoload_with=engine)
     mapper(UserBuyTask, userBuyTaskTable)
+    userNeiborTable = Table("UserNeibor", metadata, autoload=True, autoload_with=engine)
+    mapper(UserNeibor, userNeiborTable)
+    userNeiborRelationTable = Table("UserNeiborRelation", metadata, autoload=True, autoload_with=engine)
+    mapper(UserNeiborRelation, userNeiborRelationTable)
+    userRecommandTable = Table("UserRecommand", metadata, autoload=True, autoload_with=engine)
+    mapper(UserRecommand, userRecommandTable)
+    userNeiborRequestTable = Table("UserNeiborRequest", metadata, autoload=True, autoload_with=engine)
+    mapper(UserNeiborRequest, userNeiborRequestTable)
+    userCrystalMineTable = Table("UserCrystalMine", metadata, autoload=True, autoload_with=engine)
+    mapper(UserCrystalMine, userCrystalMineTable)
+
+    #每天更新数据 需要服务器内存数据更新
+    thr.start()
+
 
 # Import your model modules here.
 from wangguo.model.auth import User, Group, Permission
@@ -237,3 +266,8 @@ from wangguo.model.userNewRank import UserNewRank
 from wangguo.model.userGroupRank import UserGroupRank
 from wangguo.model.userChallengeFriend import UserChallengeFriend
 from wangguo.model.userBuyTask import UserBuyTask
+from wangguo.model.userNeibor import UserNeibor
+from wangguo.model.userNeiborRelation import UserNeiborRelation
+from wangguo.model.userRecommand import UserRecommand
+from wangguo.model.userNeiborRequest import UserNeiborRequest
+from wangguo.model.userCrystalMine import UserCrystalMine

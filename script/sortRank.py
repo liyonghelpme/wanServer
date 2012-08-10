@@ -13,7 +13,6 @@ def sortRank(tableName):
     for i in res:
         sql = 'update %s set rank = %d where uid = %d' % (tableName, oid, i['uid'])
         con.query(sql)
-        con.commit()
         oid += 1
 
 def main():
@@ -25,8 +24,10 @@ def main():
         con.commit()
         sortRank('UserNewRank')
         sortRank('UserGroupRank')
+
+        con.commit()
         con.close()
-        time.sleep(100)
+        time.sleep(1000)
 main()
     
     

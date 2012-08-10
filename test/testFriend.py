@@ -31,8 +31,26 @@ r = '%slogin/%d/ppp' % (base2, random.randint(10, 100))
 l = req(r)
 
 uid = l.get('uid')
-sid = random.randint(0, 100)
-print uid, sid
+
+r = '%slogin/%d/ppp' % (base2, random.randint(100, 300))
+l = req(r)
+
+oid = l.get('uid')
+
+r = base+'addNeiborMax/%d' % (uid)
+req(r)
+
+r = base+'addNeiborMax/%d' % (oid)
+req(r)
+
+r = base+'addNeiborMax/%d' % (oid)
+req(r)
+
+r = base+'addNeiborMax/%d' % (oid)
+req(r)
+
+r = base+'addNeiborMax/%d' % (oid)
+req(r)
 
 r = base+'getMyFriend/%d' % (uid)
 task = req(r)
@@ -48,3 +66,50 @@ t3 = req(r)
 
 r = base+'getFriend/%d/%d' % (uid, 1132)
 t4 = req(r)
+
+r = base+'getRecommand/%d' % (uid)
+req(r)
+
+r = base+'getNeibors/%d' % (uid)
+req(r)
+
+r = base+'sendNeiborRequest/%d/%d' % (uid, oid)
+req(r)
+
+r = base+'getMessage/%d' % (oid)
+req(r)
+
+r = base+'refuseNeibor/%d/%d' % (oid, uid)
+req(r)
+
+r = base+'sendNeiborRequest/%d/%d' % (oid, uid)
+req(r)
+
+r = base+'acceptNeibor/%d/%d' % (uid, oid)
+req(r)
+
+r = base+'getMessage/%d' % (uid)
+req(r)
+
+r = base+'getNeibors/%d' % (uid)
+req(r)
+
+r = base+'getNeibors/%d' % (oid)
+req(r)
+
+
+
+r = base+'challengeNeibor/%d/%d' % (uid, oid)
+req(r)
+
+r = base+'challengeNeiborOver/%d/%s/%d' % (uid, str([]), 2)
+req(r)
+
+r = base+'removeNeibor/%d/%d' % (uid, oid)
+req(r)
+
+r = base+'getNeibors/%d' % (uid)
+req(r)
+
+r = base+'getNeibors/%d' % (oid)
+req(r)

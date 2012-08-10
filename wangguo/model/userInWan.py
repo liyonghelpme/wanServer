@@ -11,6 +11,7 @@ from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
 class UserInWan(object):
-    def __init__(self, papayaId, papayaName):
+    def __init__(self, papayaId, papayaName, name):
         self.papayaId = papayaId
         self.papayaName = papayaName
+        self.name = name

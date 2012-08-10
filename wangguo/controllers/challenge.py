@@ -21,6 +21,7 @@ __all__ = ['ChallengeController']
 #位置上升之后调整所有在我位置之后的用户rank+1
 class ChallengeController(BaseController):
     #得到排行榜数据
+    #uid papayaId score rank name
     @expose('json')
     def getRank(self, uid, offset, limit):  
         uid = int(uid)
@@ -31,11 +32,11 @@ class ChallengeController(BaseController):
         #10次以上为普通挑战
         if challenge.challengeNum >= NEW_RANK:
             ranks = DBSession.query(UserGroupRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
-            res = [[i.uid, i.papayaId, i.score, i.rank, i.papayaName] for i in ranks]
+            res = [[i.uid, i.papayaId, i.score, i.rank, i.name] for i in ranks]
         #10次下新手 新手finish 表示不能挑战 在生成新的排名的时候才可以消除这些finish=1 首先删除
         else:
             ranks = DBSession.query(UserNewRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
-            res = [[i.uid, i.papayaId, i.score, i.rank, i.papayaName, i.finish] for i in ranks]
+            res = [[i.uid, i.papayaId, i.score, i.rank, i.name, i.finish] for i in ranks]
 
         #返回的数据按照rank 排好序
         #数据中没有重复的rank  rank重复则保留uid 为自身的排名数据
@@ -118,6 +119,7 @@ class ChallengeController(BaseController):
         challenge.challengeTime = now
         challenge.lastMinusTime = now
         user = getUser(uid)
+        other = getUser(oid)
         #第10次挑战迁移数据 新手阶段已经结束 
         if challenge.challengeNum == NEW_RANK:
 
@@ -125,14 +127,14 @@ class ChallengeController(BaseController):
             oldRank.finish = 1
 
             num = DBSession.query(UserGroupRank).filter("score >= %d" % (oldRank.score)).count()
-            newRank = UserGroupRank(uid=uid, score=oldRank.score, rank=num, papayaId=user.papayaId, papayaName=user.papayaName)
+            newRank = UserGroupRank(uid=uid, score=oldRank.score, rank=num, papayaId=user.papayaId, name=user.name)
             DBSession.add(newRank)
             
             #删除旧的新手rank 排名可能不连续 导致新手获取数据失败 标记新手阶段结束
             #DBSession.delete(oldRank)
             #newRank = DBSession.query(UserGroupRank).filter_by(uid=uid).one()
             #newRank.score = oldRank.score
-        return dict(id=1, soldiers=soldiers, equips=equips, cityDefense = user.cityDefense)
+        return dict(id=1, soldiers=soldiers, equips=equips, cityDefense = other.cityDefense)
     #胜利积分增级 登录返回用户排名的时候刷新排名
     #排名只在1个小时更新一次
     #士兵状态更新 需要一并发出

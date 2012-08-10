@@ -10,11 +10,7 @@ from sqlalchemy.types import Integer, Unicode
 from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
-class UserNewRank(object):
-    def __init__(self, uid, score, rank, papayaId, name, finish):
+class UserNeibor(object):
+    def __init__(self, uid, neiborMax):
         self.uid = uid
-        self.score = score
-        self.rank = rank
-        self.papayaId = papayaId
-        self.name = name
-        self.finish = finish
+        self.neiborMax = neiborMax

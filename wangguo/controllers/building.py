@@ -115,6 +115,8 @@ class BuildingController(BaseController):
         build.state = 1
         return dict(id=1)
 
+
+
         
 
 

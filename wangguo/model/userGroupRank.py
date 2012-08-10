@@ -11,9 +11,9 @@ from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
 class UserGroupRank(object):
-    def __init__(self, uid, score, rank, papayaId, papayaName):
+    def __init__(self, uid, score, rank, papayaId, name):
         self.uid = uid
         self.score = score
         self.rank = rank
         self.papayaId = papayaId
-        self.papayaName = papayaName
+        self.name = name

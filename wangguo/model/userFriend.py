@@ -11,7 +11,8 @@ from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
 class UserFriend(object):
-    def __init__(self, uid, papayaId, fid):
+    def __init__(self, uid, papayaId, fid, name):
         self.uid = uid
         self.papayaId = papayaId
         self.fid = fid
+        self.name = name

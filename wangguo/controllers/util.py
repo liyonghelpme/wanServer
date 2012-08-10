@@ -177,3 +177,4 @@ def calculateStage(id, level):
     magicDefense = begin[1][1]+(level-begin[0])*addMagicDefense/levelDiff; 
     healthBoundary = begin[1][0]+(level-begin[0])*int(addHealth)/levelDiff;
     return [physicAttack, magicAttack, physicDefense, magicDefense, healthBoundary]
+    
