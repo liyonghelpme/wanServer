@@ -148,3 +148,30 @@ class GoodsController(BaseController):
         equip = UserEquips(uid=uid, eid=eid, equipKind=pid)
         DBSession.add(equip)
         return dict(id=1)
+    @expose('json')
+    def sellDrug(self, uid, kind, silver):
+        uid = int(uid)
+        kind = int(kind)
+        silver = int(silver)
+
+        user = getUser(uid)
+        user.silver += silver
+
+        drug = DBSession.query(UserDrugs).filter_by(uid=uid, drugKind=kind).one()
+        drug.num = 0
+        return dict(id=1)
+
+    @expose('json')
+    def sellEquip(self, uid, eid, silver):
+        uid = int(uid)
+        eid = int(eid)
+        silver = int(silver)
+
+        user = getUser(uid)
+        user.silver += silver
+
+        equip = DBSession.query(UserEquips).filter_by(uid=uid, eid=eid).one()
+        DBSession.delete(equip)
+
+        return dict(id=1)
+

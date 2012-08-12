@@ -350,20 +350,16 @@ class RootController(BaseController):
 
 
         return dict(id=1, uid = user.uid, resource = userData, starNum = stars, buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank, mine=mine) 
+    @expose('json')
+    def reportError(self, uid, errorDetail):
+        uid = int(uid)
+        try:
+            bug = DBSession.query(UserBug).filter_by(uid=uid).one()
+            bug.errorDetail = errorDetail
+            bug.time = getTime()
+        except:
+            bug = UserBug(uid=uid, errorDetail=errorDetail, time=getTime())
+            DBSession.add(bug)
+        return dict(id=1)
 
-    """
-    @expose()
-    def post_login(self, came_from=lurl('/')):
-        if not request.identity:
-            login_counter = request.environ['repoze.who.logins'] + 1
-            redirect('/login',
-                params=dict(came_from=came_from, __logins=login_counter))
-        userid = request.identity['repoze.who.userid']
-        flash(_('Welcome back, %s!') % userid)
-        redirect(came_from)
 
-    @expose()
-    def post_logout(self, came_from=lurl('/')):
-        flash(_('We hope to see you soon!'))
-        redirect(came_from)
-    """

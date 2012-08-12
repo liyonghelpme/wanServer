@@ -243,6 +243,12 @@ def init_model(engine):
     mapper(UserNeiborRequest, userNeiborRequestTable)
     userCrystalMineTable = Table("UserCrystalMine", metadata, autoload=True, autoload_with=engine)
     mapper(UserCrystalMine, userCrystalMineTable)
+    userMessageTable = Table("UserMessage", metadata, autoload=True, autoload_with=engine)
+    mapper(UserMessage, userMessageTable)
+    #one User one Bug at most
+    userBugTable = Table("UserBug", metadata, autoload=True, autoload_with=engine)
+    mapper(UserBug, userBugTable)
+
 
     #每天更新数据 需要服务器内存数据更新
     thr.start()
@@ -271,3 +277,5 @@ from wangguo.model.userNeiborRelation import UserNeiborRelation
 from wangguo.model.userRecommand import UserRecommand
 from wangguo.model.userNeiborRequest import UserNeiborRequest
 from wangguo.model.userCrystalMine import UserCrystalMine
+from wangguo.model.userMessage import UserMessage
+from wangguo.model.userBug import UserBug

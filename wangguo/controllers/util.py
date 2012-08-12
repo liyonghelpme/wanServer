@@ -19,6 +19,8 @@ import time
 addKey = ["people", "cityDefense", "attack", "defense", "health", "gainsilver", "gaincrystal", "gaingold", "exp"]
 costKey = ["silver", "gold", "crystal", "papaya", "free"]
 
+MSG_CHALLENGE = 0
+
 beginTime=(2012,1,1,0,0,0,0,0,0)
 def getTime():
     curTime = int(time.mktime(time.localtime())-time.mktime(beginTime))

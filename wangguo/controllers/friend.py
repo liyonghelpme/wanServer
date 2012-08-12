@@ -243,8 +243,9 @@ class FriendController(BaseController):
         return dict(id=1, soldiers=soldiers, equips=equips, cityDefense=other.cityDefense)
         
     @expose('json')
-    def challengeNeiborOver(self, uid, sols, crystal):
+    def challengeNeiborOver(self, uid, fid, sols, crystal):
         uid = int(uid)
+        fid = int(fid)
         sols = json.loads(sols)
         crystal = int(crystal)
 
@@ -256,4 +257,7 @@ class FriendController(BaseController):
             soldier.exp = i[2]
             soldier.dead = i[3]
             soldier.level = i[4]
+        msg = UserMessage(uid=uid, fid=fid, kind=MSG_CHALLENGE, param=crystal, time=getTime())
+        DBSession.add(msg)
+
         return dict(id=1)
