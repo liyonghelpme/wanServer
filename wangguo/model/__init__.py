@@ -17,9 +17,15 @@ import time
 con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 #cur = con.cursor()
 
+EQUIP = 1
+DRUG = 2
+HERB = 10
+TREASURE_STONE = 15
+MAGIC_STONE = 16
+
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
-'soldierLevelExp', 'task']
+'soldierLevelExp', 'task', 'goodsList', 'magicStone']
 
 def getPrescriptionNum():
     sql = 'select * from prescriptionNum'
@@ -32,6 +38,15 @@ def getPrescriptionNum():
 
 prescriptionNum = getPrescriptionNum()
 
+def genArray(possible):
+    res = []
+    for l in range(0, 13):
+        p = l*1.0/12
+        t = []
+        t.append(int(possible[0]*(1-p) + possible[1]*p))
+        t.append(int(possible[2]*(1-p) + possible[3]*p))
+        res.append(t)
+    return res
 datas = dict()
 for i in name:
     sql = 'select * from '+i;#all Data
@@ -79,10 +94,16 @@ for i in name:
                 datas[i] = json.loads(a['levelData'])
             elif i == 'soldierTransfer':
                 datas[i] = json.loads(a['level'])
+            elif i == 'goodsList':
+                possible = [a['maxFail'], a['minFail'], a['minBreak'], a['maxBreak']]
+                a['possible'] = genArray(possible)
+                sql = 'update goodsList set possible = \'%s\' where id = %d' % (str(a['possible']), a['id'])
+                con.query(sql)
+                datas[i][a['id']] = a
             else:
                 datas[i][a['id']] = a
         
-print datas['prescription']
+#print datas['prescription']
 #print datas
 
 #每种士兵类型和层级对应的各个等级的属性系数
@@ -249,6 +270,8 @@ def init_model(engine):
     userBugTable = Table("UserBug", metadata, autoload=True, autoload_with=engine)
     mapper(UserBug, userBugTable)
 
+    userGiftTable = Table("UserGift", metadata, autoload=True, autoload_with=engine)
+    mapper(UserGift, userGiftTable)
 
     #每天更新数据 需要服务器内存数据更新
     thr.start()
@@ -279,3 +302,4 @@ from wangguo.model.userNeiborRequest import UserNeiborRequest
 from wangguo.model.userCrystalMine import UserCrystalMine
 from wangguo.model.userMessage import UserMessage
 from wangguo.model.userBug import UserBug
+from wangguo.model.userGift import UserGift

@@ -120,11 +120,14 @@ class RootController(BaseController):
         buildings = UserBuildings(uid=uid, bid=7, kind=0, px=2496, py=688, state= 1)
         DBSession.add(buildings)
 
-
+    global ROUND_BIG 
+    ROUND_BIG = 5
+    global ROUND_SMALL
+    ROUND_SMALL = 7
     def initChallenge(self, user):
         uid = user.uid
-        for i in range(0, 5):
-            for j in range(0, 6):
+        for i in range(0, ROUND_BIG):
+            for j in range(0, ROUND_SMALL):
                 challenge = UserChallenge(uid=uid, big=i, small=j, star=0)
                 DBSession.add(challenge)
     def initSoldiers(self, user):
@@ -179,14 +182,17 @@ class RootController(BaseController):
     #闯关保存在本地就可以了
     #用户数据保存在服务器上
     #需要用户之间进行沟通的数据才保存在服务器上
+    #返回所有的闯关得分数据
+    @expose('json')
     def getStars(self, uid):
         challenge = DBSession.query(UserChallenge).filter_by(uid=uid).all()
-        res = [ [[0] for i in range(0, 6)] for j in range(0, 5)]
+        res = [ [0 for i in range(0, ROUND_SMALL)] for j in range(0, ROUND_BIG)]
 
-        for i in challenge:
-            res[i.big][i.small][0] = i.star
+        for i in challenge:#不需要难度
+            res[i.big][i.small] = i.star
         #print res
-        return res
+        return dict(id=1, res=res)
+
     def getUserData(self, user):
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=user.uid).one()
         return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, colorCrystal=user.colorCrystal) 
@@ -216,6 +222,13 @@ class RootController(BaseController):
             res[i.tid] = [i.number, i.finish, i.stage]#当前累计任务的阶段
         return res
 
+    #如果用户清空了数据 没有当前最大的礼物ID 则从数据中获取最大的一个
+    def getMaxGiftId(self, uid):
+        maxId = DBSession.query(UserGift).filter_by(uid=uid).order_by(UserGift.time.desc()).limit(1).all()
+        if len(maxId) == 0:
+            return 0
+        return maxId[0].time+1
+
 
     #用户挑战其它用户的记录
     #每天第一次登录清除挑战记录
@@ -232,6 +245,15 @@ class RootController(BaseController):
     def getCrystalMine(self, uid):
         mine = DBSession.query(UserCrystalMine).filter_by(uid=uid).one()
         return dict(px=mine.px, py=mine.py, state=mine.state, objectTime=mine.objectTime, level=mine.level)
+    global GOODS_COFF
+    GOODS_COFF = 10000
+    def getTreasureStone(self, uid):
+        treasure = DBSession.query(UserGoods).filter_by(uid=uid).all()
+        res = []
+        for t in treasure:
+            res.append([t.kind*GOODS_COFF+t.id, t.num])
+        return res
+            
         
         
     #3天没有挑战 第一天减去5%积分 之后每天减去1%积分
@@ -278,7 +300,7 @@ class RootController(BaseController):
         #奖励都是0 则已经奖励
 
 
-        #第一次登录清空邻居挑战信息
+        #第一次登录清空邻居挑战信息 登录奖励应该在获取邻居信息之前处理
         neibors = DBSession.query(UserNeiborRelation).filter_by(uid=uid).all()
         for i in neibors:
             i.challengeYet = 0
@@ -335,7 +357,7 @@ class RootController(BaseController):
         self.minusChallengeScore(user.uid)
 
         userData = self.getUserData(user)
-        stars = self.getStars(user.uid)
+        #stars = self.getStars(user.uid)
         buildings = self.getBuildings(user.uid)
         soldiers = getSoldiers(user.uid)
         drugs = self.getDrugs(user.uid)
@@ -347,9 +369,11 @@ class RootController(BaseController):
         rank = self.getRankData(user.uid)
         mine = self.getCrystalMine(user.uid)
         #soldierEquip=solEquip,
+        treasure = self.getTreasureStone(user.uid)
+        maxGiftId = self.getMaxGiftId(user.uid)
 
-
-        return dict(id=1, uid = user.uid, resource = userData, starNum = stars, buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank, mine=mine) 
+        #starNum = stars,
+        return dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId) 
     @expose('json')
     def reportError(self, uid, errorDetail):
         uid = int(uid)

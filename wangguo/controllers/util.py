@@ -180,3 +180,25 @@ def calculateStage(id, level):
     healthBoundary = begin[1][0]+(level-begin[0])*int(addHealth)/levelDiff;
     return [physicAttack, magicAttack, physicDefense, magicDefense, healthBoundary]
     
+def updateDrugNum(uid, tid, num):
+    try:
+        drug = DBSession.query(UserDrugs).filter_by(uid=uid, drugKind=tid).one()
+    except:
+        drug = UserDrugs(uid=uid, drugKind=tid, num=0)
+        DBSession.add(drug)
+    drug.num += num
+def updateHerbNum(uid, tid, num):
+    try:
+        herb = DBSession.query(UserHerb).filter_by(uid=uid, kind=tid).one()
+    except:
+        herb = UserHerb(uid=uid, kind=tid, num=0)
+        DBSession.add(herb)
+    herb.num += num
+def updateGoodsNum(uid, kind, tid, num):
+    try:
+        stone = DBSession.query(UserGoods).filter_by(uid=uid, kind = kind, id=tid).one()
+    except:
+        stone = UserGoods(uid=uid, kind = kind, id=tid, num=0)
+        DBSession.add(stone)
+    stone.num += 1
+

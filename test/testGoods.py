@@ -23,7 +23,8 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-r = '%slogin/%d/ppp' % (base2, random.randint(10, 100))
+papaid = random.randint(10, 100)
+r = '%slogin/%d/ppp' % (base2, papaid)
 l = req(r)
 
 uid = l.get('uid')
@@ -61,5 +62,29 @@ res = req(r)
 
 r = base+'makeEquip/%d/%d/%d' % (uid, 5, 20)
 res = req(r)
+
+r = base+'buyTreasureStone/%d/%d' % (uid, 0)
+req(r)
+
+r = base+'buyTreasureStone/%d/%d' % (uid, 0)
+req(r)
+
+
+
+r = '%slogin/%d/ppp' % (base2, papaid)
+l = req(r)
+print l['treasure']
+
+r = '%supgradeEquip/%d/%d/%d' % (base, uid, 0, 0)
+req(r)
+
+r = '%supgradeEquip/%d/%d/%d' % (base, uid, 0, 0)
+req(r)
+
+r = '%supgradeEquip/%d/%d/%d' % (base, uid, 0, 0)
+req(r)
+
+r = '%supgradeEquip/%d/%d/%d' % (base, uid, 0, 0)
+req(r)
 
 con.close()
