@@ -117,10 +117,9 @@ class SoldierController(BaseController):
         elif data.get("defense") != 0:
             soldier.addDefense = data.get("defense")
             soldier.addDefenseTime = data.get("effectTime")
-        elif data.get("relive") == 1:#复活药水 回复x%的生命值
-            add = data.get("effectTime")*healthBoundary/100
+        elif data.get("relive") == 1:#复活药水 回复全部%的生命值
             soldier.dead = 0
-            soldier.health = add
+            soldier.health = healthBoundary
         elif data.get("percentHealth") != 0:
             soldier.health += data.get("percentHealth")*healthBoundary/100
             soldier.health = min(soldier.health, healthBoundary)
@@ -279,6 +278,57 @@ class SoldierController(BaseController):
         equip = DBSession.query(UserEquips).filter_by(uid=uid, eid=eid).one()
         equip.owner = -1
         return dict(id=1)
+
+    @expose('json')
+    def buySkill(self, uid, soldierId, skillId):
+        uid = int(uid)
+        soldierId = int(soldierId)
+        skillId = int(skillId)
+
+        cost = getCost('skills', skillId)
+        if not checkCost(uid, cost):
+            return dict(id=0)
+        doCost(uid, cost)
+        
+        skill = UserSkills(uid=uid, soldierId=soldierId, skillId=skillId, level=0)
+        DBSession.add(skill)
+        return dict(id=1)
+
+    @expose('json')
+    def upgradeSkill(self, uid, soldierId, skillId, stoneId):
+        uid = int(uid)
+        soldierId = int(soldierId)
+        skillId = int(skillId)
+        stoneId = int(stoneId)
+       
+        num = getGoodsNum(uid, MAGIC_STONE, stoneId)
+        if num < 1:
+            return dict(id=0)
+        updateGoodsNum(uid, MAGIC_STONE, stoneId, -1)
+        gData = getData('magicStone', stoneId)
+        possible = gData.get('possible')
+        
+        skill = DBSession.query(UserSkills).filter_by(uid=uid, soldierId=soldierId, skillId=skillId).one()
+        suc = possible[min(skill.level, len(possible)-1)]
+        rv = random.randint(0, 100)
+        print rv, suc
+        if rv < suc:
+            skill.level += 1
+            return dict(id=1, suc=1)
+        return dict(id=1, suc=0)
+
+    @expose('json')
+    def giveupSkill(self, uid, soldierId, skillId):
+        uid = int(uid)
+        soldierId = int(soldierId)
+        skillId = int(skillId)
+
+        skill = DBSession.query(UserSkills).filter_by(uid=uid, soldierId=soldierId, skillId=skillId).one()
+        DBSession.delete(skill)
+        return dict(id=1)
+
+
+
 
 
 

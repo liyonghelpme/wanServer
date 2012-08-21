@@ -15,6 +15,7 @@ from wangguo.controllers.error import ErrorController
 #from wangguo.model import DBSession, metadata
 from wangguo.model import *
 import time
+import random
 
 addKey = ["people", "cityDefense", "attack", "defense", "health", "gainsilver", "gaincrystal", "gaingold", "exp"]
 costKey = ["silver", "gold", "crystal", "papaya", "free"]
@@ -200,5 +201,11 @@ def updateGoodsNum(uid, kind, tid, num):
     except:
         stone = UserGoods(uid=uid, kind = kind, id=tid, num=0)
         DBSession.add(stone)
-    stone.num += 1
+    stone.num += num
+def getGoodsNum(uid, kind, tid):
+    try:
+        stone = DBSession.query(UserGoods).filter_by(uid=uid, kind = kind, id=tid).one()
+        return stone.num
+    except:
+        return 0
 

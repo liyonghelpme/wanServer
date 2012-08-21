@@ -1,7 +1,7 @@
 #coding:utf8
 import MySQLdb
 import json
-sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone']
+sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills']
 con = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 
 sql = 'select * from prescriptionNum'
@@ -148,7 +148,7 @@ def hanData(name, data):
         return []
 
     #名字 描述desc
-    if name == 'drug' or name == 'equip' or name == 'magicStone':
+    if name == 'drug' or name == 'equip' or name == 'skills':
         res = []
         keys = []
         names = []
@@ -157,6 +157,35 @@ def hanData(name, data):
             i['name'] = name+str(i['id'])
             i['des'] = name+'Des'+str(i['id'])
             i.pop('engName')
+            it = list(i.items())
+            it = [list(k) for k in it]
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            res.append([i['id'], a])
+
+        names = [[name+str(i['id']), [i['name'], i['engName']]] for i in f]
+        names += [[name+'Des'+str(i['id']), i['des']] for i in f ]
+        print 'var', name+'Key', '=', json.dumps(key), ';'
+        print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+        return names
+
+    #if name == 'skills':
+         
+    if name == 'magicStone':
+        res = []
+        keys = []
+        names = []
+        for i in f:
+            i = dict(i)
+            i['name'] = name+str(i['id'])
+            i['des'] = name+'Des'+str(i['id'])
+            i.pop('engName')
+            i.pop('pos0')
+            i.pop('pos14')
+            i.pop('pos29')
+            i.pop('pos44')
+            i.pop('pos59')
+            i['possible'] = json.loads(i['possible'])
             it = list(i.items())
             it = [list(k) for k in it]
             key = [k[0] for k in it]

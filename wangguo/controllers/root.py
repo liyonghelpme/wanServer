@@ -78,16 +78,6 @@ class RootController(BaseController):
         return dict(page='editor stuff')
 
     """Start the user login."""
-    """
-    @expose('wangguo.templates.login')
-    def login(self, came_from=lurl('/')):
-
-        login_counter = request.environ['repoze.who.logins']
-        if login_counter > 0:
-            flash(_('Wrong credentials'), 'warning')
-        return dict(page='login', login_counter=str(login_counter),
-                    came_from=came_from)
-    """
     def initUserData(self, user):
         user.silver = 1000
         user.gold = 1000
@@ -136,6 +126,10 @@ class RootController(BaseController):
         data = calculateStage(0, 0)[4]
         soldier = UserSoldiers(uid=uid, sid=0, kind=0, name='剑', health = data)
         DBSession.add(soldier)
+        #编号12 的变身技能 暂时没有英雄变身技能
+        #skill = UserSkills(uid=uid, soldierId=sid, skillId=12, level=0)
+        #DBSession.add(skill)
+
     def initDrug(self, user):
         uid = user.uid
         drug = UserDrugs(uid=uid, drugKind=0, num=1)
@@ -220,6 +214,12 @@ class RootController(BaseController):
         res = dict()
         for i in tasks:
             res[i.tid] = [i.number, i.finish, i.stage]#当前累计任务的阶段
+        return res
+
+    def getSkills(self, uid):
+        skills = DBSession.query(UserSkills).filter_by(uid=uid).all()
+        res = [[k.soldierId, k.skillId, k.level] for k in skills]
+        print res
         return res
 
     #如果用户清空了数据 没有当前最大的礼物ID 则从数据中获取最大的一个
@@ -372,8 +372,10 @@ class RootController(BaseController):
         treasure = self.getTreasureStone(user.uid)
         maxGiftId = self.getMaxGiftId(user.uid)
 
+        skills = self.getSkills(user.uid)
+
         #starNum = stars,
-        return dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId) 
+        return dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills) 
     @expose('json')
     def reportError(self, uid, errorDetail):
         uid = int(uid)

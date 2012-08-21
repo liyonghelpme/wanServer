@@ -25,7 +25,7 @@ MAGIC_STONE = 16
 
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
-'soldierLevelExp', 'task', 'goodsList', 'magicStone']
+'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills']
 
 def getPrescriptionNum():
     sql = 'select * from prescriptionNum'
@@ -46,6 +46,25 @@ def genArray(possible):
         t.append(int(possible[0]*(1-p) + possible[1]*p))
         t.append(int(possible[2]*(1-p) + possible[3]*p))
         res.append(t)
+    return res
+#0-59 possible
+#0 14 29 44 59
+XPOS = [0, 14, 29, 44, 59]
+def genMagicArray(pos):
+    global XPOS
+    res = []
+    for l in range(0, 60):
+        for i in XPOS:
+            if i > l:
+                break
+        begin = XPOS.index(i)-1
+        end = begin+1
+        if end >= len(XPOS):
+            res.append(pos[end])
+        else:
+            p = (l-XPOS[begin])*1.0/(XPOS[end]-XPOS[begin])
+            t = []
+            res.append(int(pos[begin]*(1-p) + pos[end]*p))
     return res
 datas = dict()
 for i in name:
@@ -98,6 +117,12 @@ for i in name:
                 possible = [a['maxFail'], a['minFail'], a['minBreak'], a['maxBreak']]
                 a['possible'] = genArray(possible)
                 sql = 'update goodsList set possible = \'%s\' where id = %d' % (str(a['possible']), a['id'])
+                con.query(sql)
+                datas[i][a['id']] = a
+            elif i == 'magicStone':
+                possible = [a['pos0'], a['pos14'], a['pos29'], a['pos44'], a['pos59']]
+                a['possible'] = genMagicArray(possible)
+                sql = 'update magicStone set possible = \'%s\' where id = %d' % (str(a['possible']), a['id'])
                 con.query(sql)
                 datas[i][a['id']] = a
             else:
@@ -272,6 +297,8 @@ def init_model(engine):
 
     userGiftTable = Table("UserGift", metadata, autoload=True, autoload_with=engine)
     mapper(UserGift, userGiftTable)
+    userSkillsTable = Table("UserSkills", metadata, autoload=True, autoload_with=engine)
+    mapper(UserSkills, userSkillsTable)
 
     #每天更新数据 需要服务器内存数据更新
     thr.start()
@@ -303,3 +330,4 @@ from wangguo.model.userCrystalMine import UserCrystalMine
 from wangguo.model.userMessage import UserMessage
 from wangguo.model.userBug import UserBug
 from wangguo.model.userGift import UserGift
+from wangguo.model.userSkills import UserSkills
