@@ -38,6 +38,9 @@ soldier = req(r)
 r = base+'setName/'+str(uid)+'/'+str(sid)+'/果果'
 name = req(r)
 
+r = base+'useDrugInRound/%d/%d' % (uid, 0)
+sell = req(r)
+
 r = base+'useDrug/'+str(uid)+'/'+str(sid)+'/'+str(0)
 drug = req(r)
 
@@ -71,6 +74,9 @@ exp = req(r)
  
 r = base+'doTransfer/'+str(uid)+'/'+str(sid)
 trans = req(r)
+
+
+
 
 r = base+'sellSoldier/%d/%d' % (uid, sid)
 sell = req(r)

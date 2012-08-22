@@ -86,6 +86,17 @@ class SoldierController(BaseController):
     #增加攻击力 和 防御力 的药水 如何使用 用户闯关一次 之后 作用消失 使用之后 作用若干回合 只能使用一次
     #在所有士兵页面 点击 某个士兵 选择复活药水 复活士兵 购买药水
 
+    @expose('json')
+    def useDrugInRound(self, uid, tid):
+        uid = int(uid)
+        tid = int(tid)
+        drugs = DBSession.query(UserDrugs).filter_by(uid=uid).filter_by(drugKind = tid).one()
+        if drugs.num <= 0:
+            return dict(id=0)
+        drugs.num -= 1
+        return dict(id=1)
+
+        
     #检测药水数量是否足够
     @expose('json')
     def useDrug(self, uid, sid, tid):
