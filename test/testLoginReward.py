@@ -24,21 +24,30 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-r = '%slogin/%d/ppp' % (base2, random.randint(10, 100))
+papaya = random.randint(10000, 20000)
+r = '%slogin/%d/ppp' % (base2, papaya)
 l = req(r)
 
+
 uid = l.get('uid')
-sid = random.randint(0, 100)
-print uid, sid
+#sid = random.randint(0, 100)
+print uid
+
+r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'test11')
+req(r)
+
+
+r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero'+str(papaya))
+req(r)
+
+
+r = '%slogin/%d/ppp' % (base2, papaya)
+l = req(r)
+
 
 r = base+'getLoginReward/%d/%d/%d' % (uid, 5, 5)
 reward = req(r)
 
-r = base+'setName/%d/%s' % (uid, 'liyong2')
-req(r)
-
-r = base+'setName/%d/%s' % (uid, 'liyong2')
-req(r)
 
 r = base+'getStars/%d' % (uid)
 req(r)

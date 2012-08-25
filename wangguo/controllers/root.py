@@ -122,10 +122,10 @@ class RootController(BaseController):
                 DBSession.add(challenge)
     def initSoldiers(self, user):
         uid = user.uid
-        sid = 0
-        data = calculateStage(0, 0)[4]
-        soldier = UserSoldiers(uid=uid, sid=0, kind=0, name='剑', health = data)
-        DBSession.add(soldier)
+        #sid = 0
+        #data = calculateStage(0, 0)[4]
+        #soldier = UserSoldiers(uid=uid, sid=0, kind=0, name='剑', health = data)
+        #DBSession.add(soldier)
         #编号12 的变身技能 暂时没有英雄变身技能
         #skill = UserSkills(uid=uid, soldierId=sid, skillId=12, level=0)
         #DBSession.add(skill)
@@ -316,6 +316,7 @@ class RootController(BaseController):
         doGain(uid, rew);
         return dict(id=1)
 
+    """
     @expose('json')
     def setName(self, uid, name):
         uid = int(uid)
@@ -326,6 +327,35 @@ class RootController(BaseController):
         user = getUser(uid)
         user.name = name
         return dict(id=1)
+    """
+
+    #更新 缓存数据表中的 用户名称
+    #邻居关系 好友关系 
+    @expose('json')
+    def chooseFirstHero(self, uid, hid, name):
+        uid = int(uid)
+        user = getUser(uid)
+        hid = int(hid)#英雄ID 暂时都用类型0
+
+        sameName = DBSession.query(UserInWan).filter_by(name=name).all()
+        if len(sameName) > 0 and sameName[0].uid != uid:
+            return dict(id=0, status=0, name = sameName[0].name)
+
+        user.newState = 1
+        user.name = name
+
+        #hid  = hid level = 0 第一个士兵
+        sid = 0
+        hid = 0
+        data = calculateStage(hid, 0)[4]
+        soldier = UserSoldiers(uid=uid, sid=sid, kind=hid, name=name, health = data)
+        DBSession.add(soldier)
+        #编号15 凤凰变身技能暂时使用 的变身技能 暂时没有英雄变身技能
+        skill = UserSkills(uid=uid, soldierId=sid, skillId=15, level=0)
+        DBSession.add(skill)
+        return dict(id=1)
+
+
 
     global Keys
     Keys = ['uid', 'silver', 'gold', 'crystal', 'level', 'people', 'cityDefense', 'loginDays', 'exp']
@@ -351,6 +381,10 @@ class RootController(BaseController):
             self.initBuyTask(user)
             self.initCrystalMine(user)
             #self.initSolEquip(user)
+        
+        #初次登录玩家 需要注册英雄和名称
+        if user.newState == 0:
+            return dict(id=1, uid=user.uid, newState=0)
 
         #loginReward = self.getLoginReward(user)
         #在getUserData 获取积分之前 减去积分
@@ -375,7 +409,7 @@ class RootController(BaseController):
         skills = self.getSkills(user.uid)
 
         #starNum = stars,
-        return dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills) 
+        return dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState) 
     @expose('json')
     def reportError(self, uid, errorDetail):
         uid = int(uid)
