@@ -240,6 +240,19 @@ class SoldierController(BaseController):
         for i in equips:
             equips.owner = -1
         return dict(id=1)
+    @expose('json')
+    def trainOver(self, uid, sols):
+        uid = int(uid)
+        sols = json.loads(sols)
+
+        for i in sols:#经验 等级 生命值 死亡
+            soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=i[0]).one()
+            soldier.health = i[1]
+            soldier.exp = i[2]
+            soldier.dead = i[3]
+            soldier.level = i[4]
+        return dict(id=1)
+            
     #sid health exp dead level
     #士兵闯关成功升级
     @expose('json')
@@ -337,6 +350,17 @@ class SoldierController(BaseController):
         skill = DBSession.query(UserSkills).filter_by(uid=uid, soldierId=soldierId, skillId=skillId).one()
         DBSession.delete(skill)
         return dict(id=1)
+    @expose('json')
+    def trainDouble(self, uid, gold):
+        uid = int(uid)
+        gold = int(gold)
+        cost = {'gold': gold}
+        ret = checkCost(uid, cost)
+        if ret:
+            doCost(uid, cost)
+            return dict(id=1)
+        return dict(id=0)
+
 
 
 

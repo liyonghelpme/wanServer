@@ -75,11 +75,17 @@ exp = req(r)
 r = base+'doTransfer/'+str(uid)+'/'+str(sid)
 trans = req(r)
 
+r = base+'trainDouble/%d/%d' % (uid, 10)
+sell = req(r)
+
+r = base+'trainOver/%d/%s' % (uid, json.dumps([[sid, 10, 10, 0, 4]]))
+req(r)
 
 
 
 r = base+'sellSoldier/%d/%d' % (uid, sid)
 sell = req(r)
+
 
 
 
