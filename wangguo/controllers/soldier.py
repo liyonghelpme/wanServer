@@ -360,6 +360,31 @@ class SoldierController(BaseController):
             doCost(uid, cost)
             return dict(id=1)
         return dict(id=0)
+    @expose('json')
+    def game1Over(self, uid, sid, health, exp, level):
+        uid = int(uid)
+        sid = int(sid)
+        exp = int(exp)
+        health = int(health)
+        level = int(level)
+
+        sol = DBSession.query(UserSoldiers).filter_by(uid=uid, sid=sid).one()
+        sol.health = health
+        sol.exp = exp
+        sol.level = level
+        return dict(id=1)
+    @expose('json')
+    def game2Over(self, uid, silver, crystal, gold):
+        uid = int(uid)
+        silver = int(silver)
+        crystal = int(crystal)
+        gold = int(gold)
+        user = getUser(uid)
+        user.silver += silver
+        user.crystal += crystal
+        user.gold += gold
+        return dict(id=1)
+
 
 
 

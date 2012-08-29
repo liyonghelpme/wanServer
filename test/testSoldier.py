@@ -81,7 +81,11 @@ sell = req(r)
 r = base+'trainOver/%d/%s' % (uid, json.dumps([[sid, 10, 10, 0, 4]]))
 req(r)
 
+r = base+'game1Over/%d/%d/%d/%d/%d' % (uid, sid, 10, 10, 0)
+req(r)
 
+r = base+'game2Over/%d/%d/%d/%d' % (uid, 10, 10, 10)
+req(r)
 
 r = base+'sellSoldier/%d/%d' % (uid, sid)
 sell = req(r)

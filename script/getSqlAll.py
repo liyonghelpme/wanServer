@@ -1,7 +1,7 @@
 #coding:utf8
 import MySQLdb
 import json
-sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear']
+sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible']
 con = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 
 sql = 'select * from prescriptionNum'
@@ -29,6 +29,19 @@ def hanData(name, data):
         a = [k[1] for k in it]
         if i.get('id') != None:
             res.append([i['id'], a])
+
+    if name == 'statusPossible':
+        res = []
+        reward = []
+        for i in f:
+            res.append([i['id'], i['possible']])
+            reward.append([i['id'], [i['gainsilver'], i['gaincrystal'], i['gaingold'], [i['sunflower'], i['sun'], i['flower'], i['star'], i['moon']]] ])
+        print 'var', name, '=', json.dumps(res), ';'
+        key = ['gainsilver', 'gaincrystal', 'gaingold', 'nums']
+        print 'var', name+'Key', '=', json.dumps(key), ';'
+        print 'var', name+'Data', '=', 'dict(', json.dumps(reward), ');'
+        return []
+
 
     #bigId--->monsterId
     if name == 'monsterAppear':
