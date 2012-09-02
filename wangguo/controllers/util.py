@@ -21,8 +21,17 @@ addKey = ["people", "cityDefense", "attack", "defense", "health", "gainsilver", 
 costKey = ["silver", "gold", "crystal", "papaya", "free"]
 
 MSG_CHALLENGE = 0
-
+#week == 0 
+weekTime = (2012, 1, -5, 0, 0, 0, 0, 0, 0)
 beginTime=(2012,1,1,0,0,0,0,0,0)
+weekDiffTime = 5*24*3600
+aWeek = 7*24*3600
+#+ loginTime + weekDiffTime / 7*24*3600 = weekTimes 
+#lastLoginTime nowLoginTime--->weekNum weekNum >= 1 firstLogin In this Week
+def getWeekNum(t):
+    t += weekDiffTime
+    t /= aWeek
+    return int(t)
 def getTime():
     curTime = int(time.mktime(time.localtime())-time.mktime(beginTime))
     return curTime

@@ -14,6 +14,12 @@ import json
 from threading import Thread
 import time
 
+import pymongo
+
+mongoCon = pymongo.Connection(host='localhost', port=27017)
+mongoDB = mongoCon['Rank']
+mongoCollect = mongoDB.heartRank
+
 con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 #cur = con.cursor()
 
@@ -25,7 +31,7 @@ MAGIC_STONE = 16
 
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
-'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills']
+'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart']
 
 def getPrescriptionNum():
     sql = 'select * from prescriptionNum'
@@ -73,7 +79,10 @@ for i in name:
     res = con.store_result()
     allData = res.fetch_row(0, 1)
     datas[i] = dict()
-    if i == 'prescription':
+    if i == 'loveTreeHeart':
+        for a in allData:
+            datas[i] = json.loads(a['num'])
+    elif i == 'prescription':
         for a in allData:
             needs = []
             numId = a['numId']
@@ -299,6 +308,11 @@ def init_model(engine):
     mapper(UserGift, userGiftTable)
     userSkillsTable = Table("UserSkills", metadata, autoload=True, autoload_with=engine)
     mapper(UserSkills, userSkillsTable)
+    userHeartTable = Table("UserHeart", metadata, autoload=True, autoload_with=engine)
+    mapper(UserHeart, userHeartTable)
+
+    #userHeartRankTable = Table("UserHeartRank", metadata, autoload=True, autoload_with=engine)
+    #mapper(UserHeartRank, userHeartRankTable)
 
     #每天更新数据 需要服务器内存数据更新
     thr.start()
@@ -331,3 +345,5 @@ from wangguo.model.userMessage import UserMessage
 from wangguo.model.userBug import UserBug
 from wangguo.model.userGift import UserGift
 from wangguo.model.userSkills import UserSkills
+from wangguo.model.userHeart import UserHeart
+#from wangguo.model.userHeartRank import UserHeartRank

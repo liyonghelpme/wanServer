@@ -109,6 +109,8 @@ class RootController(BaseController):
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=7, kind=0, px=2496, py=688, state= 1)
         DBSession.add(buildings)
+        buildings = UserBuildings(uid=uid, bid=8, kind=208, px=1824, py=640, state=1)#MOVE FREE WORK 
+        DBSession.add(buildings)
 
     global ROUND_BIG 
     ROUND_BIG = 5
@@ -172,6 +174,14 @@ class RootController(BaseController):
         mine = UserCrystalMine(uid=user.uid, px=768, py =352, state = 1, objectTime=getTime(), level=0)
         DBSession.add(mine)
 
+    def initHeart(self, user):
+        heart = UserHeart(uid=user.uid, weekNum=0, liveNum = 0, accNum = 0)
+        DBSession.add(heart)
+
+    def getHeart(self, uid):
+        heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
+        return dict(weekNum=heart.weekNum, accNum=heart.accNum, liveNum=heart.liveNum, rank=heart.rank)
+
 
     #闯关保存在本地就可以了
     #用户数据保存在服务器上
@@ -187,9 +197,12 @@ class RootController(BaseController):
         #print res
         return dict(id=1, res=res)
 
+    #测试loginTime = 0
+    #week = 0
+    #
     def getUserData(self, user):
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=user.uid).one()
-        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, colorCrystal=user.colorCrystal) 
+        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=0, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, colorCrystal=user.colorCrystal) 
     def getBuildings(self, uid):
         buildings = DBSession.query(UserBuildings).filter_by(uid=uid).all()
         res = {}
@@ -276,6 +289,8 @@ class RootController(BaseController):
 
 
     #肯能需要客户端主动请求登录奖励保证登录奖励被客户端看到
+    #每天第一次登录
+    #只在获取登录奖励的时候 更新登录时间 即每天第一次登录时 更新登录时间
     @expose('json')
     def getLoginReward(self, uid, silver, crystal):
         uid = int(uid)
@@ -304,6 +319,16 @@ class RootController(BaseController):
         neibors = DBSession.query(UserNeiborRelation).filter_by(uid=uid).all()
         for i in neibors:
             i.challengeYet = 0
+            i.heartYet = 0#赠送爱心数据清空
+
+        #每天剩余的赠送爱心数量
+        #heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
+        #heart.heartYet = 0
+
+        #每周更新增加1
+        #week = time.localtime().tm_wday
+        #if week == 0:
+        user.updateState += 1
 
         return dict(id=1, silver=silver, crystal=crystal, loginDays = user.loginDays)
 
@@ -369,6 +394,7 @@ class RootController(BaseController):
             user = UserInWan(papayaId=papayaId, papayaName=papayaName, name=papayaName)
             DBSession.add(user)
             DBSession.flush()#get Use Id
+            user.registerTime = getTime()
 
             self.initUserData(user)
             self.initChallenge(user)
@@ -380,6 +406,7 @@ class RootController(BaseController):
             self.initChallengeFriend(user)
             self.initBuyTask(user)
             self.initCrystalMine(user)
+            self.initHeart(user)
             #self.initSolEquip(user)
         
         #初次登录玩家 需要注册英雄和名称
@@ -408,8 +435,19 @@ class RootController(BaseController):
 
         skills = self.getSkills(user.uid)
 
+        #week = time.localtime().tm_wday
+        week = 0
+
+        updateState = user.updateState
+        #user.updateState += 1
+        lastLoginTime = user.loginTime
+        lastWeek = getWeekNum(lastLoginTime)
+        now = getTime()
+        thisWeek = getWeekNum(now)
+
+        heart = self.getHeart(user.uid)
         #starNum = stars,
-        return dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=getTime(), challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState) 
+        return dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, heart=heart, registerTime=user.registerTime) 
     @expose('json')
     def reportError(self, uid, errorDetail):
         uid = int(uid)

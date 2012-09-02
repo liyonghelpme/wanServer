@@ -29,12 +29,13 @@ r = '%slogin/%d/ppp' % (base2, papaya)
 l = req(r)
 
 
+
 uid = l.get('uid')
 #sid = random.randint(0, 100)
 print uid
 
-r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'test11')
-req(r)
+#r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'test11')
+#req(r)
 
 
 r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero'+str(papaya))
@@ -51,3 +52,7 @@ reward = req(r)
 
 r = base+'getStars/%d' % (uid)
 req(r)
+
+
+r = '%slogin/%d/ppp' % (base2, papaya)
+print l['lastWeek'], l['thisWeek']

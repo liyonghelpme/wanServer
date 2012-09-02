@@ -27,15 +27,30 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-r = '%slogin/%d/ppp' % (base2, random.randint(10, 100))
+
+papa = random.randint(10, 100)
+r = '%slogin/%d/ppp' % (base2, papa)
+l = req(r)
+uid = l['uid']
+
+r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero'+str(papa))
+req(r)
+
+#uid = l.get('uid')
+
+r = '%slogin/%d/ppp' % (base2, papa)
 l = req(r)
 
-uid = l.get('uid')
+print l['heart']
 
-r = '%slogin/%d/ppp' % (base2, random.randint(100, 300))
+papa2 = random.randint(200, 300)
+r = '%slogin/%d/ppp' % (base2, papa2)
 l = req(r)
 
 oid = l.get('uid')
+
+r = '%schooseFirstHero/%d/%d/%s' % (base2, oid, 0, 'hero'+str(papa2))
+req(r)
 
 r = base+'addNeiborMax/%d' % (uid)
 req(r)
@@ -98,11 +113,45 @@ r = base+'getNeibors/%d' % (oid)
 req(r)
 
 
+r = base+'sendHeart/%d/%d' % (uid, oid)
+req(r)
+
+
+r = '%slogin/%d/ppp' % (base2, papa2)
+l = req(r)
+
+print l['heart']
+
+r = base+'sendHeart/%d/%d' % (uid, oid)
+req(r)
+
+r = base+'getNeibors/%d' % (uid)
+req(r)
+
+r = base+'collectHeart/%d' % (oid)
+req(r)
+
+r = '%slogin/%d/ppp' % (base2, papa2)
+l = req(r)
+
+print l['heart']
+
+
+r = base+'collectHeart/%d' % (oid)
+req(r)
+
+r = base+'getNeibors/%d' % (uid)
+req(r)
+
+r = base+'upgradeLoveTree/%d/%d/%d' % (uid, 8, 209)
+req(r)
+
+
 
 r = base+'challengeNeibor/%d/%d' % (uid, oid)
 req(r)
 
-r = base+'challengeNeiborOver/%d/%s/%d' % (uid, str([]), 2)
+r = base+'challengeNeiborOver/%d/%d/%s/%d' % (uid, oid, str([]), 2)
 req(r)
 
 r = base+'removeNeibor/%d/%d' % (uid, oid)
@@ -113,3 +162,10 @@ req(r)
 
 r = base+'getNeibors/%d' % (oid)
 req(r)
+
+r = base+'getHeartRank/%d/%d/%d' % (uid, 0, 5)
+req(r)
+
+r = base+'getHeartRank/%d/%d/%d' % (uid, 5, 10)
+req(r)
+

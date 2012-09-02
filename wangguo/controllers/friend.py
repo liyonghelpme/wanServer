@@ -88,7 +88,7 @@ class FriendController(BaseController):
         res = []
         for i in neibors:
             mine = DBSession.query(UserCrystalMine).filter_by(uid=i.fid).one()
-            res.append([i.fid, i.papayaId, i.name, i.level, mine.level, i.challengeYet])
+            res.append([i.fid, i.papayaId, i.name, i.level, mine.level, i.challengeYet, i.heartYet])
         return dict(id=1, neibors = res)
 
     #如果已经发送过请求 则 阻止今天继续发送 
@@ -261,3 +261,55 @@ class FriendController(BaseController):
         DBSession.add(msg)
 
         return dict(id=1)
+    @expose('json')
+    def sendHeart(self, uid, fid):
+        uid = int(uid)
+        fid = int(fid)
+        nei = DBSession.query(UserNeiborRelation).filter_by(uid=uid, fid=fid).one()
+        if nei.heartYet == 1:
+            return dict(id=0)
+        nei.heartYet = 1
+
+        #sendHeart = DBSession.query(UserHeart).filter_by(uid=uid).one()
+        #if sendHeart.heartYet == 1:
+        #    return dict(id=1)
+
+        heart = DBSession.query(UserHeart).filter_by(uid=fid).one()
+        heart.accNum += 1
+        heart.weekNum += 1
+        heart.liveNum += 1
+        return dict(id=1)
+
+    
+    @expose('json')
+    def collectHeart(self, uid):
+        uid = int(uid)
+        heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
+        user = getUser(uid)
+        user.crystal += heart.liveNum
+        heart.liveNum = 0
+        return dict(id=1)
+
+    #登录时发现 可以提升等级 则 客户端发送等级提升消息 
+    #修改爱心树ID
+    @expose('json')
+    def upgradeLoveTree(self, uid, bid, kind):
+        uid = int(uid)
+        bid = int(bid)
+        kind = int(kind)
+        building = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
+        building.kind = kind
+        return dict(id=1)
+    
+    #从mongodb 的中的排行数据中获取数据 按照每周爱心数量
+    #清空每周爱心数量
+    @expose('json')
+    def getHeartRank(self, uid, offset, limit):
+        uid = int(uid)
+        offset = int(offset)
+        limit = int(limit)
+        result = mongoCollect.find_one()['res']  
+        ret = result[offset:offset+limit]
+        ret = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name']] for i in ret]
+
+        return dict(id=1, res=ret)

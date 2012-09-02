@@ -1,7 +1,7 @@
 #coding:utf8
 import MySQLdb
 import json
-sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible']
+sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart']
 con = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 
 sql = 'select * from prescriptionNum'
@@ -30,6 +30,12 @@ def hanData(name, data):
         if i.get('id') != None:
             res.append([i['id'], a])
 
+    if name == 'loveTreeHeart':
+        res = []
+        for i in f:
+            res = json.loads(i['num'])
+        print 'var', name, '=', json.dumps(res), ';'
+        return []
     if name == 'statusPossible':
         res = []
         reward = []
@@ -388,6 +394,57 @@ for i in sqlName:
     res = con.store_result()
     allNames += hanData(i, res)
         
+
+SOL = 7
+EQUIP = 1
+BUILD = 0
+
+levels = {}
+sql = 'select * from soldier'
+con.query(sql)
+res = con.store_result().fetch_row(0, 1)
+
+for i in res:
+    if i['id']%10 == 0:
+        l = levels.get(i['level'], [])
+        l.append([SOL, i])
+        levels[i['level']] = l
+
+sql = 'select * from equip'
+con.query(sql)
+res = con.store_result().fetch_row(0, 1)
+
+for i in res:
+    l = levels.get(i['level'], [])
+    l.append([EQUIP, i])
+    levels[i['level']] = l
+
+sql = 'select * from building'
+con.query(sql)
+res = con.store_result().fetch_row(0, 1)
+
+for i in res:
+    if i['funcs'] == 2:
+        l = levels.get(i['level'], [])
+        l.append([BUILD, i])
+        levels[i['level']] = l
+#old = levels
+res = []
+
+levels = levels.items()
+levels.sort()
+maxLevel = levels[-1][0]
+for l in levels:
+    #print l[0]
+    #for i in l[1]:
+    #    print i[1]['name'].encode('utf8')
+
+    res.append([l[0], [[i[0], i[1]['id']] for i in l[1]]])
+
+import json
+print 'var', 'levelUpdate', '=', 'dict(' ,json.dumps(res), ');'
+print 'const', 'MAX_LEVEL', '=', maxLevel, ';'
+
 
 
 
