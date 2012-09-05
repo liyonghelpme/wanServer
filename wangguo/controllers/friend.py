@@ -308,8 +308,10 @@ class FriendController(BaseController):
         uid = int(uid)
         offset = int(offset)
         limit = int(limit)
-        result = mongoCollect.find_one()['res']  
-        ret = result[offset:offset+limit]
-        ret = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name']] for i in ret]
-
+        try:
+            result = mongoCollect.find_one()['res']  
+            ret = result[offset:offset+limit]
+            ret = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name']] for i in ret]
+        except:
+            ret = []
         return dict(id=1, res=ret)

@@ -1,7 +1,7 @@
 #coding:utf8
 import MySQLdb
 import json
-sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart']
+sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood']
 con = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 
 sql = 'select * from prescriptionNum'
@@ -29,6 +29,18 @@ def hanData(name, data):
         a = [k[1] for k in it]
         if i.get('id') != None:
             res.append([i['id'], a])
+
+    #if name == 'mapBlood':
+    #    res = []
+    #    for i in f:
+    #        res.append()
+    if name == 'heroSkill':
+        res = []
+        for i in f:
+            res.append([i['hid'], i['skillId']])
+        print 'var', name, '=', 'dict(',json.dumps(res), ');'
+        return []
+
 
     if name == 'loveTreeHeart':
         res = []
@@ -95,8 +107,16 @@ def hanData(name, data):
             res.append(['name'+str(id), i['maleOrFemale']])
             names.append(['name'+str(id), [i['name'], i['engName']]])
             id += 1
-        print 'var', name, '=', json.dumps(res), ';'
-        return names
+        #print 'var', name, '=', json.dumps(res), ';'
+        #return names
+        print 'var', 'SolNames', '=', 'dict(['
+        for n in names:
+            #n[1][0] = n[1][0].encode('utf8')
+            #print json.dumps(n)
+            #print '[', json.dumps(n[0]), ',','["'+n[1][0]+'",',  '"'+n[1][1]+'"]','],'
+            print '[','"'+n[0]+'"', ',', '['+'"'+ n[1][0].encode('utf8') + '", "'+ n[1][1].encode('utf8')+'"]'+'],'
+        print ']);'
+        return []
     if name == 'challengeReward':
         for i in f:
             res = json.loads(i['reward'])
@@ -446,6 +466,19 @@ print 'var', 'levelUpdate', '=', 'dict(' ,json.dumps(res), ');'
 print 'const', 'MAX_LEVEL', '=', maxLevel, ';'
 
 
+#商店士兵 类型只有 初级士兵 和 怪兽
+sql = 'select * from soldier order by level'
+con.query(sql)
+res = con.store_result().fetch_row(0, 1)
+showId = []
+for r in res:
+    if r['id'] % 10 == 0 and r['isHero'] == 0:
+        showId.append(r['id'])
+
+print 'var', 'storeSoldier', '=', json.dumps(showId), ';'
+    
+
+
 
 
 print 'var', 'strings = dict(['
@@ -455,3 +488,5 @@ for n in allNames:
     else:
         print '[','"'+n[0]+'"', ',','"'+ n[1].encode('utf8')+'"','],'
 print ']);'
+
+
