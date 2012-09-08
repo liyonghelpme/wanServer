@@ -31,12 +31,18 @@ class ChallengeController(BaseController):
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
         #10次以上为普通挑战
         if challenge.challengeNum >= NEW_RANK:
-            ranks = DBSession.query(UserGroupRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
-            res = [[i.uid, i.papayaId, i.score, i.rank, i.name] for i in ranks]
+            ranks = groupRankCollect.find_one()["res"]
+            ret = ranks[offset:offset+limit]
+            #ranks = DBSession.query(UserGroupRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
+            #res = [[i.uid, i.papayaId, i.score, i.rank, i.name] for i in ranks]
+            res = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name']] for i in ret]
         #10次下新手 新手finish 表示不能挑战 在生成新的排名的时候才可以消除这些finish=1 首先删除
         else:
-            ranks = DBSession.query(UserNewRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
-            res = [[i.uid, i.papayaId, i.score, i.rank, i.name, i.finish] for i in ranks]
+            ranks = newRankCollect.find_one()["res"]
+            ret = ranks[offset:offset+limit]
+            #ranks = DBSession.query(UserNewRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
+            #res = [[i.uid, i.papayaId, i.score, i.rank, i.name, i.finish] for i in ranks]
+            res = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name'], i['finish']] for i in ret]
 
         #返回的数据按照rank 排好序
         #数据中没有重复的rank  rank重复则保留uid 为自身的排名数据
@@ -134,7 +140,9 @@ class ChallengeController(BaseController):
             #DBSession.delete(oldRank)
             #newRank = DBSession.query(UserGroupRank).filter_by(uid=uid).one()
             #newRank.score = oldRank.score
-        return dict(id=1, soldiers=soldiers, equips=equips, cityDefense = other.cityDefense)
+        skills = DBSession.query(UserSkills).filter_by(uid=oid).all()
+        skills = [[i.soldierId, i.skillId, i.level] for i in skills] 
+        return dict(id=1, soldiers=soldiers, equips=equips, cityDefense = other.cityDefense, skills=skills)
     #胜利积分增级 登录返回用户排名的时候刷新排名
     #排名只在1个小时更新一次
     #士兵状态更新 需要一并发出

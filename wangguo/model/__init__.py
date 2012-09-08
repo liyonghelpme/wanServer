@@ -19,6 +19,9 @@ import pymongo
 mongoCon = pymongo.Connection(host='localhost', port=27017)
 mongoDB = mongoCon['Rank']
 mongoCollect = mongoDB.heartRank
+newRankCollect = mongoDB.UserNewRank
+groupRankCollect = mongoDB.UserGroupRank
+recommandCollect = mongoDB.UserRecommand
 
 con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 #cur = con.cursor()
@@ -222,7 +225,7 @@ metadata = DeclarativeBase.metadata
 ######
 
 #allCost Data
-
+"""
 AllRecommandUsers = None
 
 
@@ -235,6 +238,7 @@ class RecommandThread(Thread):
             time.sleep(24*3600)
 
 thr = RecommandThread()
+"""
 
 def init_model(engine):
     """Call me before using any of the tables or classes in the model."""
@@ -315,7 +319,7 @@ def init_model(engine):
     #mapper(UserHeartRank, userHeartRankTable)
 
     #每天更新数据 需要服务器内存数据更新
-    thr.start()
+    #thr.start()
 
 
 # Import your model modules here.

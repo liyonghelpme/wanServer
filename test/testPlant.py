@@ -3,8 +3,9 @@ import urllib
 import json
 import sys
 import random
-con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
-base = 'http://localhost:8080/'
+from config import *
+#con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
+base = '%sbuildingC/' % (base2)
 
 def exe(sql):
     print sql
@@ -23,31 +24,31 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-r = base+'login/234/ppp'
+papa = random.randint(3000, 4000)
+r = base2+'login/%d/ppp' % (papa)
 l = req(r)
 uid = l.get("uid")
 bid = random.randint(1, 100)
 
-r = base+'buildingC/finishBuild/'+str(uid)+'/'+str(bid)+'/'+str(0)+'/10/10/0'
+r = base+'finishBuild/'+str(uid)+'/'+str(bid)+'/'+str(0)+'/10/10/0'
 build = req(r)
 
-r = base+'buildingC/beginPlant/'+str(uid)+'/'+str(bid)+'/0'
+r = base+'beginPlant/'+str(uid)+'/'+str(bid)+'/0'
 plant = req(r)
 
-r = base+'buildingC/harvestPlant/'+str(uid)+'/'+str(bid)
+r = base+'harvestPlant/'+str(uid)+'/'+str(bid)
 fin = req(r)
 
-sql = 'update UserBuildings set objectTime = 0'
-exe(sql)
-con.commit()
-
-r = base+'buildingC/harvestPlant/'+str(uid)+'/'+str(bid)
+r = base+'accPlant/'+str(uid)+'/'+str(bid)+'/1'
 fin = req(r)
 
-r = base+'buildingC/finishPlan/'+str(uid)+'/'+str([[bid, 20, 20, 1]])
+r = base+'harvestPlant/'+str(uid)+'/'+str(bid)
+fin = req(r)
+
+r = base+'finishPlan/'+str(uid)+'/'+str([[bid, 20, 20, 1]])
 plan = req(r)
 
-r = base+'buildingC/sellBuilding/'+str(uid)+'/'+str(bid)
+r = base+'sellBuilding/'+str(uid)+'/'+str(bid)
 sell = req(r)
 
 
