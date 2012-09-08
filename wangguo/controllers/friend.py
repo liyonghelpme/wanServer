@@ -71,13 +71,15 @@ class FriendController(BaseController):
     @expose('json')
     def getRecommand(self, uid):
         uid = int(uid)
-        allUsers = len(AllRecommandUsers)
-        begin = randint(0, allUsers-1)
-        res = range(begin, min(begin+FETCH_FRI_NUM, allUsers))
+        allUsers = recommandCollect.find_one()['res']
+        userLen = len(allUsers)
+        #allUsers = len(AllRecommandUsers)
+        begin = randint(0, userLen-1)
+        res = range(begin, min(begin+FETCH_FRI_NUM, userLen))
         res += range(0, min(begin, FETCH_FRI_NUM-len(res)))
         retUser = []
         for i in res:
-            retUser.append([AllRecommandUsers[i].uid, AllRecommandUsers[i].level, AllRecommandUsers[i].name, AllRecommandUsers[i].papayaId])
+            retUser.append([allUsers[i]['uid'], allUsers[i]['level'], allUsers[i]['name'], allUsers[i]['papayaId']])
         return dict(id=1, retUser=retUser)
             
     
@@ -240,7 +242,9 @@ class FriendController(BaseController):
         soldiers = getChallengeSoldiers(fid)
         equips = getChallengeEquips(fid)
         other = getUser(fid)
-        return dict(id=1, soldiers=soldiers, equips=equips, cityDefense=other.cityDefense)
+        skills = DBSession.query(UserSkills).filter_by(uid=fid).all()
+        skills = [[i.soldierId, i.skillId, i.level] for i in skills]
+        return dict(id=1, soldiers=soldiers, equips=equips, cityDefense=other.cityDefense, skills = skills)
         
     @expose('json')
     def challengeNeiborOver(self, uid, fid, sols, crystal):

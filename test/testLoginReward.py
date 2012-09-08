@@ -56,3 +56,6 @@ req(r)
 
 r = '%slogin/%d/ppp' % (base2, papaya)
 print l['lastWeek'], l['thisWeek']
+
+r = '%slevelUp/%d/%d/%d/%s/%d' % (base2, uid, 0, 2, '{}', 100)
+req(r)

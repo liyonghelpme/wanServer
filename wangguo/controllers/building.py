@@ -85,6 +85,24 @@ class BuildingController(BaseController):
         build.objectTime = getTime()
         return dict(id=1)
     @expose('json')
+    def accPlant(self, uid, bid, gold):
+        uid = int(uid)
+        bid = int(bid)
+        gold = int(gold)
+        cost = {'gold':gold}
+        buyable = checkCost(uid, cost)
+        if not buyable:
+            return dict(id=0)
+        doCost(uid, cost)
+
+        building = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
+        plantData = getData("plant", building.objectId)
+        needTime = plantData.get("time")
+        now = getTime()
+        building.objectTime = now-needTime-1
+        return dict(id=1)
+
+    @expose('json')
     def harvestPlant(self, uid, bid):
         print "harvestPlant"
         uid = int(uid)

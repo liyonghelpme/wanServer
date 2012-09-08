@@ -25,31 +25,37 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-papayaId = random.randint(400, 500);
-r = '%slogin/%d/ppp' % (base2, papayaId)
-l = req(r)
+for i in range(0, 10):
+    papayaId = random.randint(5000, 6000);
+    r = '%slogin/%d/ppp' % (base2, papayaId)
+    l = req(r)
+    uid = l.get('uid')
+    #print l.get('soldiers')
+    #print l['skills']
 
+    r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero%d' % papayaId)
+    req(r)
 
-uid = l.get('uid')
-print l.get('soldiers')
-print l['skills']
+    r = base2+'getLoginReward/%d/%d/%d' % (uid, 5, 5)
+    reward = req(r)
 
-r = base+'buySkill/%d/%d/%d' % (uid, 0, 0)
-req(r)
+    for sk in range(0, 12):
+        r = base+'buySkill/%d/%d/%d' % (uid, 0, sk)
+        req(r)
 
-r = base2+'goodsC/buyMagicStone/%d/%d' % (uid, 0)
-req(r)
+    r = base2+'goodsC/buyMagicStone/%d/%d' % (uid, 0)
+    req(r)
 
-r = base+'upgradeSkill/%d/%d/%d/%d' % (uid, 0, 0, 0)
-req(r)
+    r = base+'upgradeSkill/%d/%d/%d/%d' % (uid, 0, 0, 0)
+    req(r)
 
-r = '%slogin/%d/ppp' % (base2, papayaId)
-l = req(r)
-print l['skills']
+    r = '%slogin/%d/ppp' % (base2, papayaId)
+    l = req(r)
+    print l['skills']
 
-r = base+'giveupSkill/%d/%d/%d' % (uid, 0, 0)
-req(r)
+    r = base+'giveupSkill/%d/%d/%d' % (uid, 0, 0)
+    req(r)
 
-r = '%slogin/%d/ppp' % (base2, papayaId)
-l = req(r)
-print l['skills']
+    r = '%slogin/%d/ppp' % (base2, papayaId)
+    l = req(r)
+    print l['skills']

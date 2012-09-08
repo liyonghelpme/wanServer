@@ -202,7 +202,7 @@ class RootController(BaseController):
     #
     def getUserData(self, user):
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=user.uid).one()
-        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=0, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, colorCrystal=user.colorCrystal) 
+        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, colorCrystal=user.colorCrystal) 
     def getBuildings(self, uid):
         buildings = DBSession.query(UserBuildings).filter_by(uid=uid).all()
         res = {}
@@ -332,13 +332,21 @@ class RootController(BaseController):
 
         return dict(id=1, silver=silver, crystal=crystal, loginDays = user.loginDays)
 
-
+    #用户升级后提升经验等级城堡防御力其它奖励
     @expose('json')
-    def levelUp(self, uid, level, rew):
+    def levelUp(self, uid, exp, level, rew, cityDefense):
         uid = int(uid)
+        exp = int(exp)
         level = int(level)
-        rew = json.loads(rew)
-        doGain(uid, rew);
+        cityDefense = int(cityDefense)
+
+        user = getUser(uid)
+        user.exp = exp
+        user.level = level
+        user.cityDefense += cityDefense
+
+        #rew = json.loads(rew)
+        #doGain(uid, rew);
         return dict(id=1)
 
     """
@@ -435,8 +443,8 @@ class RootController(BaseController):
 
         skills = self.getSkills(user.uid)
 
-        #week = time.localtime().tm_wday
-        week = 0
+        week = time.localtime().tm_wday
+        #week = 0
 
         updateState = user.updateState
         #user.updateState += 1

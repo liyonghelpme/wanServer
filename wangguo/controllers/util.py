@@ -80,6 +80,8 @@ def doGain(uid, gain):
     for k in gain:
         v = getattr(user, k)
         v += gain[k]
+        #提升经验 提升等级
+        """
         if k == 'exp':
             levelExp = datas.get("levelExp")
             level = user.level
@@ -93,6 +95,7 @@ def doGain(uid, gain):
                     break
             if level != oldLevel:
                 user.level = level
+        """
 
         setattr(user, k, v)
 
@@ -155,7 +158,7 @@ def getRankTable(uid):
         rank = UserNewRank
     return rank
     
-#在10次挑战结束的时候进行数据迁移
+#在10次挑战结束的时候进行数据迁移 如果挑战数据为空 
 def getRank(uid):
     #user = getUser(uid)
     challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
