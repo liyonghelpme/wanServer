@@ -28,8 +28,8 @@ __all__ = ['RootController']
 
 
 class RootController(BaseController):
-    secc = SecureController()
-    admin = AdminController(model, DBSession, config_type=TGAdminConfig)
+    #secc = SecureController()
+    #admin = AdminController(model, DBSession, config_type=TGAdminConfig)
     taskC = TaskController()
     challengeC = ChallengeController()
     goodsC = GoodsController()
