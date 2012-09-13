@@ -19,6 +19,7 @@ from wangguo.controllers.building import BuildingController
 from wangguo.controllers.soldier import SoldierController
 from wangguo.controllers.friend import FriendController
 from wangguo.controllers.mine import MineController
+from wangguo.controllers.fight import FightController
 
 #from wangguo.model import DBSession, metadata
 from wangguo.model import *
@@ -28,8 +29,8 @@ __all__ = ['RootController']
 
 
 class RootController(BaseController):
-    secc = SecureController()
-    admin = AdminController(model, DBSession, config_type=TGAdminConfig)
+    #secc = SecureController()
+    #admin = AdminController(model, DBSession, config_type=TGAdminConfig)
     taskC = TaskController()
     challengeC = ChallengeController()
     goodsC = GoodsController()
@@ -37,6 +38,7 @@ class RootController(BaseController):
     soldierC = SoldierController()
     friendC = FriendController()
     mineC = MineController()
+    fightC = FightController()
 
     error = ErrorController()
 
@@ -99,7 +101,7 @@ class RootController(BaseController):
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=2, kind=204, px=1280, py=720, state = 1)
         DBSession.add(buildings)
-        buildings = UserBuildings(uid=uid, bid=3, kind=206, px=1728, py=848, state = 1)
+        buildings = UserBuildings(uid=uid, bid=3, kind=206, px=1536, py=880, state = 1)
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=4, kind=0, px=2496, py=624, state= 1)
         DBSession.add(buildings)
@@ -110,6 +112,8 @@ class RootController(BaseController):
         buildings = UserBuildings(uid=uid, bid=7, kind=0, px=2496, py=688, state= 1)
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=8, kind=208, px=1824, py=640, state=1)#MOVE FREE WORK 
+        DBSession.add(buildings)
+        buildings = UserBuildings(uid=uid, bid=9, kind=166, px=1760, py=800, state=1)#MOVE FREE WORK 
         DBSession.add(buildings)
 
     global ROUND_BIG 
@@ -155,6 +159,12 @@ class RootController(BaseController):
         num = DBSession.query(UserNewRank).filter("score >= 100").count()
         rank = UserNewRank(uid=user.uid, score=100, rank=num, papayaId = user.papayaId, name=user.name, finish=0)
         DBSession.add(rank)
+
+        attackRank = UserAttack(uid=user.uid, total=0, suc=0, rank=0)
+        DBSession.add(attackRank)
+
+        defenseRank = UserDefense(uid=user.uid, total=0, suc=0, rank=0)
+        DBSession.add(defenseRank)
         """
         num = DBSession.query(UserGroupRank).filter("score >= 100").count()
         rank = UserGroupRank(uid=user.uid, score=100, rank=num, papayaId = user.papayaId, papayaName=user.papayaName)
