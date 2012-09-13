@@ -95,3 +95,7 @@ req(r)
 
 r = '%smakeFighting/%d/%d/%d/%d' % (base, uid, 0, 1, 1)
 req(r)
+#测试攻击我的帐号
+
+r = '%sattackArena/%d/%d/%d/%d' % (base, oid, 1554, 1, 1)
+req(r)
