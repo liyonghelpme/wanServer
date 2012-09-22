@@ -180,7 +180,7 @@ class RootController(BaseController):
 
     def getHeart(self, uid):
         heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
-        return dict(weekNum=heart.weekNum, accNum=heart.accNum, liveNum=heart.liveNum, rank=heart.rank)
+        return dict(weekNum=heart.weekNum, accNum=heart.accNum, liveNum=heart.liveNum, rank=heart.rank)#, heartExp=heart.heartExp
 
 
     #闯关保存在本地就可以了
@@ -206,8 +206,10 @@ class RootController(BaseController):
     def getBuildings(self, uid):
         buildings = DBSession.query(UserBuildings).filter_by(uid=uid).all()
         res = {}
+        #res = []
         for i in buildings:
-            res[i.bid] = dict(id=i.kind, px=i.px, py=i.py, state=i.state, dir=i.dir, objectId=i.objectId, objectTime=i.objectTime)
+            #res.append([i.bid, i.kind, i.px, i.py, i.state])
+            res[i.bid] = dict(id=i.kind, px=i.px, py=i.py, state=i.state, dir=i.dir, objectId=i.objectId, objectTime=i.objectTime, level=i.level)
         return res
     def getDrugs(self, uid):
         drugs = DBSession.query(UserDrugs).filter_by(uid=uid).all()
@@ -455,7 +457,9 @@ class RootController(BaseController):
 
         heart = self.getHeart(user.uid)
         #starNum = stars,
-        return dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, heart=heart, registerTime=user.registerTime) 
+        ret = dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart) 
+        #ret.update(heart)
+        return ret
     @expose('json')
     def reportError(self, uid, errorDetail):
         uid = int(uid)

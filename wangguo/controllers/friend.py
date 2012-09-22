@@ -265,6 +265,15 @@ class FriendController(BaseController):
         DBSession.add(msg)
 
         return dict(id=1)
+    #自己的爱心数量由自己修改 
+    #其他用户不能修改
+
+    #总的爱心累计数量   其他用户赠送
+    #每周的爱心累计数量 服务器每周清空
+    #未收获的爱行数量 其他用户赠送 自己清空
+    #自己爱心经验 其他用户赠送 自己清空
+
+    #可能自己在清空的时候其他用户还在赠送需要注意
     @expose('json')
     def sendHeart(self, uid, fid):
         uid = int(uid)
@@ -282,9 +291,12 @@ class FriendController(BaseController):
         heart.accNum += 1
         heart.weekNum += 1
         heart.liveNum += 1
+        #爱心树 升级经验累计爱心
+        #heart.heartExp += 1
         return dict(id=1)
 
     
+    #每周第一次登录 收集没有收获的爱心数量
     @expose('json')
     def collectHeart(self, uid):
         uid = int(uid)
@@ -294,15 +306,23 @@ class FriendController(BaseController):
         heart.liveNum = 0
         return dict(id=1)
 
-    #登录时发现 可以提升等级 则 客户端发送等级提升消息 
+    #登录时发现 可以根据当前的等级需要的 升级已有的爱心爱心数量
+    #来提升爱心树等级 则 客户端发送等级提升消息 
     #修改爱心树ID
+
+    #不再检测爱心经验只 检测 爱心总量
     @expose('json')
-    def upgradeLoveTree(self, uid, bid, kind):
+    def upgradeLoveTree(self, uid, bid, level):
         uid = int(uid)
         bid = int(bid)
-        kind = int(kind)
+        level = int(level)
+        #lostHeart = int(lostHeart)
+
         building = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
-        building.kind = kind
+        building.level = level
+
+        #heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
+        #heart.heartExp -= lostHeart
         return dict(id=1)
     
     #从mongodb 的中的排行数据中获取数据 按照每周爱心数量

@@ -21,6 +21,27 @@ __all__ = ['BuildingController']
 
 
 class BuildingController(BaseController):
+    #主要是升级爱心树
+    """
+    @expose('json')
+    def upgradeBuild(self, uid, bid, silver, crystal, gold, people):
+        uid = int(uid)
+        bid = int(bid)
+        silver = int(silver)
+        crystal = int(crystal)
+        gold = int(gold)
+        people = int(people)
+
+        cost = {'silver':silver, 'crystal':crystal, 'gold':gold}
+        ret = checkCost(uid, cost)
+        if ret:
+            doCost(uid, cost)
+            doGain(uid, {'people':people})
+            building = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
+            building.level += 1
+            return dict(id=1)
+        return dict(id=0)
+    """
     @expose('json')
     def sellBuilding(self, uid, bid):
         uid = int(uid)
