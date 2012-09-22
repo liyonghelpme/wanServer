@@ -22,6 +22,11 @@ mongoCollect = mongoDB.heartRank
 newRankCollect = mongoDB.UserNewRank
 groupRankCollect = mongoDB.UserGroupRank
 recommandCollect = mongoDB.UserRecommand
+arenaCollect = mongoDB.UserArena
+
+#Arena Collect
+attackCollect = mongoDB.UserAttack
+defenseCollect = mongoDB.UserDefense
 
 con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 #cur = con.cursor()
@@ -34,7 +39,7 @@ MAGIC_STONE = 16
 
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
-'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart']
+'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart', 'fightingCost', 'PARAMS']
 
 def getPrescriptionNum():
     sql = 'select * from prescriptionNum'
@@ -82,7 +87,10 @@ for i in name:
     res = con.store_result()
     allData = res.fetch_row(0, 1)
     datas[i] = dict()
-    if i == 'loveTreeHeart':
+    if i == 'PARAMS':
+        for a in allData:
+            datas[i] = a
+    elif i == 'loveTreeHeart':
         for a in allData:
             datas[i] = json.loads(a['num'])
     elif i == 'prescription':
@@ -314,6 +322,17 @@ def init_model(engine):
     mapper(UserSkills, userSkillsTable)
     userHeartTable = Table("UserHeart", metadata, autoload=True, autoload_with=engine)
     mapper(UserHeart, userHeartTable)
+    userFightingTable = Table("UserFighting", metadata, autoload=True, autoload_with=engine)
+    mapper(UserFighting, userFightingTable)
+    userFightRecordTable = Table("UserFightRecord", metadata, autoload=True, autoload_with=engine)
+    mapper(UserFightRecord, userFightRecordTable)
+    userAttackTable = Table("UserAttack", metadata, autoload=True, autoload_with=engine)
+    mapper(UserAttack, userAttackTable)
+    userDefenseTable = Table("UserDefense", metadata, autoload=True, autoload_with=engine)
+    mapper(UserDefense, userDefenseTable)
+
+    userUnlockLevelTable = Table("UserUnlockLevel", metadata, autoload=True, autoload_with=engine)
+    mapper(UserUnlockLevel, userUnlockLevelTable)
 
     #userHeartRankTable = Table("UserHeartRank", metadata, autoload=True, autoload_with=engine)
     #mapper(UserHeartRank, userHeartRankTable)
@@ -350,4 +369,8 @@ from wangguo.model.userBug import UserBug
 from wangguo.model.userGift import UserGift
 from wangguo.model.userSkills import UserSkills
 from wangguo.model.userHeart import UserHeart
-#from wangguo.model.userHeartRank import UserHeartRank
+from wangguo.model.userFighting import UserFighting
+from wangguo.model.userFightRecord import UserFightRecord
+from wangguo.model.userAttack import UserAttack
+from wangguo.model.userDefense import UserDefense
+from wangguo.model.userUnlockLevel import UserUnlockLevel

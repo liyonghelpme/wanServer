@@ -112,10 +112,15 @@ class ChallengeController(BaseController):
             pass
         record = UserChallengeRecord(uid=uid, oid=oid, time=curTime)
         DBSession.add(record)
+
         #soldiers = getSoldiers(oid)
-        soldiers = getChallengeSoldiers(oid)
+        #soldiers = getChallengeSoldiers(oid)
         #equips = getEquips(oid)
-        equips = getChallengeEquips(oid)
+        #equips = getChallengeEquips(oid)
+        #skills = DBSession.query(UserSkills).filter_by(uid=oid).all()
+        #skills = [[i.soldierId, i.skillId, i.level] for i in skills] 
+
+        oData = getOtherData(oid)
 
         #user = getUser(uid)
         #user.challengeNum += 1
@@ -125,7 +130,7 @@ class ChallengeController(BaseController):
         challenge.challengeTime = now
         challenge.lastMinusTime = now
         user = getUser(uid)
-        other = getUser(oid)
+        #other = getUser(oid)
         #第10次挑战迁移数据 新手阶段已经结束 
         if challenge.challengeNum == NEW_RANK:
 
@@ -140,9 +145,10 @@ class ChallengeController(BaseController):
             #DBSession.delete(oldRank)
             #newRank = DBSession.query(UserGroupRank).filter_by(uid=uid).one()
             #newRank.score = oldRank.score
-        skills = DBSession.query(UserSkills).filter_by(uid=oid).all()
-        skills = [[i.soldierId, i.skillId, i.level] for i in skills] 
-        return dict(id=1, soldiers=soldiers, equips=equips, cityDefense = other.cityDefense, skills=skills)
+        
+        oData.update({'id':1})
+        #return dict(id=1, soldiers=soldiers, equips=equips, cityDefense = other.cityDefense, skills=skills)
+        return oData
     #胜利积分增级 登录返回用户排名的时候刷新排名
     #排名只在1个小时更新一次
     #士兵状态更新 需要一并发出
@@ -169,7 +175,22 @@ class ChallengeController(BaseController):
         return dict(id=1)
         
 
-            
+    @expose('json')
+    def enableDif(self, uid, big, gold):
+        uid = int(uid)
+        big = int(big)
+        gold = int(gold)
+        #small = int(small)
+        cost = {'gold':gold}
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=1, status=0)
+        doCost(uid, cost)
+
+        chaLevel = UserUnlockLevel(uid=uid, levelId=big)
+        DBSession.add(chaLevel)
+        return dict(id=1)
+
 
             
             

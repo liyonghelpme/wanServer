@@ -1,7 +1,7 @@
 #coding:utf8
 import MySQLdb
 import json
-sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood']
+sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood', 'fightingCost', 'PARAMS']
 con = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 
 sql = 'select * from prescriptionNum'
@@ -34,12 +34,23 @@ def hanData(name, data):
     #    res = []
     #    for i in f:
     #        res.append()
+    if name == 'PARAMS':
+        res = {}
+        for i in f:
+            for k in i:
+                res[k] = i[k]
+        res = res.items()
+        print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return []
     if name == 'heroSkill':
         res = []
         for i in f:
             res.append([i['hid'], i['skillId']])
         print 'var', name, '=', 'dict(',json.dumps(res), ');'
         return []
+    #if name == 'fightCost':
+    #    res = []
+    #    return []
 
 
     if name == 'loveTreeHeart':

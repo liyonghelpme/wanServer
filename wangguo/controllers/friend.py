@@ -239,12 +239,16 @@ class FriendController(BaseController):
             rel.challengeYet = 1
         except:
             print "neibor relaition broken", uid, fid
-        soldiers = getChallengeSoldiers(fid)
-        equips = getChallengeEquips(fid)
-        other = getUser(fid)
-        skills = DBSession.query(UserSkills).filter_by(uid=fid).all()
-        skills = [[i.soldierId, i.skillId, i.level] for i in skills]
-        return dict(id=1, soldiers=soldiers, equips=equips, cityDefense=other.cityDefense, skills = skills)
+
+        #soldiers = getChallengeSoldiers(fid)
+        #equips = getChallengeEquips(fid)
+        #other = getUser(fid)
+        #skills = DBSession.query(UserSkills).filter_by(uid=fid).all()
+        #skills = [[i.soldierId, i.skillId, i.level] for i in skills]
+        oData = getOtherData(fid)
+        oData.update({'id':1})
+        return oData
+        #return dict(id=1, soldiers=soldiers, equips=equips, cityDefense=other.cityDefense, skills = skills)
         
     @expose('json')
     def challengeNeiborOver(self, uid, fid, sols, crystal):

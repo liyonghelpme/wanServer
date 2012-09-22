@@ -221,3 +221,10 @@ def getGoodsNum(uid, kind, tid):
     except:
         return 0
 
+def getOtherData(oid):
+    soldiers = getChallengeSoldiers(oid)
+    equips = getChallengeEquips(oid)
+    skills = DBSession.query(UserSkills).filter_by(uid=oid).all()
+    skills = [[i.soldierId, i.skillId, i.level] for i in skills] 
+    user = getUser(oid)
+    return dict(soldiers=soldiers, equips=equips, skills=skills, cityDefense=user.cityDefense)
