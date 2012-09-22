@@ -116,14 +116,14 @@ class RootController(BaseController):
         buildings = UserBuildings(uid=uid, bid=9, kind=166, px=1760, py=800, state=1)#MOVE FREE WORK 
         DBSession.add(buildings)
 
-    global ROUND_BIG 
-    ROUND_BIG = 5
-    global ROUND_SMALL
-    ROUND_SMALL = 7
+    #global ROUND_BIG 
+    #ROUND_BIG = 5
+    #global ROUND_SMALL
+    #ROUND_SMALL = 7
     def initChallenge(self, user):
         uid = user.uid
-        for i in range(0, ROUND_BIG):
-            for j in range(0, ROUND_SMALL):
+        for i in range(0, datas['PARAMS']["bigNum"]):
+            for j in range(0, datas['PARAMS']['smallNum']):
                 challenge = UserChallenge(uid=uid, big=i, small=j, star=0)
                 DBSession.add(challenge)
     def initSoldiers(self, user):
@@ -200,12 +200,15 @@ class RootController(BaseController):
     @expose('json')
     def getStars(self, uid):
         challenge = DBSession.query(UserChallenge).filter_by(uid=uid).all()
-        res = [ [0 for i in range(0, ROUND_SMALL)] for j in range(0, ROUND_BIG)]
+        res = [ [0 for i in range(0, datas['PARAMS']['smallNum'])] for j in range(0, datas['PARAMS']['bigNum'])]
 
-        for i in challenge:#不需要难度
+        for i in challenge:#starNum enable
             res[i.big][i.small] = i.star
+
+        unlockLevel = DBSession.query(UserUnlockLevel).filter_by(uid=uid).all()
+        unlockLevel = [i.levelId for i in unlockLevel]
         #print res
-        return dict(id=1, res=res)
+        return dict(id=1, res=res, unlockLevel=unlockLevel)
 
     #测试loginTime = 0
     #week = 0
@@ -378,7 +381,7 @@ class RootController(BaseController):
     def chooseFirstHero(self, uid, hid, name):
         uid = int(uid)
         user = getUser(uid)
-        hid = int(hid)#英雄ID 暂时都用类型0
+        hid = int(hid)#英雄ID 图片暂时使用普通士兵
 
         sameName = DBSession.query(UserInWan).filter_by(name=name).all()
         if len(sameName) > 0 and sameName[0].uid != uid:
@@ -389,11 +392,12 @@ class RootController(BaseController):
 
         #hid  = hid level = 0 第一个士兵
         sid = 0
-        hid = 0
+        #hid = 0
         data = calculateStage(hid, 0)[4]
         soldier = UserSoldiers(uid=uid, sid=sid, kind=hid, name=name, health = data)
         DBSession.add(soldier)
         #编号15 凤凰变身技能暂时使用 的变身技能 暂时没有英雄变身技能
+
         skill = UserSkills(uid=uid, soldierId=sid, skillId=15, level=0)
         DBSession.add(skill)
         return dict(id=1)
@@ -402,6 +406,7 @@ class RootController(BaseController):
 
     global Keys
     Keys = ['uid', 'silver', 'gold', 'crystal', 'level', 'people', 'cityDefense', 'loginDays', 'exp']
+    #登录时新手依然返回英雄数据 只是英雄 人物 采用临时图片方法
     @expose('json')
     def login(self, papayaId, papayaName):
         print "login", papayaId, papayaName
@@ -428,8 +433,8 @@ class RootController(BaseController):
             #self.initSolEquip(user)
         
         #初次登录玩家 需要注册英雄和名称
-        if user.newState == 0:
-            return dict(id=1, uid=user.uid, newState=0)
+        #if user.newState == 0:
+        #    return dict(id=1, uid=user.uid, newState=0)
 
         #loginReward = self.getLoginReward(user)
         #在getUserData 获取积分之前 减去积分

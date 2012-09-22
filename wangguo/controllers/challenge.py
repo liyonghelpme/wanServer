@@ -175,7 +175,22 @@ class ChallengeController(BaseController):
         return dict(id=1)
         
 
-            
+    @expose('json')
+    def enableDif(self, uid, big, gold):
+        uid = int(uid)
+        big = int(big)
+        gold = int(gold)
+        #small = int(small)
+        cost = {'gold':gold}
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=1, status=0)
+        doCost(uid, cost)
+
+        chaLevel = UserUnlockLevel(uid=uid, levelId=big)
+        DBSession.add(chaLevel)
+        return dict(id=1)
+
 
             
             

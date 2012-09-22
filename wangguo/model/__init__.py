@@ -331,6 +331,9 @@ def init_model(engine):
     userDefenseTable = Table("UserDefense", metadata, autoload=True, autoload_with=engine)
     mapper(UserDefense, userDefenseTable)
 
+    userUnlockLevelTable = Table("UserUnlockLevel", metadata, autoload=True, autoload_with=engine)
+    mapper(UserUnlockLevel, userUnlockLevelTable)
+
     #userHeartRankTable = Table("UserHeartRank", metadata, autoload=True, autoload_with=engine)
     #mapper(UserHeartRank, userHeartRankTable)
 
@@ -370,3 +373,4 @@ from wangguo.model.userFighting import UserFighting
 from wangguo.model.userFightRecord import UserFightRecord
 from wangguo.model.userAttack import UserAttack
 from wangguo.model.userDefense import UserDefense
+from wangguo.model.userUnlockLevel import UserUnlockLevel
