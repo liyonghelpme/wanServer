@@ -115,6 +115,8 @@ class RootController(BaseController):
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=9, kind=166, px=1760, py=800, state=1)#MOVE FREE WORK 
         DBSession.add(buildings)
+        buildings = UserBuildings(uid=uid, bid=10, kind=224, px=1312, py=896, state=1)#MOVE FREE WORK 
+        DBSession.add(buildings)
 
     #global ROUND_BIG 
     #ROUND_BIG = 5
