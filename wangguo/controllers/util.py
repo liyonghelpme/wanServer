@@ -191,7 +191,7 @@ def calculateStage(id, level):
     magicAttack = begin[1][4]+(level-begin[0])*addMagicAttack/levelDiff; 
     magicDefense = begin[1][1]+(level-begin[0])*addMagicDefense/levelDiff; 
     healthBoundary = begin[1][0]+(level-begin[0])*int(addHealth)/levelDiff;
-    return [physicAttack, magicAttack, physicDefense, magicDefense, healthBoundary]
+    return dict(physicAttack=physicAttack, magicAttack=magicAttack, physicDefense=physicDefense, magicDefense=magicDefense, healthBoundary=healthBoundary)
     
 def updateDrugNum(uid, tid, num):
     try:

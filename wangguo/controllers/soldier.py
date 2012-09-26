@@ -33,8 +33,8 @@ class SoldierController(BaseController):
         cat = getData('soldier', id).get("category")
         pcoff = datas['soldierKind'][cat][4]
         mcoff = datas['soldierKind'][cat][5]
-    	phyBasic = int(pureData[4]*pureData[0]/pcoff)
-    	magBasic = int(pureData[4]*pureData[2]/mcoff)
+    	phyBasic = int(pureData['healthBoundary']*pureData['physicAttack']/pcoff)
+    	magBasic = int(pureData['healthBoundary']*pureData['magicAttack']/mcoff)
     	ab = max(phyBasic, magBasic)/(33*13)
         return ab
 
@@ -47,7 +47,7 @@ class SoldierController(BaseController):
         return exp
             
     def getHealthBoundary(self, soldier):
-        healthBoundary = calculateStage(soldier.kind, soldier.level)[4]
+        healthBoundary = calculateStage(soldier.kind, soldier.level)['healthBoundary']
         #药品增加的生命值上限
         if soldier.addHealthBoundaryTime > 0:
             healthBoundary += soldier.addHealthBoundary
@@ -71,7 +71,7 @@ class SoldierController(BaseController):
         if not ret:
             return dict(id=0)
         doCost(uid, cost)
-        soldier = UserSoldiers(uid=uid, sid=sid, kind=kind, name="", health = calculateStage(kind, 0)[4])
+        soldier = UserSoldiers(uid=uid, sid=sid, kind=kind, name="", health = calculateStage(kind, 0)['healthBoundary'])
         DBSession.add(soldier)
         return dict(id=1)
     @expose('json')
@@ -109,10 +109,10 @@ class SoldierController(BaseController):
             return dict(id=0)
 
         pureData = calculateStage(soldier.kind, soldier.level) 
-        purePhyAttack = pureData[0];
-        pureMagAttack = pureData[1];
-        purePhyDef = pureData[2];
-        pureMagDef = pureData[3];
+        purePhyAttack = pureData['physicAttack'];
+        pureMagAttack = pureData['magicAttack'];
+        purePhyDef = pureData['physicDefense'];
+        pureMagDef = pureData['magicDefense'];
         healthBoundary = self.getHealthBoundary(soldier)
 
         data = getData('drug', tid)

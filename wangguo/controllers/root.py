@@ -81,9 +81,9 @@ class RootController(BaseController):
 
     """Start the user login."""
     def initUserData(self, user):
-        user.silver = 1000
-        user.gold = 1000
-        user.crystal = 1000
+        user.silver = 1000000
+        user.gold = 1000000
+        user.crystal = 1000000
         user.level = 0
         user.people = 5
         user.cityDefense = 831
@@ -131,7 +131,6 @@ class RootController(BaseController):
     def initSoldiers(self, user):
         uid = user.uid
         #sid = 0
-        #data = calculateStage(0, 0)[4]
         #soldier = UserSoldiers(uid=uid, sid=0, kind=0, name='剑', health = data)
         #DBSession.add(soldier)
         #编号12 的变身技能 暂时没有英雄变身技能
@@ -224,7 +223,7 @@ class RootController(BaseController):
         #res = []
         for i in buildings:
             #res.append([i.bid, i.kind, i.px, i.py, i.state])
-            res[i.bid] = dict(id=i.kind, px=i.px, py=i.py, state=i.state, dir=i.dir, objectId=i.objectId, objectTime=i.objectTime, level=i.level)
+            res[i.bid] = dict(id=i.kind, px=i.px, py=i.py, state=i.state, dir=i.dir, objectId=i.objectId, objectTime=i.objectTime, level=i.level, color=i.color)
         return res
     def getDrugs(self, uid):
         drugs = DBSession.query(UserDrugs).filter_by(uid=uid).all()
@@ -397,12 +396,13 @@ class RootController(BaseController):
         #hid  = hid level = 0 第一个士兵
         sid = 0
         #hid = 0
-        data = calculateStage(hid, 0)[4]
+        data = calculateStage(hid, 0)['healthBoundary']
         soldier = UserSoldiers(uid=uid, sid=sid, kind=hid, name=name, health = data)
         DBSession.add(soldier)
         #编号15 凤凰变身技能暂时使用 的变身技能 暂时没有英雄变身技能
 
-        skill = UserSkills(uid=uid, soldierId=sid, skillId=15, level=0)
+        skillId = getData('heroSkill', hid)['skillId']
+        skill = UserSkills(uid=uid, soldierId=sid, skillId=skillId, level=0)
         DBSession.add(skill)
         return dict(id=1)
 

@@ -1,3 +1,4 @@
+#coding:utf8
 import MySQLdb
 import urllib
 import json
@@ -28,7 +29,11 @@ papa = random.randint(3000, 4000)
 r = base2+'login/%d/ppp' % (papa)
 l = req(r)
 uid = l.get("uid")
-bid = random.randint(1, 100)
+bid = random.randint(100, 200)
+#购买兵营
+r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 440, 'hero'+str(papa))
+req(r)
+
 
 r = base+'finishBuild/'+str(uid)+'/'+str(bid)+'/'+str(0)+'/10/10/0'
 build = req(r)
@@ -38,7 +43,7 @@ plant = req(r)
 
 r = base+'harvestPlant/'+str(uid)+'/'+str(bid)
 fin = req(r)
-
+ 
 r = base+'accPlant/'+str(uid)+'/'+str(bid)+'/1'
 fin = req(r)
 
@@ -48,9 +53,23 @@ fin = req(r)
 r = base+'finishPlan/'+str(uid)+'/'+str([[bid, 20, 20, 1]])
 plan = req(r)
 
-r = base+'sellBuilding/'+str(uid)+'/'+str(bid)
+r = base+'sellBuilding/'+str(uid)+'/'+str(bid)+'/100'
 sell = req(r)
 
+bid = bid+1
+r = base+'finishBuild/%d/%d/%d/%d/%d/%d' % (uid, bid, 224, 0, 0, 0)
+req(r)
+
+r = base+'beginWork/%d/%d/%d/%d' % (uid, bid, 7, 0)
+req(r)
+
+r = base+'accWork/%d/%d/%d/%d' % (uid, bid, 7, 1)
+req(r)
+
+r = base+'finishCall/%d/%d/%d' % (uid, bid, 5)
+req(r)
 
 
-
+r = base2+'login/%d/ppp' % (papa)
+l = req(r)
+print l['soldiers']

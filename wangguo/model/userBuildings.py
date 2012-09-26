@@ -11,10 +11,11 @@ from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
 class UserBuildings(object):
-    def __init__(self, uid, bid, kind, px, py, state):
+    def __init__(self, uid, bid, kind, px, py, state, color=0):
         self.uid = uid
         self.bid = bid
         self.kind = kind
         self.px = px
         self.py = py
         self.state = state
+        self.color = color

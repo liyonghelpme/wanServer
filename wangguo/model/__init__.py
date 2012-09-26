@@ -39,7 +39,7 @@ MAGIC_STONE = 16
 
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
-'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart', 'fightingCost', 'PARAMS']
+'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart', 'fightingCost', 'PARAMS', 'TableMap', 'heroSkill']
 
 def getPrescriptionNum():
     sql = 'select * from prescriptionNum'
@@ -145,6 +145,8 @@ for i in name:
                 sql = 'update magicStone set possible = \'%s\' where id = %d' % (str(a['possible']), a['id'])
                 con.query(sql)
                 datas[i][a['id']] = a
+            elif i == 'heroSkill':
+                datas[i][a['hid']] = a
             else:
                 datas[i][a['id']] = a
         
