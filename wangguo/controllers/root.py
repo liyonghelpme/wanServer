@@ -24,6 +24,7 @@ from wangguo.controllers.fight import FightController
 #from wangguo.model import DBSession, metadata
 from wangguo.model import *
 from wangguo.controllers.util import *
+import time
 
 __all__ = ['RootController']
 
@@ -89,8 +90,17 @@ class RootController(BaseController):
         user.cityDefense = 831
         user.loginDays = 0
         user.exp = 0
-        user.neiborMax = 10
+        user.neiborMax = 5
         user.colorCrystal = 5
+
+    """初始化好友的UID"""
+    def initFriends(self, user):
+        friends = DBSession.query(UserFriend).filter_by(papayaId=user.papayaId).all()
+        for i in friends:
+            i.fid = user.uid
+            i.lev = user.level
+            i.name = user.name
+            i.updated = True
     #state = 1 Free
     def initBuildings(self, user):
         uid = user.uid
@@ -360,23 +370,13 @@ class RootController(BaseController):
         user.exp = exp
         user.level = level
         user.cityDefense += cityDefense
+        self.initFriends(user)#升级之后更新好友数据
 
         #rew = json.loads(rew)
         #doGain(uid, rew);
         return dict(id=1)
 
-    """
-    @expose('json')
-    def setName(self, uid, name):
-        uid = int(uid)
-        sameName = DBSession.query(UserInWan).filter_by(name=name).all()
-        #重名且不是自身 则出错
-        if len(sameName) > 0 and sameName[0].uid != uid:
-            return dict(id=0, status=0, name = sameName[0].name)
-        user = getUser(uid)
-        user.name = name
-        return dict(id=1)
-    """
+
 
     #更新 缓存数据表中的 用户名称
     #邻居关系 好友关系 
@@ -422,6 +422,7 @@ class RootController(BaseController):
             DBSession.add(user)
             DBSession.flush()#get Use Id
             user.registerTime = getTime()
+            user.inviteCode = user.uid+10000
 
             self.initUserData(user)
             self.initChallenge(user)
@@ -434,6 +435,7 @@ class RootController(BaseController):
             self.initBuyTask(user)
             self.initCrystalMine(user)
             self.initHeart(user)
+            self.initFriends(user)
             #self.initSolEquip(user)
         
         #初次登录玩家 需要注册英雄和名称
@@ -473,8 +475,10 @@ class RootController(BaseController):
         thisWeek = getWeekNum(now)
 
         heart = self.getHeart(user.uid)
+        hour = time.localtime().tm_hour
+        #hour = 11
         #starNum = stars,
-        ret = dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart) 
+        ret = dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, inviteCode=user.inviteCode) 
         #ret.update(heart)
         return ret
     @expose('json')

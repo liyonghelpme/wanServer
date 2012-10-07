@@ -87,4 +87,7 @@ req(r)
 r = '%supgradeEquip/%d/%d/%d' % (base, uid, 0, 0)
 req(r)
 
+r = base+'buyResource/%d/%d/%d' % (uid, 5, 0)
+drug = req(r)
+
 con.close()

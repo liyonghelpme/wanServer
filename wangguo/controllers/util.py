@@ -148,11 +148,11 @@ def getChallengeEquips(uid):
             res.append({'kind':i.equipKind, 'level':i.level, 'owner':i.owner})
     return res
     
-NEW_RANK = 10
+#NEW_RANK = 10
 def getRankTable(uid):
     #user = getUser(uid)
     challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
-    if challenge.challengeNum >= NEW_RANK:
+    if challenge.challengeNum >= datas['PARAMS']['newRank']:
         rank = UserGroupRank
     else:
         rank = UserNewRank
@@ -162,7 +162,7 @@ def getRankTable(uid):
 def getRank(uid):
     #user = getUser(uid)
     challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
-    if challenge.challengeNum >= NEW_RANK:
+    if challenge.challengeNum >= datas['PARAMS']['newRank']:
         rank = DBSession.query(UserGroupRank).filter_by(uid=uid).one()
     else:
         rank = DBSession.query(UserNewRank).filter_by(uid=uid).one()

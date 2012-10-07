@@ -97,6 +97,23 @@ class SoldierController(BaseController):
         return dict(id=1)
 
         
+    @expose('json')
+    def doRelive(self, uid, sid, crystal):
+        uid = int(uid)
+        sid = int(sid)
+        crystal = int(crystal)
+
+        cost = {'crystal':crystal} 
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
+        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
+        soldier.dead = 0
+        healthBoundary = self.getHealthBoundary(soldier)
+        soldier.health = healthBoundary
+        return dict(id=1)
+
     #检测药水数量是否足够
     @expose('json')
     def useDrug(self, uid, sid, tid):
@@ -187,16 +204,24 @@ class SoldierController(BaseController):
 
     #转职可能也需要消耗一些资源 类似于直接购买的价格 不过使用银币
     @expose('json')
-    def doTransfer(self, uid, sid):
+    def doTransfer(self, uid, sid, crystal):
         uid = int(uid)
         sid = int(sid)
+        crystal = int(crystal)
+        cost = {'crystal':crystal}
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
+
         soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
         curKind = soldier.kind%10
         print curKind, soldier.level
-        if curKind < 3 and (curKind+1)*5 <= soldier.level and soldier.kind < 100:
-            soldier.kind += 1
-        else:
-            return dict(id=0)
+        soldier.kind += 1
+        #if curKind < 3 and (curKind+1)*5 <= soldier.level and soldier.kind < 100:
+        #    soldier.kind += 1
+        #else:
+        #    return dict(id=0)
         return dict(id=1)
     def getLevelNeedExp(self, expData, level):
         return expData[min(len(expData)-1, level)]

@@ -215,7 +215,7 @@ class FightController(BaseController):
         try:
             result = attackCollect.find_one()['res']
             ret = result[offset:offset+limit]
-            ret = [[i['uid'], i['papayaId'], i['suc'], i['rank'], i['name'], i['total']] for i in ret]
+            ret = [[i['uid'], i['papayaId'], i['suc'], i['rank'], i['name'], i['total'], i['level']] for i in ret]
         except:
             ret = []
 
@@ -230,7 +230,7 @@ class FightController(BaseController):
         try:
             result = defenseCollect.find_one()['res']
             ret = result[offset:offset+limit]
-            ret = [[i['uid'], i['papayaId'], i['suc'], i['rank'], i['name'], i['total']] for i in ret]
+            ret = [[i['uid'], i['papayaId'], i['suc'], i['rank'], i['name'], i['total'], i['level']] for i in ret]
         except:
             ret = []
 

@@ -1,7 +1,7 @@
 #coding:utf8
 import MySQLdb
 import json
-sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood', 'fightingCost', 'PARAMS']
+sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood', 'fightingCost', 'PARAMS', 'StoreWords', 'StoreAttWords']
 con = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 
 sql = 'select * from prescriptionNum'
@@ -10,6 +10,7 @@ res = con.store_result().fetch_row(0, 1)
 nums = {}
 for i in res:
     nums[i['id']] = i
+
 
 def hanData(name, data):
     names = []
@@ -34,6 +35,28 @@ def hanData(name, data):
     #    res = []
     #    for i in f:
     #        res.append()
+    if name == 'StoreAttWords':
+        names = []
+        res = []
+        for i in f:
+            k = i['key']
+            n = 'StoreAttWords%s' % k
+            res.append([k, n]);
+            names.append([n, i['word']])
+        print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return names
+
+    if name == 'StoreWords':
+        names = []
+        res = []
+        for i in f:
+            k = i['kind']*10000+i['id']
+            n = 'StoreWord%d' % k
+            res.append([k,  n])
+            names.append([n, i['words']])
+
+        print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return names
     if name == 'PARAMS':
         res = {}
         for i in f:
@@ -118,8 +141,9 @@ def hanData(name, data):
             res.append(['name'+str(id), i['maleOrFemale']])
             names.append(['name'+str(id), [i['name'], i['engName']]])
             id += 1
-        #print 'var', name, '=', json.dumps(res), ';'
-        #return names
+        print 'var', name, '=', json.dumps(res), ';'
+        return []
+        """
         print 'var', 'SolNames', '=', 'dict(['
         for n in names:
             #n[1][0] = n[1][0].encode('utf8')
@@ -127,6 +151,7 @@ def hanData(name, data):
             #print '[', json.dumps(n[0]), ',','["'+n[1][0]+'",',  '"'+n[1][1]+'"]','],'
             print '[','"'+n[0]+'"', ',', '['+'"'+ n[1][0].encode('utf8') + '", "'+ n[1][1].encode('utf8')+'"]'+'],'
         print ']);'
+        """
         return []
     if name == 'challengeReward':
         for i in f:
@@ -492,6 +517,7 @@ print 'var', 'storeSoldier', '=', json.dumps(showId), ';'
 
 
 
+"""
 print 'var', 'strings = dict(['
 for n in allNames:
     if type(n[1]) == type([]):
@@ -499,5 +525,6 @@ for n in allNames:
     else:
         print '[','"'+n[0]+'"', ',','"'+ n[1].encode('utf8')+'"','],'
 print ']);'
+"""
 
 

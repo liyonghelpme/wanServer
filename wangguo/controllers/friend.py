@@ -96,6 +96,7 @@ class FriendController(BaseController):
     #如果已经发送过请求 则 阻止今天继续发送 
     #可能发送的用户不存在
     #可能发送用户的邻居数已经足够则不发送
+    #己方已经没有邻居空位则阻止发送
     @expose('json')
     def sendNeiborRequest(self, uid, fid):
         uid = int(uid)
@@ -105,6 +106,12 @@ class FriendController(BaseController):
         if neiborNum >= friend.neiborMax:
             return dict(id=0, status=1)
         try:
+            rel = DBSession.query(UserNeiborRelation).filter_by(uid=uid, fid=fid).one()
+            return dict(id=0, status=2)
+        except:
+            pass
+
+        try:
             req = DBSession.query(UserNeiborRequest).filter_by(uid=uid, fid=fid).one()
             print "req yet", uid, fid
             return dict(id=0, status=0)
@@ -112,7 +119,38 @@ class FriendController(BaseController):
             req = UserNeiborRequest(uid=uid, fid=fid, time=getTime())
             DBSession.add(req)
         return dict(id=1)
+    @expose('json')
+    def sendNeiborInviteRequest(self, uid, inviteCode):
+        uid = int(uid)
+        try:
+            inviteCode = int(inviteCode)
+        except:
+            return dict(id=0, status=0)
+        invite = DBSession.query(UserInWan).filter_by(inviteCode=inviteCode).all()
+        if len(invite) == 0:
+            return dict(id=0, status=1)
 
+        for i in invite:
+            neiborNum = DBSession.query(UserNeiborRelation).filter_by(uid=i.uid).count()
+            if neiborNum >= i.neiborMax:
+                return dict(id=0, status=3)
+
+            try:
+                rel = DBSession.query(UserNeiborRelation).filter_by(uid=uid, fid=i.uid).one()
+                return dict(id=0, status=2)
+            except:
+                pass
+
+            try:
+                req = DBSession.query(UserNeiborRequest).filter_by(uid=uid, fid=i.uid).one()
+                return dict(id=0, status=2)
+            except:
+                req = UserNeiborRequest(uid=uid, fid=i.uid, time=getTime())
+                DBSession.add(req)
+        return dict(id=1)
+
+
+    #发送消息的个体已经被删除
     @expose('json')
     def getMessage(self, uid):
         uid = int(uid)
@@ -123,8 +161,14 @@ class FriendController(BaseController):
             req.append([sender.uid, sender.papayaId, sender.name, sender.level])
         return dict(id=1, req=req)
     @expose('json')
-    def addNeiborMax(self, uid):
+    def addNeiborMax(self, uid, gold):
         uid = int(uid)
+        gold = int(gold)
+        cost = {'gold':gold}
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
         user = getUser(uid)
         user.neiborMax += 1
         return dict(id=1)
@@ -339,7 +383,30 @@ class FriendController(BaseController):
         try:
             result = mongoCollect.find_one()['res']  
             ret = result[offset:offset+limit]
-            ret = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name']] for i in ret]
+            ret = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name'], i['level']] for i in ret]
         except:
             ret = []
         return dict(id=1, res=ret)
+
+    @expose('json')
+    def inviteFriend(self, uid, oid):
+        uid = int(uid)
+        oid = int(oid)
+        record = inviteCollect.find_one({'uid':uid, 'oid':oid})
+        if record != None:
+            return dict(id=0)
+        record = {'uid':uid, 'oid':oid}
+        inviteCollect.insert(record)
+        gain = {'silver': datas['PARAMS']['inviteSilver']}
+        doGain(uid, gain)
+        return dict(id=1)
+
+    @expose('json')
+    def getFriendUpdate(self, uid):#好友更新了数据名字 等级 uid等数据 客户端获取数据后更新
+        uid = int(uid)
+        allUpdate = DBSession.query(UserFriend).filter_by(uid=uid, updated=True).all()
+        ret = []
+        for i in allUpdate:
+            ret.append([i.papayaId, i.fid, i.lev, i.name])
+            i.updated = False
+        return dict(id=1, updated=ret)

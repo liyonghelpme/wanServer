@@ -30,19 +30,19 @@ class ChallengeController(BaseController):
         #user = getUser(uid)
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
         #10次以上为普通挑战
-        if challenge.challengeNum >= NEW_RANK:
+        if challenge.challengeNum >= datas['PARAMS']['newRank']:
             ranks = groupRankCollect.find_one()["res"]
             ret = ranks[offset:offset+limit]
             #ranks = DBSession.query(UserGroupRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
             #res = [[i.uid, i.papayaId, i.score, i.rank, i.name] for i in ranks]
-            res = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name']] for i in ret]
+            res = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name'], i['level']] for i in ret]
         #10次下新手 新手finish 表示不能挑战 在生成新的排名的时候才可以消除这些finish=1 首先删除
         else:
             ranks = newRankCollect.find_one()["res"]
             ret = ranks[offset:offset+limit]
             #ranks = DBSession.query(UserNewRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
             #res = [[i.uid, i.papayaId, i.score, i.rank, i.name, i.finish] for i in ranks]
-            res = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name'], i['finish']] for i in ret]
+            res = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name'], i['level']] for i in ret]
 
         #返回的数据按照rank 排好序
         #数据中没有重复的rank  rank重复则保留uid 为自身的排名数据
@@ -132,7 +132,7 @@ class ChallengeController(BaseController):
         user = getUser(uid)
         #other = getUser(oid)
         #第10次挑战迁移数据 新手阶段已经结束 
-        if challenge.challengeNum == NEW_RANK:
+        if challenge.challengeNum == datas['PARAMS']['newRank']:
 
             oldRank = DBSession.query(UserNewRank).filter_by(uid=uid).one()
             oldRank.finish = 1

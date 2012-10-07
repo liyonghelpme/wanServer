@@ -3,6 +3,7 @@ import urllib
 import json
 import sys
 import random
+import time
 from config import *
 """
 con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
@@ -28,12 +29,14 @@ def req(r):
     return l
 
 
-papa = random.randint(10, 100)
+papa = random.randint(1000, 1100)
+#papa = 978149
 r = '%slogin/%d/ppp' % (base2, papa)
 l = req(r)
 uid = l['uid']
+uInCode = l['inviteCode']
 
-r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero'+str(papa))
+r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 440, 'hero'+str(papa))
 req(r)
 
 #uid = l.get('uid')
@@ -43,29 +46,22 @@ l = req(r)
 
 print l['heart']
 
-papa2 = random.randint(200, 300)
+papa2 = random.randint(1200, 1300)
 r = '%slogin/%d/ppp' % (base2, papa2)
 l = req(r)
 
 oid = l.get('uid')
+otherInCode = l['inviteCode']
 
-r = '%schooseFirstHero/%d/%d/%s' % (base2, oid, 0, 'hero'+str(papa2))
+r = '%schooseFirstHero/%d/%d/%s' % (base2, oid, 440, 'hero'+str(papa2))
 req(r)
 
-r = base+'addNeiborMax/%d' % (uid)
+r = base+'addNeiborMax/%d/%d' % (uid, 10)
 req(r)
 
-r = base+'addNeiborMax/%d' % (oid)
+r = base+'addNeiborMax/%d/%d' % (oid, 10)
 req(r)
 
-r = base+'addNeiborMax/%d' % (oid)
-req(r)
-
-r = base+'addNeiborMax/%d' % (oid)
-req(r)
-
-r = base+'addNeiborMax/%d' % (oid)
-req(r)
 
 r = base+'getMyFriend/%d' % (uid)
 task = req(r)
@@ -143,7 +139,7 @@ req(r)
 r = base+'getNeibors/%d' % (uid)
 req(r)
 
-r = base+'upgradeLoveTree/%d/%d/%d' % (uid, 8, 209)
+r = base+'upgradeLoveTree/%d/%d/%d' % (uid, 8, 1)
 req(r)
 
 
@@ -169,3 +165,21 @@ req(r)
 r = base+'getHeartRank/%d/%d/%d' % (uid, 5, 10)
 req(r)
 
+r= base+'sendNeiborInviteRequest/%d/%d' % (uid, otherInCode)
+req(r)
+
+r= base+'sendNeiborInviteRequest/%d/%d' % (uid, otherInCode)
+req(r)
+time.sleep(2)
+
+r= base+'sendNeiborInviteRequest/%d/%d' % (oid, uInCode)
+req(r)
+
+r= base+'inviteFriend/%d/%d' % (uid, 1234)
+req(r)
+
+r= base+'inviteFriend/%d/%d' % (uid, 1234)
+req(r)
+
+r = base+'getFriendUpdate/%d' % (1613)
+req(r)

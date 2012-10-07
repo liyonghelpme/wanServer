@@ -14,7 +14,7 @@ newCollect = monDb.UserNewRank
 oldCollect = monDb.UserGroupRank
 
 def sortRank(tableName):
-    sql = 'select * from %s where score > 0 order by score' % (tableName)
+    sql = 'select * from %s order by score' % (tableName)
     con.query(sql)
     res = con.store_result()
     res = res.fetch_row(0, 1)
@@ -25,11 +25,11 @@ def sortRank(tableName):
         #sql = 'select name from UserInWan where uid = %d' % (i['uid'])
         #con.query(sql)
 
-        sql = 'select papayaId, name from UserInWan where uid = %d' % (i['uid'])
+        sql = 'select papayaId, name, level from UserInWan where uid = %d' % (i['uid'])
         con.query(sql)
         try:
             userData = con.store_result().fetch_row(0, 1)[0]
-            arr.append({'uid':i['uid'], 'score':i['score'], 'rank':rank, 'papayaId':userData['papayaId'], 'name':userData['name'], 'finish':i.get('finish', 0)})
+            arr.append({'uid':i['uid'], 'score':i['score'], 'rank':rank, 'papayaId':userData['papayaId'], 'name':userData['name'], 'level':userData['level']})
             sql = 'update %s set rank = %d where uid = %d' % (tableName, rank, i['uid'])
             con.query(sql)
             rank += 1
@@ -41,18 +41,18 @@ def sortRank(tableName):
     
 
 def main():
-    while True:
-        global con
-        con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
-        sql = 'delete from UserNewRank where finish = 1'
-        con.query(sql)
-        con.commit()
-        sortRank('UserNewRank')
-        sortRank('UserGroupRank')
+    #while True:
+    global con
+    con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
+    sql = 'delete from UserNewRank where finish = 1'
+    con.query(sql)
+    con.commit()
+    sortRank('UserNewRank')
+    sortRank('UserGroupRank')
 
-        con.commit()
-        con.close()
-        time.sleep(1000)
+    con.commit()
+    con.close()
+    #time.sleep(1000)
 main()
     
     

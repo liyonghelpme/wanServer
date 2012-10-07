@@ -21,6 +21,21 @@ __all__ = ['GoodsController']
 
 
 class GoodsController(BaseController):
+    @expose('json')
+    def buyResource(self, uid, kind, oid):
+        uid = int(uid)
+        kind = int(kind)
+        oid = int(oid)
+
+        table = datas['TableMap'][kind]['name']
+        cost = getCost(table, oid) 
+        gain = getGain(table, oid)
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
+        doGain(uid, gain)
+        return dict(id=1)
     #购买物品 消耗资源
     @expose('json')
     def buyDrug(self, uid, drugKind):

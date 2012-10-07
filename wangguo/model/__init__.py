@@ -23,6 +23,8 @@ newRankCollect = mongoDB.UserNewRank
 groupRankCollect = mongoDB.UserGroupRank
 recommandCollect = mongoDB.UserRecommand
 arenaCollect = mongoDB.UserArena
+inviteCollect = mongoDB.InviteRecord
+inviteCollect.create_index([('uid', pymongo.DESCENDING), ('oid', pymongo.DESCENDING)])
 
 #Arena Collect
 attackCollect = mongoDB.UserAttack
