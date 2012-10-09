@@ -232,7 +232,7 @@ def hanData(name, data):
         print 'var', name, '=', 'dict(', json.dumps(res), ');'
         return []
 
-    #名字 描述desc
+    #名字 描述desc 出现复活药水的数据
     if name == 'drug' or name == 'equip' or name == 'skills':
         res = []
         keys = []

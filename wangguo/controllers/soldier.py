@@ -145,6 +145,9 @@ class SoldierController(BaseController):
         elif data.get("defense") != 0:
             soldier.addDefense = data.get("defense")
             soldier.addDefenseTime = data.get("effectTime")
+        elif data.get("healthBoundary") != 0:
+            soldier.addHealthBoundary = data["healthBoundary"]
+            soldier.addHealthBoundaryTime = data["effectTime"]
         elif data.get("relive") == 1:#复活药水 回复全部%的生命值
             soldier.dead = 0
             soldier.health = healthBoundary
