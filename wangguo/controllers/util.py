@@ -20,7 +20,7 @@ import random
 addKey = ["people", "cityDefense", "attack", "defense", "health", "gainsilver", "gaincrystal", "gaingold", "exp"]
 costKey = ["silver", "gold", "crystal", "papaya", "free"]
 
-MSG_CHALLENGE = 0
+#MSG_CHALLENGE = 0
 #week == 0 
 weekTime = (2012, 1, -5, 0, 0, 0, 0, 0, 0)
 beginTime=(2012,1,1,0,0,0,0,0,0)

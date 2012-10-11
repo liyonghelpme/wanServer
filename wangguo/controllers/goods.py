@@ -227,66 +227,67 @@ class GoodsController(BaseController):
         return dict(id=1)
         
         
+    #ti 主要用于 区分同1秒钟重复赠送相同类型礼物的问题
     @expose('json')
-    def sendEquip(self, uid, fid, eid, ti):
+    def sendEquip(self, uid, fid, eid, gid):
         uid = int(uid)
         fid = int(fid)
         eid = int(eid)
-        ti = int(ti)
+        gid = int(gid)
 
         equip = DBSession.query(UserEquips).filter_by(uid=uid, eid=eid).one()
-        gift = UserGift(uid=uid, fid=fid, kind = EQUIP, tid=equip.equipKind, level=equip.level, time=ti)
+        gift = UserGift(uid=uid, fid=fid, kind = EQUIP, tid=equip.equipKind, level=equip.level, time=getTime(), gid=gid)
         DBSession.add(gift)
 
         DBSession.delete(equip)
         return dict(id=1)
     @expose('json')
-    def sendDrug(self, uid, fid, did, ti):
+    def sendDrug(self, uid, fid, did, gid):
         uid = int(uid)
         fid = int(fid)
         did = int(did)
-        ti = int(ti)
+        gid = int(gid)
 
         drug = DBSession.query(UserDrugs).filter_by(uid=uid, drugKind=did).one()
         if drug.num <= 0:
             return dict(id=0)
         
         drug.num -= 1
-        gift = UserGift(uid=uid, fid=fid, kind=DRUG, tid=did, level=0, time=ti)
+        gift = UserGift(uid=uid, fid=fid, kind=DRUG, tid=did, level=0, time=getTime(), gid=gid)
         DBSession.add(gift)
 
         return dict(id=1)
 
     @expose('json')
-    def sendHerb(self, uid, fid, tid, ti):
+    def sendHerb(self, uid, fid, tid, gid):
         uid = int(uid)
         fid = int(fid)
         tid = int(tid)
-        ti = int(ti)
+        gid = int(gid)
 
         material = DBSession.query(UserHerb).filter_by(uid=uid, kind = tid).one()
         if material.num <= 0:
             return dict(id=0)
 
         material.num -= 1
-        gift = UserGift(uid=uid, fid=fid, kind=HERB, tid=tid, level=0, time=ti)
+        gift = UserGift(uid=uid, fid=fid, kind=HERB, tid=tid, level=0, time=getTime(), gid=gid)
         DBSession.add(gift)
 
         return dict(id=1)
 
     @expose('json')
-    def sendTreasureStone(self, uid, fid, tid, ti):
+    def sendTreasureStone(self, uid, fid, tid, gid):
         uid = int(uid)
         fid = int(fid)
         tid = int(tid)
-        ti = int(ti)
+        gid = int(gid)
 
         stone = DBSession.query(UserGoods).filter_by(uid=uid, kind = TREASURE_STONE, id=tid).one()
         if stone.num <= 0:
             return dict(id=0)
 
         stone.num -= 1
-        gift = UserGift(uid=uid, fid=fid, kind=TREASURE_STONE, tid=tid, level=0, time=ti)
+        gift = UserGift(uid=uid, fid=fid, kind=TREASURE_STONE, tid=tid, level=0, time=getTime(), gid=gid)
         DBSession.add(gift)
 
         return dict(id=1)
@@ -297,18 +298,18 @@ class GoodsController(BaseController):
     #通过 数据ID 来进行 区分
     #数据 形式都是 ID NUM
     @expose('json')
-    def sendMagicStone(self, uid, fid, tid, ti):
+    def sendMagicStone(self, uid, fid, tid, gid):
         uid = int(uid)
         fid = int(fid)
         tid = int(tid)
-        ti = int(ti)
+        gid = int(gid)
 
         stone = DBSession.query(UserGoods).filter_by(uid=uid, kind=MAGIC_STONE, id=tid).one()
         if stone.num <= 0:
             return dict(id=0)
 
         stone.num -= 1
-        gift = UserGift(uid=uid, fid=fid, kind=MAGIC_STONE, tid=tid, level=0, time=ti)
+        gift = UserGift(uid=uid, fid=fid, kind=MAGIC_STONE, tid=tid, level=0, time=getTime(), gid=gid)
         DBSession.add(gift)
 
         return dict(id=1)
@@ -320,18 +321,18 @@ class GoodsController(BaseController):
         res = []
         for g in gifts:
             friend = getUser(g.uid)
-            res.append([friend.uid, friend.name, g.kind, g.tid, g.level, g.time])
+            res.append([friend.uid, friend.name, g.kind, g.tid, g.level, g.time, g.gid])
         return dict(id=1, gifts=res)
 
 
     #如果是装备 需要客户端提供eid
     @expose('json')
-    def receiveGift(self, uid, fid, ti, eid):
+    def receiveGift(self, uid, fid, gid, eid):
         uid = int(uid)
         fid = int(fid)
-        ti = int(ti)
+        gid = int(gid)
         eid = int(eid)
-        gift = DBSession.query(UserGift).filter_by(uid=fid, fid=uid, time=ti).one()
+        gift = DBSession.query(UserGift).filter_by(uid=fid, fid=uid, gid=gid).one()
         if gift.kind == EQUIP:
             equip = UserEquips(uid=uid, equipKind=gift.tid, eid=eid)
             equip.level = gift.level

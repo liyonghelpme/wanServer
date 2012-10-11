@@ -151,6 +151,7 @@ class FriendController(BaseController):
 
 
     #发送消息的个体已经被删除
+    #发送邻居请求消息
     @expose('json')
     def getMessage(self, uid):
         uid = int(uid)
@@ -158,7 +159,7 @@ class FriendController(BaseController):
         req = []
         for i in res:
             sender = DBSession.query(UserInWan).filter_by(uid=i.uid).one()
-            req.append([sender.uid, sender.papayaId, sender.name, sender.level])
+            req.append([sender.uid, sender.papayaId, sender.name, sender.level, i.time])
         return dict(id=1, req=req)
     @expose('json')
     def addNeiborMax(self, uid, gold):
@@ -215,6 +216,13 @@ class FriendController(BaseController):
     def acceptNeibor(self, uid, fid):
         uid = int(uid)
         fid = int(fid)
+
+        try:
+            req = DBSession.query(UserNeiborRequest).filter_by(uid=fid, fid=uid).one()
+            DBSession.delete(req)
+        except:
+            return dict(id=0, status=4)
+            #print "no request", uid, fid
         try:
             user = getUser(uid)
             friend = getUser(fid)
@@ -246,11 +254,7 @@ class FriendController(BaseController):
 
 
             
-        try:
-            req = DBSession.query(UserNeiborRequest).filter_by(uid=fid, fid=uid).one()
-            DBSession.delete(req)
-        except:
-            print "no request", uid, fid
+
         return dict(id=1)
     @expose('json')
     def refuseNeibor(self, uid, fid):
@@ -294,12 +298,14 @@ class FriendController(BaseController):
         return oData
         #return dict(id=1, soldiers=soldiers, equips=equips, cityDefense=other.cityDefense, skills = skills)
         
+    #只有胜利才需要同步数据
     @expose('json')
-    def challengeNeiborOver(self, uid, fid, sols, crystal):
+    def challengeNeiborOver(self, uid, fid, sols, crystal, mid):
         uid = int(uid)
         fid = int(fid)
         sols = json.loads(sols)
         crystal = int(crystal)
+        mid = int(mid)
 
         user = getUser(uid)
         user.crystal += crystal
@@ -309,10 +315,35 @@ class FriendController(BaseController):
             soldier.exp = i[2]
             soldier.dead = i[3]
             soldier.level = i[4]
-        msg = UserMessage(uid=uid, fid=fid, kind=MSG_CHALLENGE, param=crystal, time=getTime())
+        msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param=crystal, time=getTime(), mid=mid)
         DBSession.add(msg)
 
         return dict(id=1)
+
+    #读取之后删除消息
+    #消息的接受方是我
+    #每种类型消息只能发送一次 uid fid kind 决定
+    @expose('json')
+    def getUserMessage(self, uid):
+        uid = int(uid)
+        messages = DBSession.query(UserMessage).filter_by(fid=uid).all()
+        ret = []
+        for i in messages:
+            sender = getUser(i.uid)
+            ret.append([i.uid, i.kind, i.param, i.time, sender.name, i.mid])
+        return dict(id=1, msg=ret)
+    #发送方 fid time
+    @expose('json')
+    def readMessage(self, uid, fid, mid):
+        uid = int(uid)
+        fid = int(fid)
+        mid = int(mid)
+        msg = DBSession.query(UserMessage).filter_by(uid=fid, fid=uid, mid=mid).one()
+        DBSession.delete(msg)
+        return dict(id=1)
+
+        
+            
     #自己的爱心数量由自己修改 
     #其他用户不能修改
 
@@ -323,9 +354,11 @@ class FriendController(BaseController):
 
     #可能自己在清空的时候其他用户还在赠送需要注意
     @expose('json')
-    def sendHeart(self, uid, fid):
+    def sendHeart(self, uid, fid, mid):
         uid = int(uid)
         fid = int(fid)
+        mid = int(mid)
+
         nei = DBSession.query(UserNeiborRelation).filter_by(uid=uid, fid=fid).one()
         if nei.heartYet == 1:
             return dict(id=0)
@@ -341,6 +374,9 @@ class FriendController(BaseController):
         heart.liveNum += 1
         #爱心树 升级经验累计爱心
         #heart.heartExp += 1
+        #msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param=crystal, time=getTime())
+        msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_HEART'], param=0, time=getTime(), mid=mid)
+        DBSession.add(msg)
         return dict(id=1)
 
     

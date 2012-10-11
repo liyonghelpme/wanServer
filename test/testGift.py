@@ -81,7 +81,7 @@ l = req(r)
 
 l = l['gifts']
 for g in l:
-    r = base+'receiveGift/%d/%d/%d/%d' % (fid, uid, g[5], 10)
+    r = base+'receiveGift/%d/%d/%d/%d' % (fid, uid, g[6], 10)
     req(r)
 
 

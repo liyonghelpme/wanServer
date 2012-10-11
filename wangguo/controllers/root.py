@@ -261,12 +261,17 @@ class RootController(BaseController):
         print res
         return res
 
-    #如果用户清空了数据 没有当前最大的礼物ID 则从数据中获取最大的一个
+    #如果用户清空了数据 没有当前最大的礼物ID 则从数据中获取最大的一个 用户当前 赠送礼物的time最大值作为gid
     def getMaxGiftId(self, uid):
-        maxId = DBSession.query(UserGift).filter_by(uid=uid).order_by(UserGift.time.desc()).limit(1).all()
+        maxId = DBSession.query(UserGift).filter_by(uid=uid).order_by(UserGift.gid.desc()).limit(1).all()
         if len(maxId) == 0:
             return 0
-        return maxId[0].time+1
+        return maxId[0].gid+1
+    def getMaxMessageId(self, uid):
+        maxId = DBSession.query(UserMessage).filter_by(uid=uid).order_by(UserMessage.mid.desc()).limit(1).all()
+        if len(maxId) == 0:
+            return 0
+        return maxId[0].mid+1
 
 
     #用户挑战其它用户的记录
@@ -461,6 +466,7 @@ class RootController(BaseController):
         #soldierEquip=solEquip,
         treasure = self.getTreasureStone(user.uid)
         maxGiftId = self.getMaxGiftId(user.uid)
+        maxMessageId = self.getMaxMessageId(user.uid)
 
         skills = self.getSkills(user.uid)
 
@@ -478,7 +484,7 @@ class RootController(BaseController):
         hour = time.localtime().tm_hour
         #hour = 11
         #starNum = stars,
-        ret = dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, inviteCode=user.inviteCode) 
+        ret = dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, inviteCode=user.inviteCode, maxMessageId=maxMessageId) 
         #ret.update(heart)
         return ret
     @expose('json')

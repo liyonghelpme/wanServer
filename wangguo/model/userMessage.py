@@ -11,9 +11,10 @@ from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
 class UserMessage(object):
-    def __init__(self, uid, fid, kind, param, time):
+    def __init__(self, uid, fid, kind, param, time, mid):
         self.uid = uid
         self.fid = fid
         self.kind = kind
         self.param = param
         self.time = time
+        self.mid = mid

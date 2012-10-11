@@ -11,10 +11,11 @@ from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
 class UserGift(object):
-    def __init__(self, uid, fid, kind, tid, level, time):
+    def __init__(self, uid, fid, kind, tid, level, time, gid):
         self.uid = uid
         self.fid = fid
         self.kind = kind
         self.tid = tid
         self.level = level
         self.time = time
+        self.gid = gid

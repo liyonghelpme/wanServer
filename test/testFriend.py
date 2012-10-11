@@ -29,12 +29,13 @@ def req(r):
     return l
 
 
-papa = random.randint(1000, 1100)
+papa = random.randint(3000, 4000)
 #papa = 978149
 r = '%slogin/%d/ppp' % (base2, papa)
 l = req(r)
 uid = l['uid']
 uInCode = l['inviteCode']
+maxMsgId = l['maxMessageId']
 
 r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 440, 'hero'+str(papa))
 req(r)
@@ -46,7 +47,7 @@ l = req(r)
 
 print l['heart']
 
-papa2 = random.randint(1200, 1300)
+papa2 = random.randint(2000, 3000)
 r = '%slogin/%d/ppp' % (base2, papa2)
 l = req(r)
 
@@ -109,8 +110,9 @@ r = base+'getNeibors/%d' % (oid)
 req(r)
 
 
-r = base+'sendHeart/%d/%d' % (uid, oid)
+r = base+'sendHeart/%d/%d/%d' % (uid, oid, maxMsgId)
 req(r)
+maxMsgId += 1
 
 
 r = '%slogin/%d/ppp' % (base2, papa2)
@@ -118,8 +120,9 @@ l = req(r)
 
 print l['heart']
 
-r = base+'sendHeart/%d/%d' % (uid, oid)
+r = base+'sendHeart/%d/%d/%d' % (uid, oid, maxMsgId)
 req(r)
+maxMsgId += 1
 
 r = base+'getNeibors/%d' % (uid)
 req(r)
@@ -147,8 +150,9 @@ req(r)
 r = base+'challengeNeibor/%d/%d' % (uid, oid)
 req(r)
 
-r = base+'challengeNeiborOver/%d/%d/%s/%d' % (uid, oid, str([]), 2)
+r = base+'challengeNeiborOver/%d/%d/%s/%d/%d' % (uid, oid, str([]), 2, maxMsgId)
 req(r)
+maxMsgId += 1
 
 r = base+'removeNeibor/%d/%d' % (uid, oid)
 req(r)
@@ -183,3 +187,22 @@ req(r)
 
 r = base+'getFriendUpdate/%d' % (1613)
 req(r)
+
+
+r = base+'getUserMessage/%d' % (uid)
+l = req(r)
+if len(l['msg']) > 0:
+    l = l['msg']
+    r = base+'readMessage/%d/%d/%d' % (uid, l[0][0], l[0][5])
+    req(r)
+
+r = base+'getUserMessage/%d' % (oid)
+l = req(r)
+
+if len(l['msg']) > 0:
+    l = l['msg']
+    r = base+'readMessage/%d/%d/%d' % (oid, l[0][0], l[0][5])
+    req(r)
+
+r = base+'getUserMessage/%d' % (oid)
+l = req(r)
