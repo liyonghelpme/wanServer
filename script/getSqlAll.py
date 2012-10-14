@@ -1,7 +1,7 @@
 #coding:utf8
 import MySQLdb
 import json
-sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood', 'fightingCost', 'PARAMS', 'StoreWords', 'StoreAttWords']
+sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer', 'Strings', 'task', 'mapDefense', 'mapMonster', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood', 'fightingCost', 'newParam', 'StoreWords', 'StoreAttWords']
 con = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 
 sql = 'select * from prescriptionNum'
@@ -57,6 +57,13 @@ def hanData(name, data):
 
         print 'var', name, '=', 'dict(', json.dumps(res), ');'
         return names
+    if name == 'newParam':
+        res = {}
+        for i in f:
+            res[i['key']] = i['value']
+        res = res.items()
+        print 'var', 'PARAMS', '=', 'dict(', json.dumps(res), ');'
+        return []
     if name == 'PARAMS':
         res = {}
         for i in f:

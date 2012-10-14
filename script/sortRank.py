@@ -36,6 +36,7 @@ def sortRank(tableName):
         except:
             pass
 
+    print len(arr)
     monDb[tableName].remove()
     monDb[tableName].insert({'res':arr})
     

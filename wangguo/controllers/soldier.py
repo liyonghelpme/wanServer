@@ -205,7 +205,7 @@ class SoldierController(BaseController):
         self.getLevelUp(soldier)
         return dict(id=1)
 
-    #转职可能也需要消耗一些资源 类似于直接购买的价格 不过使用银币
+    #转职可能也需要消耗一些资源 类似于直接购买的价格
     @expose('json')
     def doTransfer(self, uid, sid, crystal):
         uid = int(uid)
@@ -353,10 +353,10 @@ class SoldierController(BaseController):
         skillId = int(skillId)
         stoneId = int(stoneId)
        
-        num = getGoodsNum(uid, MAGIC_STONE, stoneId)
+        num = getGoodsNum(uid, getKindsId('magicStone'), stoneId)
         if num < 1:
             return dict(id=0)
-        updateGoodsNum(uid, MAGIC_STONE, stoneId, -1)
+        updateGoodsNum(uid, getKindsId('magicStone'), stoneId, -1)
         gData = getData('magicStone', stoneId)
         possible = gData.get('possible')
         

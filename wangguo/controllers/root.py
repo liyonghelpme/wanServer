@@ -127,6 +127,9 @@ class RootController(BaseController):
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=10, kind=224, px=1312, py=896, state=1)#MOVE FREE WORK 
         DBSession.add(buildings)
+    def initTreasureBox(self, uid):
+        box = UserTreasureBox(uid=uid, helperList='[]', has=False)
+        DBSession.add(box)
 
     #global ROUND_BIG 
     #ROUND_BIG = 5
@@ -167,8 +170,8 @@ class RootController(BaseController):
 
     #保证rank唯一性
     def initRank(self, user):
-        num = DBSession.query(UserNewRank).filter("score >= 100").count()
-        rank = UserNewRank(uid=user.uid, score=100, rank=num, papayaId = user.papayaId, name=user.name, finish=0)
+        #num = DBSession.query(UserNewRank).filter("score >= 100").count()
+        rank = UserNewRank(uid=user.uid, score=100, rank=0, papayaId = user.papayaId, name=user.name, finish=0)
         DBSession.add(rank)
 
         attackRank = UserAttack(uid=user.uid, total=0, suc=0, rank=0)
@@ -319,6 +322,8 @@ class RootController(BaseController):
             challenge.lastMinusTime = now
 
 
+
+
     #肯能需要客户端主动请求登录奖励保证登录奖励被客户端看到
     #每天第一次登录
     #只在获取登录奖励的时候 更新登录时间 即每天第一次登录时 更新登录时间
@@ -345,12 +350,13 @@ class RootController(BaseController):
         user.crystal += crystal
         #奖励都是0 则已经奖励
 
-
+        """
         #第一次登录清空邻居挑战信息 登录奖励应该在获取邻居信息之前处理
         neibors = DBSession.query(UserNeiborRelation).filter_by(uid=uid).all()
         for i in neibors:
             i.challengeYet = 0
             i.heartYet = 0#赠送爱心数据清空
+        """
 
         #每天剩余的赠送爱心数量
         #heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
@@ -411,6 +417,12 @@ class RootController(BaseController):
         DBSession.add(skill)
         return dict(id=1)
 
+    def initInvite(self, user):
+        invite = UserInviteRank(uid=user.uid, inviteCode=user.uid+10000, inviteNum=0, rank=0, inputYet=False)
+        DBSession.add(invite)
+    def getInvite(self, uid):
+        invite = DBSession.query(UserInviteRank).filter_by(uid=uid).one()
+        return {'inviteCode':invite.inviteCode, 'inviteNum':invite.inviteNum, 'rank':invite.rank, 'inputYet':invite.inputYet}
 
 
     global Keys
@@ -427,7 +439,7 @@ class RootController(BaseController):
             DBSession.add(user)
             DBSession.flush()#get Use Id
             user.registerTime = getTime()
-            user.inviteCode = user.uid+10000
+            #user.inviteCode = user.uid+10000
 
             self.initUserData(user)
             self.initChallenge(user)
@@ -441,6 +453,8 @@ class RootController(BaseController):
             self.initCrystalMine(user)
             self.initHeart(user)
             self.initFriends(user)
+            self.initTreasureBox(user.uid)
+            self.initInvite(user)
             #self.initSolEquip(user)
         
         #初次登录玩家 需要注册英雄和名称
@@ -484,7 +498,23 @@ class RootController(BaseController):
         hour = time.localtime().tm_hour
         #hour = 11
         #starNum = stars,
-        ret = dict(id=1, uid = user.uid, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, inviteCode=user.inviteCode, maxMessageId=maxMessageId) 
+
+        box = DBSession.query(UserTreasureBox).filter_by(uid=user.uid).one()
+        try:
+            helperList = json.loads(box.helperList)
+        except:
+            helperList = []
+        #返回帮助者的papayaId name 用于显示 返回好友的宝箱 -1是好友自己  返回自己的宝箱 -1 是自己
+        papayaIdName = []
+        for i in helperList:
+            if i != -1:
+                helper = getUser(i)
+                papayaIdName.append([helper.papayaId, helper.name])
+            else:
+                papayaIdName.append([user.papayaId, user.name])
+        invite = self.getInvite(user.uid)
+
+        ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite) 
         #ret.update(heart)
         return ret
     @expose('json')

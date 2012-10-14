@@ -25,6 +25,7 @@ recommandCollect = mongoDB.UserRecommand
 arenaCollect = mongoDB.UserArena
 inviteCollect = mongoDB.InviteRecord
 inviteCollect.create_index([('uid', pymongo.DESCENDING), ('oid', pymongo.DESCENDING)])
+inviteRankCollect = mongoDB.inviteRank
 
 #Arena Collect
 attackCollect = mongoDB.UserAttack
@@ -32,16 +33,18 @@ defenseCollect = mongoDB.UserDefense
 
 con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
 #cur = con.cursor()
-
+"""
 EQUIP = 1
 DRUG = 2
 HERB = 10
 TREASURE_STONE = 15
 MAGIC_STONE = 16
+"""
 
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
-'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart', 'fightingCost', 'PARAMS', 'TableMap', 'heroSkill']
+'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart', 'fightingCost', 'newParam', 'TableMap', 'heroSkill',
+'BoxReward']
 
 def getPrescriptionNum():
     sql = 'select * from prescriptionNum'
@@ -83,74 +86,92 @@ def genMagicArray(pos):
             res.append(int(pos[begin]*(1-p) + pos[end]*p))
     return res
 datas = dict()
-for i in name:
-    sql = 'select * from '+i;#all Data
-    con.query(sql)
-    res = con.store_result()
-    allData = res.fetch_row(0, 1)
-    datas[i] = dict()
-    if i == 'PARAMS':
-        for a in allData:
-            datas[i] = a
-    elif i == 'loveTreeHeart':
-        for a in allData:
-            datas[i] = json.loads(a['num'])
-    elif i == 'prescription':
-        for a in allData:
-            needs = []
-            numId = a['numId']
-            r = prescriptionNum[numId]
-            a['num1'] = r['xNum']
-            a['num2'] = r['yNum']
-            a['num3'] = r['zNum']
+def getDataFromDB():
+    #需要保证TableMap 比 BoxReward 先初始化 Str2IntKind 存储从表名 到 整数类型的映射
+    datas['Str2IntKind'] = dict()
+    for i in name:
+        sql = 'select * from '+i;#all Data
+        con.query(sql)
+        res = con.store_result()
+        allData = res.fetch_row(0, 1)
+        datas[i] = dict()
+        if i == 'BoxReward':
+            dic = {}
+            for a in allData:
+                a['id'] = datas['Str2IntKind'][a['kind']]['id'] 
+                dic[a['kind']] = a
+            datas[i] = dic 
+        elif i == 'newParam':
+            dic = {}
+            for a in allData:
+                dic[a['key']] = a['value']
+            datas['PARAMS'] = dic
+        elif i == 'PARAMS':
+            for a in allData:
+                datas[i] = a
+        elif i == 'loveTreeHeart':
+            for a in allData:
+                datas[i] = json.loads(a['num'])
+        elif i == 'prescription':
+            for a in allData:
+                needs = []
+                numId = a['numId']
+                r = prescriptionNum[numId]
+                a['num1'] = r['xNum']
+                a['num2'] = r['yNum']
+                a['num3'] = r['zNum']
 
-            if a['num1'] != 0:
-                needs.append([a['id1'], a['num1']])
-            if a['num2'] != 0:
-                needs.append([a['id2'], a['num2']])
-            if a['num3'] != 0:
-                needs.append([a['id3'], a['num3']])
-                    
-            #res.append([i['id'], [i['id'], i['kind'], i['level'], i['tid'], needs]])
-            a.update({'needs':needs})
-            datas[i][a['id']] = a
-            
-    elif i == 'mapMonster':
-        for a in allData:
-            k = a['big']*10+a['small']
-            mons = datas[i].get(k, [])
-            mons.append(a)
-            datas[i][k] = mons
-    else:
-        for a in allData:
-            if i == 'levelExp':
-                datas[i] = json.loads(a['exp'])
-            elif i == 'soldierAttBase':
-                datas[i] = json.loads(a['base'])
-            elif i == 'soldierGrade':
-                datas[i][a['id']] = a['level']
-            elif i == 'soldierKind':
-                datas[i][a['id']] = json.loads(a['attribute'])
-            elif i == 'soldierLevel':
-                datas[i] = json.loads(a['levelData'])
-            elif i == 'soldierTransfer':
-                datas[i] = json.loads(a['level'])
-            elif i == 'goodsList':
-                possible = [a['maxFail'], a['minFail'], a['minBreak'], a['maxBreak']]
-                a['possible'] = genArray(possible)
-                sql = 'update goodsList set possible = \'%s\' where id = %d' % (str(a['possible']), a['id'])
-                con.query(sql)
+                if a['num1'] != 0:
+                    needs.append([a['id1'], a['num1']])
+                if a['num2'] != 0:
+                    needs.append([a['id2'], a['num2']])
+                if a['num3'] != 0:
+                    needs.append([a['id3'], a['num3']])
+                        
+                #res.append([i['id'], [i['id'], i['kind'], i['level'], i['tid'], needs]])
+                a.update({'needs':needs})
                 datas[i][a['id']] = a
-            elif i == 'magicStone':
-                possible = [a['pos0'], a['pos14'], a['pos29'], a['pos44'], a['pos59']]
-                a['possible'] = genMagicArray(possible)
-                sql = 'update magicStone set possible = \'%s\' where id = %d' % (str(a['possible']), a['id'])
-                con.query(sql)
-                datas[i][a['id']] = a
-            elif i == 'heroSkill':
-                datas[i][a['hid']] = a
-            else:
-                datas[i][a['id']] = a
+                
+        elif i == 'mapMonster':
+            for a in allData:
+                k = a['big']*10+a['small']
+                mons = datas[i].get(k, [])
+                mons.append(a)
+                datas[i][k] = mons
+        else:
+            for a in allData:
+                if i == 'levelExp':
+                    datas[i] = json.loads(a['exp'])
+                elif i == 'soldierAttBase':
+                    datas[i] = json.loads(a['base'])
+                elif i == 'soldierGrade':
+                    datas[i][a['id']] = a['level']
+                elif i == 'soldierKind':
+                    datas[i][a['id']] = json.loads(a['attribute'])
+                elif i == 'soldierLevel':
+                    datas[i] = json.loads(a['levelData'])
+                elif i == 'soldierTransfer':
+                    datas[i] = json.loads(a['level'])
+                elif i == 'goodsList':
+                    possible = [a['maxFail'], a['minFail'], a['minBreak'], a['maxBreak']]
+                    a['possible'] = genArray(possible)
+                    sql = 'update goodsList set possible = \'%s\' where id = %d' % (str(a['possible']), a['id'])
+                    con.query(sql)
+                    datas[i][a['id']] = a
+                elif i == 'magicStone':
+                    possible = [a['pos0'], a['pos14'], a['pos29'], a['pos44'], a['pos59']]
+                    a['possible'] = genMagicArray(possible)
+                    sql = 'update magicStone set possible = \'%s\' where id = %d' % (str(a['possible']), a['id'])
+                    con.query(sql)
+                    datas[i][a['id']] = a
+                elif i == 'heroSkill':
+                    datas[i][a['hid']] = a
+                elif i == 'TableMap':
+                    datas[i][a['id']] = a
+                    datas['Str2IntKind'][a['name']] = a
+                else:
+                    datas[i][a['id']] = a
+getDataFromDB()
         
 #print datas['prescription']
 #print datas
@@ -338,6 +359,11 @@ def init_model(engine):
     userUnlockLevelTable = Table("UserUnlockLevel", metadata, autoload=True, autoload_with=engine)
     mapper(UserUnlockLevel, userUnlockLevelTable)
 
+    userTreasureBoxTable = Table("UserTreasureBox", metadata, autoload=True, autoload_with=engine)
+    mapper(UserTreasureBox, userTreasureBoxTable)
+    userInviteRankTable = Table("UserInviteRank", metadata, autoload=True, autoload_with=engine)
+    mapper(UserInviteRank, userInviteRankTable)
+
     #userHeartRankTable = Table("UserHeartRank", metadata, autoload=True, autoload_with=engine)
     #mapper(UserHeartRank, userHeartRankTable)
 
@@ -378,3 +404,5 @@ from wangguo.model.userFightRecord import UserFightRecord
 from wangguo.model.userAttack import UserAttack
 from wangguo.model.userDefense import UserDefense
 from wangguo.model.userUnlockLevel import UserUnlockLevel
+from wangguo.model.userTreasureBox import UserTreasureBox
+from wangguo.model.userInviteRank import UserInviteRank

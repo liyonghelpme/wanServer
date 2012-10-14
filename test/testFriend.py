@@ -34,7 +34,7 @@ papa = random.randint(3000, 4000)
 r = '%slogin/%d/ppp' % (base2, papa)
 l = req(r)
 uid = l['uid']
-uInCode = l['inviteCode']
+uInCode = l['invite']['inviteCode']
 maxMsgId = l['maxMessageId']
 
 r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 440, 'hero'+str(papa))
@@ -52,7 +52,7 @@ r = '%slogin/%d/ppp' % (base2, papa2)
 l = req(r)
 
 oid = l.get('uid')
-otherInCode = l['inviteCode']
+otherInCode = l['invite']['inviteCode']
 
 r = '%schooseFirstHero/%d/%d/%s' % (base2, oid, 440, 'hero'+str(papa2))
 req(r)
@@ -206,3 +206,6 @@ if len(l['msg']) > 0:
 
 r = base+'getUserMessage/%d' % (oid)
 l = req(r)
+
+r = base+'clearNeiborData/%d' % (uid)
+l =req(r)

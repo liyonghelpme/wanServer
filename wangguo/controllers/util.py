@@ -207,13 +207,27 @@ def updateHerbNum(uid, tid, num):
         herb = UserHerb(uid=uid, kind=tid, num=0)
         DBSession.add(herb)
     herb.num += num
+def getKindId(s):
+    return datas['Str2IntKind'][s]['id']
+def getKindStr(k):
+    return datas['TableMap'][k]['name']
 def updateGoodsNum(uid, kind, tid, num):
-    try:
-        stone = DBSession.query(UserGoods).filter_by(uid=uid, kind = kind, id=tid).one()
-    except:
-        stone = UserGoods(uid=uid, kind = kind, id=tid, num=0)
-        DBSession.add(stone)
-    stone.num += num
+    if kind == getKindId('magicStone') or kind == getKindId('goodsList'):
+        try:
+            stone = DBSession.query(UserGoods).filter_by(uid=uid, kind = kind, id=tid).one()
+        except:
+            stone = UserGoods(uid=uid, kind = kind, id=tid, num=0)
+            DBSession.add(stone)
+        stone.num += num
+    elif kind == getKindId('drug'):
+        updateDrugNum(uid, tid, num)
+    elif kind == getKindId('herb'):
+        updateHerbNum(uid, tid, num)
+    elif getKindStr(kind) in ['silver', 'gold', 'crystal']:
+        gain = {getKindStr(kind): num}
+        doGain(uid, gain)
+    else:
+        print 'error not support update', kind, tid, num
 def getGoodsNum(uid, kind, tid):
     try:
         stone = DBSession.query(UserGoods).filter_by(uid=uid, kind = kind, id=tid).one()
@@ -228,3 +242,33 @@ def getOtherData(oid):
     skills = [[i.soldierId, i.skillId, i.level] for i in skills] 
     user = getUser(oid)
     return dict(soldiers=soldiers, equips=equips, skills=skills, cityDefense=user.cityDefense)
+
+
+def getFarmNum(level):
+    if level < 45:
+        return level+5
+    return 50
+def getFarmCoff(level):
+    if level < 20:
+        return 100
+    if level < 40:
+        return 100+(level-19)*5
+    return 2
+
+def getFarmIncome(level):
+    if level < 10:
+        return 200
+    if level < 20:
+        return 216
+    if level < 30:
+        return 278
+    return 323
+
+def getTotalIncome(level):
+    num = getFarmNum(level)
+    per = getFarmIncome(level)
+    coff = getFarmCoff(level)
+    return num*per*coff/100
+
+def getParams(k):
+    return datas['PARAMS'][k]

@@ -16,23 +16,180 @@ from wangguo.controllers.util import *
 #from wangguo.model import DBSession, metadata
 from wangguo.model import *
 from random import randint
+import math
 
 __all__ = ['FriendController']
 
 
 class FriendController(BaseController):
     @expose('json')
+    def finishInvite(self, uid, inviteCode):
+        uid = int(uid)
+        inviteCode = int(inviteCode)
+        user = getUser(uid)
+        if user.level >= getParams('inviteLevel'):
+            return dict(id=0, status=0)
+        inviteRank = DBSession.query(UserInviteRank).filter_by(uid=uid).one()
+        if inviteRank.inputYet:
+            return dict(id=0, status=1)
+        try:
+            inv = DBSession.query(UserInviteRank).filter_by(inviteCode=inviteCode).one()
+        except:
+            return dict(id=0, status=2)
+        if inv.uid == uid:
+            return dict(id=0, status=3)
+
+        inviteRank.inputYet = True
+        #发送邀请成功消息
+        inv.inviteNum += 1
+        gain = {'gold': getParams('inviteGold')}
+        doGain(inv.uid, gain)
+
+        return dict(id=1)
+        
+    #每天第一次登录 生成新的box
+    @expose('json')
+    def genNewBox(self, uid):
+        uid = int(uid)
+        box = DBSession.query(UserTreasureBox).filter_by(uid=uid).one()
+        box.has = 1
+        box.helperList = '[]'
+        return dict(id=1)
+    @expose('json')
     def getFriend(self, uid, papayaId):
         uid = int(uid)
         papayaId = int(papayaId)
         try:
             friend = DBSession.query(UserInWan).filter_by(papayaId=papayaId).one()
-            soldiers = getSoldiers(friend.uid)
-            return dict(id=1, level=friend.level, soldiers=soldiers, fid = friend.uid, name=friend.name)
         except:
-            pass
+            return dict(id=0, status=0)
+        
+        soldiers = getSoldiers(friend.uid)
+        box = DBSession.query(UserTreasureBox).filter_by(uid=friend.uid).one()
+        try:
+            helperList = json.loads(box.helperList)
+        except:
+            helperList = []
+        papayaIdName = []
+        hasBox = box.has
+        for i in helperList:
+            if i != -1:
+                helper = getUser(i)
+                papayaIdName.append([helper.papayaId, helper.name])
+            else:
+                papayaIdName.append([friend.papayaId, friend.name])
+            
+        mine = DBSession.query(UserCrystalMine).filter_by(uid=friend.uid).one()
+        loveTree = DBSession.query(UserBuildings).filter_by(uid=friend.uid, kind=datas['PARAMS']['loveTreeId']).one()
+        return dict(id=1, level=friend.level, soldiers=soldiers, fid = friend.uid, name=friend.name, helperList = helperList, hasBox = hasBox, papayaIdName=papayaIdName, mineLevel=mine.level, heartLevel=loveTree.level)
+
         #该用户没有在服务器注册，fid 返回-1 更新
-        return dict(id=1, level=0, soldiers={}, fid = -1)
+        #return dict(id=1, level=0, soldiers={}, fid = -1)
+    @expose('json')
+    def helpOpen(self, uid, fid):
+        uid = int(uid)
+        fid = int(fid)
+        box = DBSession.query(UserTreasureBox).filter_by(uid=fid).one()
+        try:
+            helperList = json.loads(box.helperList)
+        except:
+            helperList = []
+        if box.has:
+            if len(helperList) < datas['PARAMS']['maxBoxFriNum'] and uid not in helperList:
+
+                helperList.append(uid)
+                box.helperList = json.dumps(helperList)
+                return dict(id=1)
+        return dict(id=0, status=0)
+    @expose('json')
+    def selfOpen(self, uid):
+        uid = int(uid)
+        box = DBSession.query(UserTreasureBox).filter_by(uid=uid).one()
+        user = getUser(uid)
+        try:
+            helperList = json.loads(box.helperList)
+        except:
+            helperList = []
+        if box.has:
+            if len(helperList) < datas['PARAMS']['maxBoxFriNum']:
+                cost = {'gold':datas['PARAMS']['selfOpenGold']}
+                ret = checkCost(uid, cost)
+                if ret:
+                    doCost(uid, cost)
+                    helperList.append(-1)
+                    box.helperList = json.dumps(helperList)
+                    return dict(id=1)
+        return dict(id=0)
+    #分阶段1 ----》 2 ----》 3
+    #KIND ID NUM
+    def genBoxReward(self, uid):
+        user = getUser(uid)
+
+        rewards = []#kind ID ----> silver crystal number 对应的是 数量 而不是 ID
+        allKinds = ["drug", 'magicStone', "goodsList", "crystal", "gold", "silver"]
+        possible = [datas['BoxReward'][a]['possible'] for a in allKinds]
+        #ids = [datas['BoxReward'][a]['id'] for a in allKinds]
+        totalPossible = sum(possible)
+        eachPossible = [sum(possible[:i]) for i in xrange(1, len(possible)+1)]
+        allDrugs = [i+j for i in xrange(0, 40, 10) for j in [0, 1, 3, 4]]
+        gain = {}
+
+        for i in xrange(0, 3):
+            p = randint(0, totalPossible-1)
+            kind = len(allKinds)-1
+            #kind = allKinds[-1]
+            for e in xrange(0, len(eachPossible)):
+                if p <= eachPossible[e]:
+                    #kind = allKinds[e]
+                    kind = e
+                    break
+            realKind = allKinds[kind]
+
+            allKinds.pop(kind)
+            eachPossible.pop(kind)
+            possible.pop(kind)
+            totalPossible = sum(possible)
+            #allKinds.remove(kind)
+
+            kind = realKind
+            param = 0
+            num = 1
+            if kind == 'magicStone':
+                param = randint(0, 3)
+            elif kind == 'drug':
+                param = allDrugs[randint(0, len(allDrugs)-1)]
+            elif kind == 'goodsList':
+                param = randint(0, 3)
+            elif kind == 'crystal':
+                num = max(int(math.sqrt(user.level)), 5)
+            elif kind == 'gold':
+                num = max(int(math.sqrt(user.level)), 1)
+            elif kind == 'silver':
+                num = getTotalIncome(user.level)/10
+            else:
+                param = 0
+                num = 0
+            rewards.append([getKindId(kind), param, num])
+            updateGoodsNum(uid, getKindId(kind), param, num)
+        return rewards
+            
+    @expose('json')
+    def openBox(self, uid):
+        uid = int(uid)
+        box = DBSession.query(UserTreasureBox).filter_by(uid=uid).one()
+        try:
+            helperList = json.loads(box.helperList)
+        except:
+            helperList = []
+        if box.has:
+            if len(helperList) >= datas['PARAMS']['maxBoxFriNum']:
+                rewards = self.genBoxReward(uid)
+                box.has = 0
+                box.helperList = '[]'
+                return dict(id=1, rewards=rewards)
+        return dict(id=0)
+
+
     #fid -1 表示这个好友没有在游戏中
     @expose('json')
     def getMyFriend(self, uid):
@@ -90,7 +247,8 @@ class FriendController(BaseController):
         res = []
         for i in neibors:
             mine = DBSession.query(UserCrystalMine).filter_by(uid=i.fid).one()
-            res.append([i.fid, i.papayaId, i.name, i.level, mine.level, i.challengeYet, i.heartYet])
+            loveTree = DBSession.query(UserBuildings).filter_by(uid=i.fid, kind=datas['PARAMS']['loveTreeId']).one()
+            res.append([i.fid, i.papayaId, i.name, i.level, mine.level, i.challengeYet, i.heartYet, loveTree.level])
         return dict(id=1, neibors = res)
 
     #如果已经发送过请求 则 阻止今天继续发送 
@@ -126,13 +284,15 @@ class FriendController(BaseController):
             inviteCode = int(inviteCode)
         except:
             return dict(id=0, status=0)
-        invite = DBSession.query(UserInWan).filter_by(inviteCode=inviteCode).all()
+        #invite = DBSession.query(UserInWan).filter_by(inviteCode=inviteCode).all()
+        invite = DBSession.query(UserInviteRank).filter_by(inviteCode=inviteCode).all()
         if len(invite) == 0:
             return dict(id=0, status=1)
 
         for i in invite:
             neiborNum = DBSession.query(UserNeiborRelation).filter_by(uid=i.uid).count()
-            if neiborNum >= i.neiborMax:
+            invFri = getUser(i.uid)
+            if neiborNum >= invFri.neiborMax:
                 return dict(id=0, status=3)
 
             try:
@@ -278,6 +438,7 @@ class FriendController(BaseController):
         DBSession.delete(rel)
         return dict(id=1)
 
+    #每天第一次用户登录 自动发送清理 挑战记录的请求 getLoginReward 
     @expose('json')
     def challengeNeibor(self, uid, fid):
         uid = int(uid)
@@ -423,6 +584,18 @@ class FriendController(BaseController):
         except:
             ret = []
         return dict(id=1, res=ret)
+    @expose('json')
+    def getInviteRank(self, uid, offset, limit):
+        uid = int(uid)
+        offset = int(offset)
+        limit = int(limit)
+        try:
+            result = inviteRankCollect.find_one()['res']  
+            ret = result[offset:offset+limit]
+            ret = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name'], i['level']] for i in ret]
+        except:
+            ret = []
+        return dict(id=1, res=ret)
 
     @expose('json')
     def inviteFriend(self, uid, oid):
@@ -446,3 +619,13 @@ class FriendController(BaseController):
             ret.append([i.papayaId, i.fid, i.lev, i.name])
             i.updated = False
         return dict(id=1, updated=ret)
+
+    #好友模块自动检测第一次登录清理其邻居数据
+    @expose('json')
+    def clearNeiborData(self, uid):
+        uid = int(uid)
+        neibors = DBSession.query(UserNeiborRelation).filter_by(uid=uid).all()
+        for i in neibors:
+            i.challengeYet = 0
+            i.heartYet = 0#赠送爱心数据清空
+        return dict(id=1)

@@ -72,7 +72,7 @@ over = req(r)
 r = base+'inspireMe/'+str(uid)+'/'+str(sid)+'/'+str(100)
 exp = req(r)
  
-r = base+'doTransfer/'+str(uid)+'/'+str(sid)
+r = base+'doTransfer/'+str(uid)+'/'+str(sid)+'/'+str(2)
 trans = req(r)
 
 r = base+'trainDouble/%d/%d' % (uid, 10)
