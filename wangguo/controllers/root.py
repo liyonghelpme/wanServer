@@ -189,8 +189,9 @@ class RootController(BaseController):
         challenge = UserChallengeFriend(uid=user.uid, challengeNum=0, challengeTime=now, lastMinusTime = now)
         DBSession.add(challenge)
     def initBuyTask(self, user):
-        task = UserBuyTask(uid=user.uid)
-        DBSession.add(task)
+        #task = UserBuyTaskRecord(uid=user.uid)
+        #DBSession.add(task)
+        pass
     #state == 0 Moving
     #1 Free
     #2 Working
@@ -251,12 +252,14 @@ class RootController(BaseController):
         for i in herbs:
             res[i.kind] = i.num
         return res
+    """
     def getTask(self, uid):
         tasks = DBSession.query(UserTask).filter_by(uid=uid).all()
         res = dict()
         for i in tasks:
             res[i.tid] = [i.number, i.finish, i.stage]#当前累计任务的阶段
         return res
+    """
 
     def getSkills(self, uid):
         skills = DBSession.query(UserSkills).filter_by(uid=uid).all()
@@ -473,7 +476,7 @@ class RootController(BaseController):
         equips = getEquips(user.uid)
         #solEquip = self.getSolEquip(user.uid)
         herbs = self.getHerb(user.uid)
-        tasks = self.getTask(user.uid)
+        #tasks = self.getTask(user.uid)
         challengeRecord = self.getChallengeRecord(user.uid)
         rank = self.getRankData(user.uid)
         mine = self.getCrystalMine(user.uid)
@@ -514,7 +517,7 @@ class RootController(BaseController):
                 papayaIdName.append([user.papayaId, user.name])
         invite = self.getInvite(user.uid)
 
-        ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, tasks=tasks, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite) 
+        ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite) 
         #ret.update(heart)
         return ret
     @expose('json')

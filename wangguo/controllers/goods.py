@@ -83,7 +83,7 @@ class GoodsController(BaseController):
         uid = int(uid)
         eid = int(eid)
         tid = int(tid)
-        goods = DBSession.query(UserGoods).filter_by(uid=uid, kind = TREASURE_STONE, id=tid).one()
+        goods = DBSession.query(UserGoods).filter_by(uid=uid, kind = getKindId('goodsList'), id=tid).one()
         if goods.num < 1:
             return dict(id=0, status=0)
 
@@ -212,7 +212,7 @@ class GoodsController(BaseController):
         tcost = getCost("goodsList", tid)
         doCost(uid, tcost)
 
-        updateGoodsNum(uid, TREASURE_STONE, tid, 1)
+        updateGoodsNum(uid, getKindId('goodsList'), tid, 1)
         
         return dict(id=1)
     @expose('json')
@@ -282,7 +282,7 @@ class GoodsController(BaseController):
         tid = int(tid)
         gid = int(gid)
 
-        stone = DBSession.query(UserGoods).filter_by(uid=uid, kind = TREASURE_STONE, id=tid).one()
+        stone = DBSession.query(UserGoods).filter_by(uid=uid, kind = getKindId('goodsList'), id=tid).one()
         if stone.num <= 0:
             return dict(id=0)
 
@@ -339,14 +339,6 @@ class GoodsController(BaseController):
             DBSession.add(equip)
         else:
             updateGoodsNum(uid, gift.kind, gift.tid, 1)
-        """
-        elif gift.kind == getKindId('drug'):
-            updateDrugNum(uid, gift.tid, 1)
-        elif gift.kind == getKindId(''):
-            updateHerbNum(uid, gift.tid, 1)
-        elif gift.kind == TREASURE_STONE or gift.kind == MAGIC_STONE:
-            updateGoodsNum(uid, gift.kind, gift.tid, 1)
-        """
 
         DBSession.delete(gift)
         return dict(id=1)

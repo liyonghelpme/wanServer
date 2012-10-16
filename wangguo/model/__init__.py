@@ -43,7 +43,7 @@ MAGIC_STONE = 16
 
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
-'soldierLevelExp', 'task', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart', 'fightingCost', 'newParam', 'TableMap', 'heroSkill',
+'soldierLevelExp', 'allTasks', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart', 'fightingCost', 'newParam', 'TableMap', 'heroSkill',
 'BoxReward']
 
 def getPrescriptionNum():
@@ -323,8 +323,8 @@ def init_model(engine):
     mapper(UserGroupRank, userGroupRankTable)
     userChallengeFriendTable = Table("UserChallengeFriend", metadata, autoload=True, autoload_with=engine)
     mapper(UserChallengeFriend, userChallengeFriendTable)
-    userBuyTaskTable = Table("UserBuyTask", metadata, autoload=True, autoload_with=engine)
-    mapper(UserBuyTask, userBuyTaskTable)
+    #userBuyTaskTable = Table("UserBuyTask", metadata, autoload=True, autoload_with=engine)
+    #mapper(UserBuyTask, userBuyTaskTable)
     userNeiborTable = Table("UserNeibor", metadata, autoload=True, autoload_with=engine)
     mapper(UserNeibor, userNeiborTable)
     userNeiborRelationTable = Table("UserNeiborRelation", metadata, autoload=True, autoload_with=engine)
@@ -363,6 +363,8 @@ def init_model(engine):
     mapper(UserTreasureBox, userTreasureBoxTable)
     userInviteRankTable = Table("UserInviteRank", metadata, autoload=True, autoload_with=engine)
     mapper(UserInviteRank, userInviteRankTable)
+    userBuyTaskRecordTable = Table("UserBuyTaskRecord", metadata, autoload=True, autoload_with=engine)
+    mapper(UserBuyTaskRecord, userBuyTaskRecordTable)
 
     #userHeartRankTable = Table("UserHeartRank", metadata, autoload=True, autoload_with=engine)
     #mapper(UserHeartRank, userHeartRankTable)
@@ -388,7 +390,7 @@ from wangguo.model.userChallengeRecord import UserChallengeRecord
 from wangguo.model.userNewRank import UserNewRank
 from wangguo.model.userGroupRank import UserGroupRank
 from wangguo.model.userChallengeFriend import UserChallengeFriend
-from wangguo.model.userBuyTask import UserBuyTask
+#from wangguo.model.userBuyTask import UserBuyTask
 from wangguo.model.userNeibor import UserNeibor
 from wangguo.model.userNeiborRelation import UserNeiborRelation
 from wangguo.model.userRecommand import UserRecommand
@@ -406,3 +408,4 @@ from wangguo.model.userDefense import UserDefense
 from wangguo.model.userUnlockLevel import UserUnlockLevel
 from wangguo.model.userTreasureBox import UserTreasureBox
 from wangguo.model.userInviteRank import UserInviteRank
+from wangguo.model.userBuyTaskRecord import UserBuyTaskRecord

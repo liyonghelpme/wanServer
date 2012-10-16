@@ -11,9 +11,8 @@ from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
 class UserTask(object):
-    def __init__(self, uid, tid, number, finish, stage):
+    def __init__(self, uid, tid, number, stage):
         self.uid = uid
         self.tid = tid
         self.number = number
-        self.finish = finish
         self.stage = stage

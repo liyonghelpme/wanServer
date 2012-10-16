@@ -61,6 +61,7 @@ class SoldierController(BaseController):
         #data = getData('soldier', soldier.kind)
         #healthBoundary = data.get("health")+soldier.level*data.get("addHealth")
         #return healthBoundary
+    #接口不再使用 由兵营的beginWork 取代
     @expose('json')
     def buySoldier(self, uid, sid, kind):
         uid = int(uid)
