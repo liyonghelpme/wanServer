@@ -21,8 +21,8 @@ res = con.store_result().fetch_row(0, 1)
 
 key = ['uid', 'name', 'level', 'papayaId']
 arr = [ dict([[k,i[k]] for k in key]) for i in res]
-recommandCollect.remove()
-recommandCollect.insert({'res':arr})
+arenaCollect.remove()
+arenaCollect.insert({'res':arr})
 
 #sql = 'insert into UserRecommand (uid, name, level, papayaId) values (%d, \'%s\', %d, %d)' % (i['uid'], i['name'], i['level'], i['papayaId'])
 #con.query(sql)
