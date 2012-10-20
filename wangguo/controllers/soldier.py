@@ -414,6 +414,27 @@ class SoldierController(BaseController):
         user.gold += gold
         return dict(id=1)
 
+    @expose('json')
+    def game4Over(self, uid, soldiers):#增加经验士兵列表sid health exp level
+        uid = int(uid)
+        soldiers = json.loads(soldiers)
+        for i in soldiers:
+            sol = DBSession.query(UserSoldiers).filter_by(uid=uid, sid=i[0])
+            sol.health = i[1]
+            sol.exp = i[2]
+            sol.level = i[3]
+        return dict(id=1)
+    @expose('json')
+    def playGame4(self, uid, cost):
+        uid = int(uid)
+        cost = json.loads(cost)
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
+        return dict(id=1)
+
+
 
 
 

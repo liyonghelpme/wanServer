@@ -90,7 +90,11 @@ req(r)
 r = base+'sellSoldier/%d/%d' % (uid, sid)
 sell = req(r)
 
+r = base+'game4Over/%d/%s' % (uid, json.dumps([[0, 100, 10, 1]]))
+req(r)
 
+r = base+'playGame4/%d/%s' % (uid, json.dumps({'gold':10}))
+req(r)
 
 
 

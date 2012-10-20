@@ -533,3 +533,11 @@ class RootController(BaseController):
         return dict(id=1)
 
 
+    @expose('json')
+    def fetchParams(self):
+        gameParam = DBSession.query(GameParam).all()
+        ret = dict()
+        for i in gameParam:
+            ret[i.key] = i.value 
+        return ret
+

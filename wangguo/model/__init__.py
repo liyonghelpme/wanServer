@@ -221,7 +221,7 @@ initStage()
 
 con.close()
 
-TREASURE_STONE = 15
+#TREASURE_STONE = 15
         
 
 
@@ -365,6 +365,8 @@ def init_model(engine):
     mapper(UserInviteRank, userInviteRankTable)
     userBuyTaskRecordTable = Table("UserBuyTaskRecord", metadata, autoload=True, autoload_with=engine)
     mapper(UserBuyTaskRecord, userBuyTaskRecordTable)
+    GameParamTable = Table("GameParam", metadata, autoload=True, autoload_with=engine)
+    mapper(GameParam, GameParamTable)
 
     #userHeartRankTable = Table("UserHeartRank", metadata, autoload=True, autoload_with=engine)
     #mapper(UserHeartRank, userHeartRankTable)
@@ -409,3 +411,4 @@ from wangguo.model.userUnlockLevel import UserUnlockLevel
 from wangguo.model.userTreasureBox import UserTreasureBox
 from wangguo.model.userInviteRank import UserInviteRank
 from wangguo.model.userBuyTaskRecord import UserBuyTaskRecord
+from wangguo.model.gameParam import GameParam
