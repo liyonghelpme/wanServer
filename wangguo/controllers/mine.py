@@ -20,23 +20,45 @@ __all__ = ['GoodsController']
 
 
 class MineController(BaseController):
+    #购买建筑 升级建筑 卖出建筑采用通用接口
+    """
     @expose('json')
-    def upgradeMine(self, uid):
+    def buyMine(self, uid, bid, px, py):
         uid = int(uid)
+        bid = int(bid)
+        cost = getCost("building", getParams("MineKind"))
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
+        mine = UserCrystalMine(uid=uid, px=px, py=py, state=getParams("buildFree"), objectTime=getTime(), level=0, bid=bid)
+        DBSession.add(mine)
+        return dict(id=1)
+    """
+
+    
+    @expose('json')
+    def upgradeMine(self, uid, bid):
+        uid = int(uid)
+        bid = int(bid)
 
         user = getUser(uid)
-        if user.colorCrystal >= 1:
-            user.colorCrystal -= 1
-            mine = DBSession.query(UserCrystalMine).filter_by(uid=uid).one()
+        if user.colorCrystal >= getParams("UpgradeMineColorCost"):
+            user.colorCrystal -= getParams("UpgradeMineColorCost")
+            #mine = DBSession.query(UserCrystalMine).filter_by(uid=uid).one()
+            mine = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
             mine.level += 1
             return dict(id=1)
         return dict(id=0)
+
     @expose('json')
-    def harvest(self, uid, crystal):
+    def harvest(self, uid, bid, crystal):
         uid = int(uid)
+        bid = int(bid)
         crystal = int(crystal)
 
-        mine = DBSession.query(UserCrystalMine).filter_by(uid=uid).one()
+        #mine = DBSession.query(UserCrystalMine).filter_by(uid=uid).one()
+        mine = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
         now = getTime()
         mine.objectTime = now
         user = getUser(uid)

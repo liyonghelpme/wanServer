@@ -5,6 +5,7 @@ import sys
 import random
 from config import *
 base = '%smineC/' % (base2)
+buildBase = '%sbuildingC/' % (base2)
 
 def exe(sql):
     print sql
@@ -23,16 +24,35 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-r = '%slogin/%d/ppp' % (base2, random.randint(10, 100))
+r = '%slogin/%d/ppp' % (base2, random.randint(3000, 4000))
 l = req(r)
 
 uid = l.get('uid')
+buildings = l["buildings"]
+print buildings
+mine = None
+for i in buildings:
+    if buildings[i]['id'] == 300:
+        mine = int(i)
+        break
 
-r = base+'upgradeMine/%d' % (uid)
-drug = req(r)
 
-r = base+'harvest/%d/%d' % (uid, 2)
-equip = req(r)
+r = base+'upgradeMine/%d/%d' % (uid, mine)
+req(r)
 
+r = base+'harvest/%d/%d/%d' % (uid, mine, 2)
+req(r)
+
+r = buildBase+'finishBuild/%d/%d/%d/%d/%d/%d' % (uid, 20, 300, 50, 50, 0)
+req(r)
+
+mine = 20
+
+#r = base+'finishPlan/'+str(uid)+'/'+str([[bid, 20, 20, 1]])
+r = buildBase+'finishPlan/%d/%s' % (uid, json.dumps([[mine, 20, 20, 1]]))
+req(r)
+
+r = buildBase+'sellBuilding/%d/%d/%d' % (uid, mine, 20)
+req(r)
 
 

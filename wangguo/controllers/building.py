@@ -53,8 +53,10 @@ class BuildingController(BaseController):
         doCost(uid, cost)
         gain = getGain('building', kind)
         doGain(uid, gain)
-        buildings = UserBuildings(uid=uid, bid=bid, kind=kind, px=px, py=py, state = 1, color = color)
+        buildings = UserBuildings(uid=uid, bid=bid, kind=kind, px=px, py=py, state = getParams('buildFree'), color = color)
         buildings.dir = dir
+        if kind == getParams('MineKind'):
+            buildings.objectTime = getTime()
         DBSession.add(buildings)
         return dict(id=1)
     #bid px py dir

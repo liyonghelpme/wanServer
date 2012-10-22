@@ -11,11 +11,12 @@ from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
 class UserCrystalMine(object):
-    def __init__(self, uid, px, py, state, objectTime, level):
+    def __init__(self, uid, px, py, state, objectTime, level, bid):
         self.uid = uid
         self.px = px
         self.py = py
         self.state = state
         self.objectTime = objectTime
         self.state = state
+        self.bid = bid
 

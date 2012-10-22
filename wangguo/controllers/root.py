@@ -127,6 +127,8 @@ class RootController(BaseController):
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=10, kind=224, px=1312, py=896, state=1)#MOVE FREE WORK 
         DBSession.add(buildings)
+        mine = UserBuildings(uid=uid, bid = 11, kind = getParams("MineKind"), px=768, py =352, state = getParams("buildFree"))
+        DBSession.add(mine)
     def initTreasureBox(self, uid):
         box = UserTreasureBox(uid=uid, helperList='[]', has=False)
         DBSession.add(box)
@@ -195,9 +197,11 @@ class RootController(BaseController):
     #state == 0 Moving
     #1 Free
     #2 Working
+    """
     def initCrystalMine(self, user):
-        mine = UserCrystalMine(uid=user.uid, px=768, py =352, state = 1, objectTime=getTime(), level=0)
+        mine = UserCrystalMine(uid=user.uid, px=768, py =352, state = getParams("buildFree"), objectTime=getTime(), level=0, bid=0)
         DBSession.add(mine)
+    """
 
     def initHeart(self, user):
         heart = UserHeart(uid=user.uid, weekNum=0, liveNum = 0, accNum = 0)
@@ -292,9 +296,11 @@ class RootController(BaseController):
         return [rank.score, rank.rank]
 
     #buildid 300 crystalMine
+    """
     def getCrystalMine(self, uid):
         mine = DBSession.query(UserCrystalMine).filter_by(uid=uid).one()
         return dict(px=mine.px, py=mine.py, state=mine.state, objectTime=mine.objectTime, level=mine.level)
+    """
     global GOODS_COFF
     GOODS_COFF = 10000
     def getTreasureStone(self, uid):
@@ -453,7 +459,8 @@ class RootController(BaseController):
             self.initRank(user)
             self.initChallengeFriend(user)
             self.initBuyTask(user)
-            self.initCrystalMine(user)
+            #水晶矿 按照正常建筑初始化 经营页面不显示而已 检测类型
+            #self.initCrystalMine(user)
             self.initHeart(user)
             self.initFriends(user)
             self.initTreasureBox(user.uid)
@@ -479,7 +486,7 @@ class RootController(BaseController):
         #tasks = self.getTask(user.uid)
         challengeRecord = self.getChallengeRecord(user.uid)
         rank = self.getRankData(user.uid)
-        mine = self.getCrystalMine(user.uid)
+        #mine = self.getCrystalMine(user.uid)
         #soldierEquip=solEquip,
         treasure = self.getTreasureStone(user.uid)
         maxGiftId = self.getMaxGiftId(user.uid)
@@ -517,7 +524,7 @@ class RootController(BaseController):
                 papayaIdName.append([user.papayaId, user.name])
         invite = self.getInvite(user.uid)
 
-        ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, serverTime=now, challengeRecord=challengeRecord, rank=rank, mine=mine, treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite) 
+        ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, serverTime=now, challengeRecord=challengeRecord, rank=rank,  treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite) 
         #ret.update(heart)
         return ret
     @expose('json')
