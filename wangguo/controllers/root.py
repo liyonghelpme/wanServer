@@ -547,4 +547,24 @@ class RootController(BaseController):
         for i in gameParam:
             ret[i.key] = i.value 
         return ret
+    @expose('json')
+    def getAllSolIds(self):
+        con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+        sql = 'select * from soldier where tested = 0'
+        con.query(sql)
+        res = con.store_result().fetch_row(0, 1)
+        con.close()
 
+        ids = []
+        for i in res:
+            ids.append(i['id'])
+        return dict(ids=ids)
+    @expose('json')
+    def setTested(self, sids):
+        sids = json.loads(sids)
+        con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+        for i in sids:
+            sql = 'update soldier set tested = 1 where id = %d' % (i)
+            con.query(sql)
+        con.commit()
+        con.close()
