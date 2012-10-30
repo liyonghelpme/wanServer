@@ -547,18 +547,55 @@ class RootController(BaseController):
         for i in gameParam:
             ret[i.key] = i.value 
         return ret
+    #动态获取 士兵数据
     @expose('json')
     def getAllSolIds(self):
         con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
         sql = 'select * from soldier where tested = 0'
         con.query(sql)
         res = con.store_result().fetch_row(0, 1)
-        con.close()
+        #con.close()
 
         ids = []
+        solDatas = []
         for i in res:
             ids.append(i['id'])
-        return dict(ids=ids)
+        
+        solDatas = []
+        key = []
+        for i in res:
+            i = dict(i)
+            #i['stage'] = json.loads(i['stage'])
+            i['name'] = 'soldier' + str(i['id'])
+            i.pop('engName')
+            it = list(i.items())
+            it = [list(k) for k in it]
+            a = [k[1] for k in it]
+            key = [k[0] for k in it]
+            solDatas.append([i['id'], a])
+        #添加一个敌人 id = 0 士兵的数据
+        sql = 'select * from soldier where id = 0'
+        con.query(sql)
+        res = con.store_result().fetch_row(0, 1)
+        con.close()
+
+        for i in res:
+            i = dict(i)
+            #i['stage'] = json.loads(i['stage'])
+            i['name'] = 'soldier' + str(i['id'])
+            i.pop('engName')
+            it = list(i.items())
+            it = [list(k) for k in it]
+            a = [k[1] for k in it]
+            key = [k[0] for k in it]
+            solDatas.append([0, a])
+            break
+
+        #names = [['soldier'+str(i['id']), [i['name'], i['engName']]] for i in f]
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(solDatas), ');'
+        #return names 
+        return dict(ids=ids, soldierKey=key, soldierData=solDatas)
     @expose('json')
     def setTested(self, sids):
         sids = json.loads(sids)
