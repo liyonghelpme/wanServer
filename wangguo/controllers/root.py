@@ -561,6 +561,10 @@ class RootController(BaseController):
         for i in res:
             ids.append(i['id'])
         
+        sql = 'select * from soldier'
+        con.query(sql)
+        res = con.store_result().fetch_row(0, 1)
+
         solDatas = []
         key = []
         for i in res:
@@ -573,6 +577,7 @@ class RootController(BaseController):
             a = [k[1] for k in it]
             key = [k[0] for k in it]
             solDatas.append([i['id'], a])
+        """
         #添加一个敌人 id = 0 士兵的数据
         sql = 'select * from soldier where id = 0'
         con.query(sql)
@@ -595,6 +600,7 @@ class RootController(BaseController):
         #print 'var', name+'Key', '=', json.dumps(key), ';'
         #print 'var', name+'Data', '=', 'dict(', json.dumps(solDatas), ');'
         #return names 
+        """
         return dict(ids=ids, soldierKey=key, soldierData=solDatas)
     @expose('json')
     def setTested(self, sids):
@@ -605,3 +611,40 @@ class RootController(BaseController):
             con.query(sql)
         con.commit()
         con.close()
+
+    @expose('json')
+    def getBuildingData(self):
+        con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+        sql = 'select * from building'
+        con.query(sql)
+        res = con.store_result().fetch_row(0, 1)
+
+        buildDatas = []
+        key = []
+
+        for i in res:
+            i = dict(i)
+            if i.get('name') != None and i.get('id') != None:
+                i['name'] = 'building'+str(i['id'])
+            if i.get('engName') != None:
+                i.pop('engName')
+            it = list(i.items())
+            it = [list(k) for k in it]
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            if i.get('id') != None:
+                buildDatas.append([i['id'], a])
+        return dict(buildingKey=key, buildingData=buildDatas)
+
+    @expose('json')
+    def fetchAnimate(self):
+        con = MySQLdb.connect(host = 'localhost', user='root', passwd=DB_PASSWORD, db='Wan2', charset='utf8')
+        sql = 'select * from AttackEffectAnimate'
+        con.query(sql)
+        res = con.store_result().fetch_row(0, 1)
+        ani = []
+        for i in res:
+            ani.append([i['id'], [json.loads(i['animation']), i['time'], [0, 0], i['scale']]])
+        return dict(ani=ani)
+            
+        

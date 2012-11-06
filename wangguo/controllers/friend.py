@@ -247,8 +247,13 @@ class FriendController(BaseController):
         res = []
         for i in neibors:
             mine = DBSession.query(UserCrystalMine).filter_by(uid=i.fid).one()
-            loveTree = DBSession.query(UserBuildings).filter_by(uid=i.fid, kind=datas['PARAMS']['loveTreeId']).one()
-            res.append([i.fid, i.papayaId, i.name, i.level, mine.level, i.challengeYet, i.heartYet, loveTree.level])
+            try:
+                loveTree = DBSession.query(UserBuildings).filter_by(uid=i.fid, kind=datas['PARAMS']['loveTreeId']).one()
+                loveLevel = loveTree.level
+            except:
+                loveTree = None
+                loveLevel = 0
+            res.append([i.fid, i.papayaId, i.name, i.level, mine.level, i.challengeYet, i.heartYet, loveLevel])
         return dict(id=1, neibors = res)
 
     #如果已经发送过请求 则 阻止今天继续发送 

@@ -16,6 +16,8 @@ import time
 
 import pymongo
 
+DB_PASSWORD = 'badperson3'
+
 mongoCon = pymongo.Connection(host='localhost', port=27017)
 mongoDB = mongoCon['Rank']
 mongoCollect = mongoDB.heartRank
@@ -31,7 +33,7 @@ inviteRankCollect = mongoDB.inviteRank
 attackCollect = mongoDB.UserAttack
 defenseCollect = mongoDB.UserDefense
 
-con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+con = MySQLdb.connect(host = 'localhost', user='root', passwd=DB_PASSWORD, db='Wan2', charset='utf8')
 #cur = con.cursor()
 """
 EQUIP = 1
