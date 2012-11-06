@@ -645,6 +645,17 @@ class RootController(BaseController):
         ani = []
         for i in res:
             ani.append([i['id'], [json.loads(i['animation']), i['time'], [0, 0], i['scale']]])
-        return dict(ani=ani)
+
+
+
+        sql = 'select * from soldierMagic'
+        con.query(sql)
+        magic = con.store_result().fetch_row(0, 1)
+        mgList = []
+        for i in magic:
+            mgList.append([i['id'], [i['make'], i['fly'], i['bomb']]])
+
+        con.close()
+        return dict(ani=ani, sol=mgList)
             
         
