@@ -657,5 +657,28 @@ class RootController(BaseController):
 
         con.close()
         return dict(ani=ani, sol=mgList)
+
+    @expose('json')
+    def getTaskData(self):
+        con = MySQLdb.connect(host = 'localhost', user='root', passwd=DB_PASSWORD, db='Wan2', charset='utf8')
+        sql = 'select * from allTasks'
+        con.query(sql)
+        f = con.store_result().fetch_row(0, 1)
+        res = []
+        for i in f:
+            i = dict(i)
+            i['title'] = 'title'+str(i['id'])
+            i['des'] = 'des'+str(i['id'])
+
+            it = list(i.items())
+            it = [list(k) for k in it]
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            res.append([i['id'], a])
+
+        return dict(taskData=res, taskKey=key)
+
+
+
             
         
