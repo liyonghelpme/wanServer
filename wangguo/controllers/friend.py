@@ -80,8 +80,12 @@ class FriendController(BaseController):
                 papayaIdName.append([friend.papayaId, friend.name])
             
         mine = DBSession.query(UserCrystalMine).filter_by(uid=friend.uid).one()
-        loveTree = DBSession.query(UserBuildings).filter_by(uid=friend.uid, kind=datas['PARAMS']['loveTreeId']).one()
-        return dict(id=1, level=friend.level, soldiers=soldiers, fid = friend.uid, name=friend.name, helperList = helperList, hasBox = hasBox, papayaIdName=papayaIdName, mineLevel=mine.level, heartLevel=loveTree.level)
+        try:
+            loveTree = DBSession.query(UserBuildings).filter_by(uid=friend.uid, kind=datas['PARAMS']['loveTreeId']).one()
+            loveLevel = loveTree.level
+        except:
+            loveLevel = 0
+        return dict(id=1, level=friend.level, soldiers=soldiers, fid = friend.uid, name=friend.name, helperList = helperList, hasBox = hasBox, papayaIdName=papayaIdName, mineLevel=mine.level, heartLevel=loveLevel)
 
         #该用户没有在服务器注册，fid 返回-1 更新
         #return dict(id=1, level=0, soldiers={}, fid = -1)
@@ -416,9 +420,6 @@ class FriendController(BaseController):
         neibor = UserNeiborRelation(uid=uid, fid=fid,  name=friend.name, level=friend.level)
         neibor.papayaId = friend.papayaId
         DBSession.add(neibor)
-
-
-            
 
         return dict(id=1)
     @expose('json')

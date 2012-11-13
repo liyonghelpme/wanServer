@@ -102,6 +102,14 @@ class RootController(BaseController):
             i.name = user.name
             i.updated = True
     #state = 1 Free
+    #单向好友关系
+    def initNeibor(self, user):
+        server = getUser(0)
+        neibor = UserNeiborRelation(uid=user.uid, fid=0,  name=server.name,  level=server.level)
+        neibor.papayaId = server.papayaId
+        DBSession.add(neibor)
+
+        
     def initBuildings(self, user):
         uid = user.uid
         bid = 0
@@ -143,11 +151,15 @@ class RootController(BaseController):
             for j in range(0, datas['PARAMS']['smallNum']):
                 challenge = UserChallenge(uid=uid, big=i, small=j, star=0)
                 DBSession.add(challenge)
+    
+    #编号1的普通士兵 一个
     def initSoldiers(self, user):
         uid = user.uid
-        #sid = 0
-        #soldier = UserSoldiers(uid=uid, sid=0, kind=0, name='剑', health = data)
-        #DBSession.add(soldier)
+        sid = 1
+
+        data = calculateStage(0, 0)['healthBoundary']
+        soldier = UserSoldiers(uid=uid, sid=sid, kind=0, name='普通剑士', health = data)
+        DBSession.add(soldier)
         #编号12 的变身技能 暂时没有英雄变身技能
         #skill = UserSkills(uid=uid, soldierId=sid, skillId=12, level=0)
         #DBSession.add(skill)
@@ -234,7 +246,7 @@ class RootController(BaseController):
     #
     def getUserData(self, user):
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=user.uid).one()
-        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, colorCrystal=user.colorCrystal) 
+        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, colorCrystal=user.colorCrystal, newTaskStage=user.newTaskStage) 
     def getBuildings(self, uid):
         buildings = DBSession.query(UserBuildings).filter_by(uid=uid).all()
         res = {}
@@ -463,6 +475,7 @@ class RootController(BaseController):
             #self.initCrystalMine(user)
             self.initHeart(user)
             self.initFriends(user)
+            self.initNeibor(user)
             self.initTreasureBox(user.uid)
             self.initInvite(user)
             #self.initSolEquip(user)
@@ -669,12 +682,20 @@ class RootController(BaseController):
             i = dict(i)
             i['title'] = 'title'+str(i['id'])
             i['des'] = 'des'+str(i['id'])
+            i['commandList'] = json.loads(i['commandList'])
+            for c in i['commandList']:
+                if c.get('tip') != None:
+                    old = c['tip']
+                    c['tip'] = 'taskTip'+str(c['msgId'])
+                
 
             it = list(i.items())
             it = [list(k) for k in it]
             key = [k[0] for k in it]
             a = [k[1] for k in it]
             res.append([i['id'], a])
+
+        con.close()
 
         return dict(taskData=res, taskKey=key)
 

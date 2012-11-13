@@ -354,10 +354,10 @@ class SoldierController(BaseController):
         skillId = int(skillId)
         stoneId = int(stoneId)
        
-        num = getGoodsNum(uid, getKindsId('magicStone'), stoneId)
+        num = getGoodsNum(uid, getKindId('magicStone'), stoneId)
         if num < 1:
             return dict(id=0)
-        updateGoodsNum(uid, getKindsId('magicStone'), stoneId, -1)
+        updateGoodsNum(uid, getKindId('magicStone'), stoneId, -1)
         gData = getData('magicStone', stoneId)
         possible = gData.get('possible')
         

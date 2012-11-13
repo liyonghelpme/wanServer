@@ -26,6 +26,7 @@ def req(r):
 papa = random.randint(5000, 6000)
 r = '%slogin/%d/ppp' % (base2, papa)
 l = req(r)
+newTaskStage = l['resource']['newTaskStage']
 
 uid = l.get('uid')
 sid = random.randint(0, 100)
@@ -64,4 +65,14 @@ r = base+'getDayTask/%d' % (uid)
 req(r)
 
 r = base+'finishDayTask/%d/%s' % (uid, json.dumps({'gold':10}))
+req(r)
+
+print 'newTaskStage', newTaskStage
+r = base+'synNewTask/%d/%s' % (uid, json.dumps([24]))
+req(r)
+
+r = base+'updateNewTaskStage/%d/%d' % (uid, 1)
+req(r)
+
+r = base+'finishNewTask/%d/%d/%s' % (uid, 24, json.dumps({'gold':1}))
 req(r)
