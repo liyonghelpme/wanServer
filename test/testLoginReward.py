@@ -38,7 +38,7 @@ print uid
 #req(r)
 
 
-r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero'+str(papaya))
+r = '%schooseFirstHero/%d/%d/%s/%d' % (base2, uid, 440, 'hero'+str(papaya), 2)
 req(r)
 
 

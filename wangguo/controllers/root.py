@@ -155,7 +155,7 @@ class RootController(BaseController):
     #编号1的普通士兵 一个
     def initSoldiers(self, user):
         uid = user.uid
-        sid = 1
+        sid = 0
 
         data = calculateStage(0, 0)['healthBoundary']
         soldier = UserSoldiers(uid=uid, sid=sid, kind=0, name='普通剑士', health = data)
@@ -413,10 +413,12 @@ class RootController(BaseController):
     #更新 缓存数据表中的 用户名称
     #邻居关系 好友关系 
     @expose('json')
-    def chooseFirstHero(self, uid, hid, name):
+    def chooseFirstHero(self, uid, hid, name, sid):
         uid = int(uid)
         user = getUser(uid)
         hid = int(hid)#英雄ID 图片暂时使用普通士兵
+        #客户端产生sid
+        sid = int(sid)
 
         sameName = DBSession.query(UserInWan).filter_by(name=name).all()
         if len(sameName) > 0 and sameName[0].uid != uid:
@@ -426,7 +428,7 @@ class RootController(BaseController):
         user.name = name
 
         #hid  = hid level = 0 第一个士兵
-        sid = 0
+        #sid = 0
         #hid = 0
         data = calculateStage(hid, 0)['healthBoundary']
         soldier = UserSoldiers(uid=uid, sid=sid, kind=hid, name=name, health = data)
