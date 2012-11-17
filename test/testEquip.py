@@ -1,3 +1,4 @@
+#coding:utf8
 import MySQLdb
 import urllib
 import json
@@ -33,20 +34,29 @@ print uid, sid
 
 r = base+'buyEquip/%d/%d/%d' % (uid, 5, 0)
 equip = req(r)
+#使用宝石升级
+r= base+'buyTreasureStone/%d/%d' % (uid, 0)
+req(r)
 
-r = base+'upgradeEquip/%d/%d' % (uid, 5)
+r= base+'buyTreasureStone/%d/%d' % (uid, 0)
+req(r)
+
+r= base+'buyTreasureStone/%d/%d' % (uid, 0)
+req(r)
+
+r = base+'upgradeEquip/%d/%d/%d' % (uid, 5, 0)
 equip = req(r)
 
 sql = 'insert into UserGoods values(%d, %d, %d, %d)' % (uid, 15, 0, 0)
 con.query(sql)
 con.commit()
 
-r = base+'upgradeEquip/%d/%d' % (uid, 5)
+r = base+'upgradeEquip/%d/%d/%d' % (uid, 5, 0)
 equip = req(r)
 
 sql = 'update UserGoods set num = %d' % (1)
 con.query(sql)
 con.commit()
 
-r = base+'upgradeEquip/%d/%d' % (uid, 5)
+r = base+'upgradeEquip/%d/%d/%d' % (uid, 5, 0)
 equip = req(r)

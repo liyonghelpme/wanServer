@@ -48,6 +48,9 @@ l = req(r)
 r = base+'synCycleTask/%d/%s' % (uid, json.dumps([1, 2, 3]))
 req(r)
 
+r = base+'doCycleTask/%d/%d/%d' % (uid, 4, 1)
+req(r)
+
 r = base+'doCycleTask/%d/%d/%d' % (uid, 1, 2)
 req(r)
 

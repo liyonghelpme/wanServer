@@ -30,8 +30,8 @@ r = '%slogin/%d/ppp' % (base2, papaya)
 l = req(r)
 uid = l['uid']
 
-r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'liyong'+str(papaya))
-req(r)
+#r = '%schooseFirstHero/%d/%d/%s/%d' % (base2, uid, 440, 'liyong'+str(papaya), 10)
+#req(r)
 
 op = random.randint(11000, 12000)
 r = '%slogin/%d/ppp' % (base2, op)

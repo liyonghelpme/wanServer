@@ -31,8 +31,8 @@ l = req(r)
 uid = l.get("uid")
 bid = random.randint(100, 200)
 #购买兵营
-r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 440, 'hero'+str(papa))
-req(r)
+#r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 440, 'hero'+str(papa))
+#req(r)
 
 
 r = base+'finishBuild/'+str(uid)+'/'+str(bid)+'/'+str(0)+'/10/10/0'

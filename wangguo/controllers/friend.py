@@ -65,6 +65,7 @@ class FriendController(BaseController):
             return dict(id=0, status=0)
         
         soldiers = getSoldiers(friend.uid)
+        #用户没有 box
         box = DBSession.query(UserTreasureBox).filter_by(uid=friend.uid).one()
         try:
             helperList = json.loads(box.helperList)
@@ -79,13 +80,18 @@ class FriendController(BaseController):
             else:
                 papayaIdName.append([friend.papayaId, friend.name])
             
-        mine = DBSession.query(UserCrystalMine).filter_by(uid=friend.uid).one()
+        try:
+            mine = DBSession.query(UserCrystalMine).filter_by(uid=friend.uid).one()
+            mineLevel = mine.level
+        except:
+            mineLevel = 0
+
         try:
             loveTree = DBSession.query(UserBuildings).filter_by(uid=friend.uid, kind=datas['PARAMS']['loveTreeId']).one()
             loveLevel = loveTree.level
         except:
             loveLevel = 0
-        return dict(id=1, level=friend.level, soldiers=soldiers, fid = friend.uid, name=friend.name, helperList = helperList, hasBox = hasBox, papayaIdName=papayaIdName, mineLevel=mine.level, heartLevel=loveLevel)
+        return dict(id=1, level=friend.level, soldiers=soldiers, fid = friend.uid, name=friend.name, helperList = helperList, hasBox = hasBox, papayaIdName=papayaIdName, mineLevel=mineLevel, heartLevel=loveLevel)
 
         #该用户没有在服务器注册，fid 返回-1 更新
         #return dict(id=1, level=0, soldiers={}, fid = -1)

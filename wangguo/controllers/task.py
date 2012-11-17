@@ -54,7 +54,11 @@ class TaskController(BaseController):
         uid = int(uid)
         tid = int(tid)
         num = int(num)
-        task = DBSession.query(UserTask).filter_by(uid=uid, tid=tid).one()
+        try:
+            task = DBSession.query(UserTask).filter_by(uid=uid, tid=tid).one()
+        except:
+            task = UserTask(uid=uid, tid=tid, number=0, stage=0)
+            DBSession.add(task)
         task.number += num
         return dict(id=1)
     

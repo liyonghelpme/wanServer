@@ -4,7 +4,7 @@ import json
 import sys
 import random
 from config import *
-base = '%friendC/' % (base2)
+base = '%sfriendC/' % (base2)
 
 def exe(sql):
     print sql
@@ -30,6 +30,15 @@ uid = l.get('uid')
 sid = random.randint(0, 100)
 print uid, sid
 
-r = base+'doTask/%d/%d/%d' % (uid, 0, 50)
-task = req(r)
+
+papa2 = random.randint(2000, 3000)
+r = '%slogin/%d/ppp' % (base2, papa2)
+l = req(r)
+
+oid = l.get('uid')
+#r = base+'doTask/%d/%d/%d' % (uid, 0, 50)
+#task = req(r)
+
+r = base+'sendNeiborRequest/%d/%d' % (oid, 2088)
+req(r)
 

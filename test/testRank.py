@@ -32,8 +32,8 @@ l = req(r)
 uid = l.get('uid')
 print uid
 
-r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero'+str(papaya))
-req(r)
+#r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero'+str(papaya))
+#req(r)
 
 oids = []
 #other

@@ -104,10 +104,13 @@ class RootController(BaseController):
     #state = 1 Free
     #单向好友关系
     def initNeibor(self, user):
+        pass
+        """
         server = getUser(0)
         neibor = UserNeiborRelation(uid=user.uid, fid=0,  name=server.name,  level=server.level)
         neibor.papayaId = server.papayaId
         DBSession.add(neibor)
+        """
 
         
     def initBuildings(self, user):
@@ -313,13 +316,17 @@ class RootController(BaseController):
         mine = DBSession.query(UserCrystalMine).filter_by(uid=uid).one()
         return dict(px=mine.px, py=mine.py, state=mine.state, objectTime=mine.objectTime, level=mine.level)
     """
-    global GOODS_COFF
-    GOODS_COFF = 10000
+
+    #def initTreasureStone(self, user):
+    #    treasure = UserGoods(uid=user.uid, kind=tid=0)
+        
+    #global GOODS_COFF
+    #GOODS_COFF = 10000
     def getTreasureStone(self, uid):
         treasure = DBSession.query(UserGoods).filter_by(uid=uid).all()
         res = []
         for t in treasure:
-            res.append([t.kind*GOODS_COFF+t.id, t.num])
+            res.append([t.kind*getParams("goodsCoff")+t.id, t.num])
         return res
             
         

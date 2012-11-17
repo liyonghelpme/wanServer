@@ -33,8 +33,8 @@ for i in range(0, 10):
     #print l.get('soldiers')
     #print l['skills']
 
-    r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero%d' % papayaId)
-    req(r)
+    #r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 0, 'hero%d' % papayaId)
+    #req(r)
 
     r = base2+'getLoginReward/%d/%d/%d' % (uid, 5, 5)
     reward = req(r)

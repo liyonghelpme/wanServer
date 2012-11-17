@@ -37,8 +37,8 @@ uid = l['uid']
 uInCode = l['invite']['inviteCode']
 maxMsgId = l['maxMessageId']
 
-r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 440, 'hero'+str(papa))
-req(r)
+#r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 440, 'hero'+str(papa))
+#req(r)
 
 #uid = l.get('uid')
 
@@ -54,8 +54,8 @@ l = req(r)
 oid = l.get('uid')
 otherInCode = l['invite']['inviteCode']
 
-r = '%schooseFirstHero/%d/%d/%s' % (base2, oid, 440, 'hero'+str(papa2))
-req(r)
+#r = '%schooseFirstHero/%d/%d/%s' % (base2, oid, 440, 'hero'+str(papa2))
+#req(r)
 
 r = base+'addNeiborMax/%d/%d' % (uid, 10)
 req(r)
