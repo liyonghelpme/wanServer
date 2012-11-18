@@ -594,6 +594,15 @@ class RootController(BaseController):
             #i['stage'] = json.loads(i['stage'])
             i['name'] = 'soldier' + str(i['id'])
             i.pop('engName')
+            i['initPhysicAttack'] *= 10
+            i['addPhysicAttack'] *= 10
+            i['initMagicAttack'] *= 10
+            i['addMagicAttack'] *= 10
+            i['initPhysicDefense'] *= 10
+            i['addPhysicDefense'] *= 10
+            i['initMagicDefense'] *= 10
+            i['addMagicDefense'] *= 10
+
             it = list(i.items())
             it = [list(k) for k in it]
             a = [k[1] for k in it]
