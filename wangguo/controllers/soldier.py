@@ -264,7 +264,6 @@ class SoldierController(BaseController):
         cost = getCost('soldier', soldier.kind)
         cost = changeToSilver(cost)
         doGain(uid, cost)
-        #solEquip = DBSession.query(UserSolEquip).filter_by(uid=uid).filter_by(sid=sid).all()
         equips = DBSession.query(UserEquips).filter_by(uid=uid, owner=sid).all()
         for i in equips:
             equips.owner = -1

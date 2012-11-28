@@ -19,7 +19,7 @@ import pymongo
 DB_PASSWORD = 'badperson3'
 
 mongoCon = pymongo.Connection(host='localhost', port=27017)
-mongoDB = mongoCon['Rank']
+mongoDB = mongoCon['WanRank']
 mongoCollect = mongoDB.heartRank
 newRankCollect = mongoDB.UserNewRank
 groupRankCollect = mongoDB.UserGroupRank

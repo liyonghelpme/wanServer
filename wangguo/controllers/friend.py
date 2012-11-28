@@ -80,11 +80,16 @@ class FriendController(BaseController):
             else:
                 papayaIdName.append([friend.papayaId, friend.name])
             
-        try:
-            mine = DBSession.query(UserCrystalMine).filter_by(uid=friend.uid).one()
-            mineLevel = mine.level
-        except:
+        #try:
+            #mine = DBSession.query(UserCrystalMine).filter_by(uid=friend.uid).one()
+        #只返回好友的一个水晶矿石 等级
+        mine = DBSession.query(UserBuildings).filter_by(uid=friend.uid, kind=getParams("MineKind")).all()
+        if len(mine) > 0:
+            mineLevel = mine[0].level
+        else:
             mineLevel = 0
+        #except:
+        #    mineLevel = 0
 
         try:
             loveTree = DBSession.query(UserBuildings).filter_by(uid=friend.uid, kind=datas['PARAMS']['loveTreeId']).one()
@@ -256,11 +261,18 @@ class FriendController(BaseController):
         neibors = DBSession.query(UserNeiborRelation).filter_by(uid=uid).all()
         res = []
         for i in neibors:
-            try:
-                mine = DBSession.query(UserCrystalMine).filter_by(uid=i.fid).one()
-                mineLevel = mine.level
-            except:
+            #慢查询可能是需要explain一下看执行过程
+            mine = DBSession.query(UserBuildings).filter_by(uid=i.fid, kind=getParams("MineKind")).limit(1).all()
+            if len(mine) > 0:
+                mineLevel = mine[0].level
+            else:
                 mineLevel = 0
+            #try:
+            #    mine = DBSession.query(UserCrystalMine).filter_by(uid=i.fid).one()
+            #    mineLevel = mine.level
+            #except:
+            #    mineLevel = 0
+
             try:
                 loveTree = DBSession.query(UserBuildings).filter_by(uid=i.fid, kind=datas['PARAMS']['loveTreeId']).one()
                 loveLevel = loveTree.level

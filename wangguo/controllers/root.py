@@ -212,11 +212,6 @@ class RootController(BaseController):
     #state == 0 Moving
     #1 Free
     #2 Working
-    """
-    def initCrystalMine(self, user):
-        mine = UserCrystalMine(uid=user.uid, px=768, py =352, state = getParams("buildFree"), objectTime=getTime(), level=0, bid=0)
-        DBSession.add(mine)
-    """
 
     def initHeart(self, user):
         heart = UserHeart(uid=user.uid, weekNum=0, liveNum = 0, accNum = 0)
@@ -311,11 +306,6 @@ class RootController(BaseController):
         return [rank.score, rank.rank]
 
     #buildid 300 crystalMine
-    """
-    def getCrystalMine(self, uid):
-        mine = DBSession.query(UserCrystalMine).filter_by(uid=uid).one()
-        return dict(px=mine.px, py=mine.py, state=mine.state, objectTime=mine.objectTime, level=mine.level)
-    """
 
     #def initTreasureStone(self, user):
     #    treasure = UserGoods(uid=user.uid, kind=tid=0)
@@ -594,6 +584,8 @@ class RootController(BaseController):
             #i['stage'] = json.loads(i['stage'])
             i['name'] = 'soldier' + str(i['id'])
             i.pop('engName')
+
+            """
             i['initPhysicAttack'] *= 10
             i['addPhysicAttack'] *= 10
             i['initMagicAttack'] *= 10
@@ -602,6 +594,7 @@ class RootController(BaseController):
             i['addPhysicDefense'] *= 10
             i['initMagicDefense'] *= 10
             i['addMagicDefense'] *= 10
+            """
 
             it = list(i.items())
             it = [list(k) for k in it]
