@@ -5,14 +5,15 @@ import json
 import time
 import pymongo
 
-monCon = pymongo.Connection(host='localhost', port=27017)
-monDb = monCon['Rank']
+#monCon = pymongo.Connection(host='localhost', port=27017)
+#monDb = monCon['Rank']
+monDb = db
 arenaCollect = monDb.UserArena
 
 sql = 'select * from UserFighting'
-con.query(sql)
+myCon.query(sql)
 
-res = con.store_result().fetch_row(0, 1)
+res = myCon.store_result().fetch_row(0, 1)
 
 #for i in res:
 #    sql = 'select name, level from UserInWan where uid = %d' % (i['uid'])
@@ -29,8 +30,8 @@ arenaCollect.insert({'res':arr})
 
 
 
-con.commit()
-con.close()
+myCon.commit()
+myCon.close()
 
     
     

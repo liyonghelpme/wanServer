@@ -91,12 +91,15 @@ class FriendController(BaseController):
         #except:
         #    mineLevel = 0
 
+        """
         try:
             loveTree = DBSession.query(UserBuildings).filter_by(uid=friend.uid, kind=datas['PARAMS']['loveTreeId']).one()
             loveLevel = loveTree.level
         except:
             loveLevel = 0
-        return dict(id=1, level=friend.level, soldiers=soldiers, fid = friend.uid, name=friend.name, helperList = helperList, hasBox = hasBox, papayaIdName=papayaIdName, mineLevel=mineLevel, heartLevel=loveLevel)
+        , heartLevel=loveLevel
+        """
+        return dict(id=1, level=friend.level, soldiers=soldiers, fid = friend.uid, name=friend.name, helperList = helperList, hasBox = hasBox, papayaIdName=papayaIdName, mineLevel=mineLevel)
 
         #该用户没有在服务器注册，fid 返回-1 更新
         #return dict(id=1, level=0, soldiers={}, fid = -1)
@@ -267,19 +270,7 @@ class FriendController(BaseController):
                 mineLevel = mine[0].level
             else:
                 mineLevel = 0
-            #try:
-            #    mine = DBSession.query(UserCrystalMine).filter_by(uid=i.fid).one()
-            #    mineLevel = mine.level
-            #except:
-            #    mineLevel = 0
-
-            try:
-                loveTree = DBSession.query(UserBuildings).filter_by(uid=i.fid, kind=datas['PARAMS']['loveTreeId']).one()
-                loveLevel = loveTree.level
-            except:
-                loveTree = None
-                loveLevel = 0
-            res.append([i.fid, i.papayaId, i.name, i.level, mineLevel, i.challengeYet, i.heartYet, loveLevel])
+            res.append([i.fid, i.papayaId, i.name, i.level, mineLevel, i.challengeYet])
         return dict(id=1, neibors = res)
 
     #如果已经发送过请求 则 阻止今天继续发送 
@@ -477,15 +468,9 @@ class FriendController(BaseController):
         except:
             print "neibor relaition broken", uid, fid
 
-        #soldiers = getChallengeSoldiers(fid)
-        #equips = getChallengeEquips(fid)
-        #other = getUser(fid)
-        #skills = DBSession.query(UserSkills).filter_by(uid=fid).all()
-        #skills = [[i.soldierId, i.skillId, i.level] for i in skills]
         oData = getOtherData(fid)
         oData.update({'id':1})
         return oData
-        #return dict(id=1, soldiers=soldiers, equips=equips, cityDefense=other.cityDefense, skills = skills)
         
     #只有胜利才需要同步数据
     @expose('json')
@@ -498,12 +483,9 @@ class FriendController(BaseController):
 
         user = getUser(uid)
         user.crystal += crystal
-        for i in sols:
-            soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=i[0]).one()
-            soldier.health = i[1]
-            soldier.exp = i[2]
-            soldier.dead = i[3]
-            soldier.level = i[4]
+
+        killSoldiers(uid, sols)
+
         msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param=crystal, time=getTime(), mid=mid)
         DBSession.add(msg)
 

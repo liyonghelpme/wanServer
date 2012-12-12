@@ -11,9 +11,8 @@ from wangguo.model import DeclarativeBase, metadata, DBSession
 
 
 class UserSoldiers(object):
-    def __init__(self, uid, sid, kind, name, health):
+    def __init__(self, uid, sid, kind, name):
         self.uid = uid
         self.sid = sid
         self.kind = kind
         self.name = name
-        self.health = health

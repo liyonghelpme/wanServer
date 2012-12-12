@@ -164,7 +164,7 @@ class BuildingController(BaseController):
             return dict(id=0, status=1)
         
         
-        soldier = UserSoldiers(uid=uid, sid=sid, kind=build.objectId, name="", health = calculateStage(build.objectId, 0)['healthBoundary'])
+        soldier = UserSoldiers(uid=uid, sid=sid, kind=build.objectId, name="")
         DBSession.add(soldier)
 
         sData = getData('soldier', build.objectId)
@@ -228,11 +228,97 @@ class BuildingController(BaseController):
         build.objectTime = 0
         build.state = datas['PARAMS']['buildFree']
         return dict(id=1)
+    
+    def addSol(self, build, objId):
+        objectList = json.loads(build.objectList)
+        index = None
+        for i in objectList:
+            if i[0] == objId:
+                index = i
+                break
+        if index == None:
+            objectList.append([objId, 1])
+        else:
+            index[1] += 1
+        build.objectList = json.dumps(objectList)
+    
+    def realUpdateWorkTime(self, uid, bid):
+        build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
+        build.objectTime = getTime()
+        build.objectId = 0
+    #兵营开始工作
+    @expose('json')
+    def campUpdateWorkTime(self, uid, bid):
+        uid = int(uid)
+        bid = int(bid)
+        self.realUpdateWorkTime(uid, bid)
+        return dict(id=1)
 
 
+    #兵营增加士兵类型
+    @expose('json')
+    def campAddSoldier(self, uid, bid, solId):
+        uid = int(uid)
+        bid = int(bid)
+        solId = int(solId)
+        solData = getData('soldier', solId)
 
+        cost = getCost('soldier', solId)
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
+        build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
+        self.addSol(build, solId)
+        return dict(id=1)
 
+    #兵营收获一个士兵 
+    #更新兵营工作时间
+    @expose('json')
+    def campHarvestSoldier(self, uid, bid, solId, sid, name):
+        print "campHarvestSoldier", name
+        uid = int(uid)
+        bid = int(bid)
+        solId = int(solId)
+        sid = int(sid)
+
+        build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
+        objectList = json.loads(build.objectList)
+        index = None
+        for i in objectList:
+            if i[0] == solId:
+                index = i
+                i[1] -= 1
+                if i[1] <= 0:
+                    objectList.remove(i)
+                break
+        if index == None:
+            return dict(id=0, reason="no such kind soldier")
+        build.objectList = json.dumps(objectList)
+
+        soldier = UserSoldiers(uid=uid, sid=sid, kind=solId, name=name)
+        DBSession.add(soldier)
         
+        build.objectTime += getData('soldier', solId)['time']#工作时间 向后推迟
+        return dict(id=1)
+
+    #加速兵营生产
+    #重设生产时间 为当前预期时间 startTime - needTime
+    #客户端传递需要时间
+    @expose('json')
+    def accCampWork(self, uid, bid, cost, needTime):
+        uid = int(uid)
+        bid = int(bid)
+        cost = json.loads(cost)
+        needTime = int(needTime)
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
+
+        build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
+        build.objectTime -= needTime
+        return dict(id=1)
 
 
         

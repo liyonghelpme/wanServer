@@ -39,7 +39,7 @@ oids = []
 #other
 OTHER_NUM = 5
 for i in range(0, OTHER_NUM):
-    r = '%slogin/%d/ppp' % (base2, random.randint(110, 30000))
+    r = '%slogin/%d/ppp' % (base2, random.randint(10000, 30000))
     l = req(r)
     oids.append(l.get('uid')) 
     r = '%sgetLoginReward/%d/%d/%d' % (base2, l['uid'], 10, 10)
@@ -59,7 +59,7 @@ for i in range(1, OTHER_NUM):
     r = base+'challengeOther/%d/%d' % (uid, oids[i])
     req(r)
 
-r = base+'challengeResult/%d/%d/%d/%s' % (uid, 5, 10, json.dumps([[0, 1, 2, 0, 1]]))
+r = base+'challengeResult/%d/%d/%d/%d/%s/%d' % (uid, oids[0], 5, 10, json.dumps([0]), 5)
 req(r)
 
 r = base+'challengeSelf/%d/%d' % (uid, oids[0])

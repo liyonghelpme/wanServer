@@ -5,20 +5,21 @@ import json
 import time
 import pymongo
 
-monCon = pymongo.Connection(host='localhost', port=27017)
-monDb = monCon['Rank']
+#monCon = pymongo.Connection(host='localhost', port=27017)
+#monDb = monCon['Rank']
+monDb = db
 recommandCollect = monDb.UserRecommand
 
 begin = int(time.mktime((2012, 1, 1, 0, 0, 0, 0, 0, 0)))
 now = int(time.mktime(time.localtime())) - begin - 3*24*3600
 #暂时推荐所有
 sql = 'select uid, name, level, papayaId from UserInWan' #where loginTime > %d' % (now)
-con.query(sql)
+myCon.query(sql)
 
-res = con.store_result().fetch_row(0, 1)
+res = myCon.store_result().fetch_row(0, 1)
 
 sql = 'delete from UserRecommand'
-con.query(sql)
+myCon.query(sql)
 
 key = ['uid', 'name', 'level', 'papayaId']
 arr = [ dict([[k,i[k]] for k in key]) for i in res]
@@ -30,8 +31,8 @@ recommandCollect.insert({'res':arr})
 
 
 
-con.commit()
-con.close()
+myCon.commit()
+myCon.close()
 
     
     

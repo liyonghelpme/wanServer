@@ -2,8 +2,9 @@
 import time
 import pymongo
 import MySQLdb
-con = pymongo.Connection(host='localhost', port=27017)
-db = con['Rank']
+from config import *
+#con = pymongo.Connection(host='localhost', port=27017)
+#db = con['Rank']
 collect = db.heartRank
 
 #while True:

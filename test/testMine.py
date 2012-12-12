@@ -37,7 +37,7 @@ for i in buildings:
         break
 
 
-r = base+'upgradeMine/%d/%d' % (uid, mine)
+r = base+'upgradeMine/%d/%d/%s' % (uid, mine, json.dumps(dict([["silver", 100]])))
 req(r)
 
 r = base+'harvest/%d/%d/%d' % (uid, mine, 2)

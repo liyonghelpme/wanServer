@@ -60,16 +60,49 @@ bid = bid+1
 r = base+'finishBuild/%d/%d/%d/%d/%d/%d' % (uid, bid, 224, 0, 0, 0)
 req(r)
 
-r = base+'beginWork/%d/%d/%d/%d' % (uid, bid, 7, 0)
+r = base+'campUpdateWorkTime/%d/%d' %(uid, bid)
 req(r)
 
-r = base+'accWork/%d/%d/%d/%d' % (uid, bid, 7, 1)
+r = base+'campAddSoldier/%d/%d/%d' % (uid, bid, 0)
 req(r)
 
-r = base+'finishCall/%d/%d/%d' % (uid, bid, 5)
+r = base+'campAddSoldier/%d/%d/%d' % (uid, bid, 1)
 req(r)
+
+r = base2+'login/%d/ppp' % (papa)
+l = req(r)
+print
+print l['buildings'][str(bid)]
+
+r = base+'campHarvestSoldier/%d/%d/%d/%d/%s' % (uid, bid, 0, 3, "name3")
+req(r)
+import json
+
+r = base2+'login/%d/ppp' % (papa)
+l = req(r)
+print
+print l['buildings'][str(bid)]
+
+r = base+'accCampWork/%d/%d/%s/%d' % (uid, bid, json.dumps({'gold':5}), 20)
+req(r)
+
+r = base2+'login/%d/ppp' % (papa)
+l = req(r)
+print "acc"
+print l['buildings'][str(bid)]
+
+r = base+'campHarvestSoldier/%d/%d/%d/%d/%s' % (uid, bid, 1, 4, "name4")
+req(r)
+
+r = base2+'login/%d/ppp' % (papa)
+l = req(r)
+print
+print l['buildings'][str(bid)]
+
+
 
 
 r = base2+'login/%d/ppp' % (papa)
 l = req(r)
 print l['soldiers']
+print l['buildings'][str(bid)]

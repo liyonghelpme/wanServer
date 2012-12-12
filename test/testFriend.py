@@ -150,7 +150,7 @@ req(r)
 r = base+'challengeNeibor/%d/%d' % (uid, oid)
 req(r)
 
-r = base+'challengeNeiborOver/%d/%d/%s/%d/%d' % (uid, oid, str([]), 2, maxMsgId)
+r = base+'challengeNeiborOver/%d/%d/%s/%d/%d' % (uid, oid, json.dumps([0]), 2, maxMsgId)
 req(r)
 maxMsgId += 1
 

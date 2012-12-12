@@ -120,10 +120,12 @@ class RootController(BaseController):
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=1, kind=202, px=1664, py=656, state = 1)
         DBSession.add(buildings)
-        buildings = UserBuildings(uid=uid, bid=2, kind=204, px=1280, py=720, state = 1)
-        DBSession.add(buildings)
-        buildings = UserBuildings(uid=uid, bid=3, kind=206, px=1536, py=880, state = 1)
-        DBSession.add(buildings)
+        #取消药店
+        #buildings = UserBuildings(uid=uid, bid=2, kind=204, px=1280, py=720, state = 1)
+        #DBSession.add(buildings)
+        #buildings = UserBuildings(uid=uid, bid=3, kind=206, px=1536, py=880, state = 1)
+        #DBSession.add(buildings)
+
         buildings = UserBuildings(uid=uid, bid=4, kind=0, px=2496, py=624, state= 1)
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=5, kind=0, px=2560, py=656, state= 1)
@@ -134,12 +136,14 @@ class RootController(BaseController):
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=8, kind=208, px=1824, py=640, state=1)#MOVE FREE WORK 
         DBSession.add(buildings)
-        buildings = UserBuildings(uid=uid, bid=9, kind=166, px=1760, py=800, state=1)#MOVE FREE WORK 
-        DBSession.add(buildings)
+
+        #buildings = UserBuildings(uid=uid, bid=9, kind=166, px=1760, py=800, state=1)#MOVE FREE WORK 
+        #DBSession.add(buildings)
+
         buildings = UserBuildings(uid=uid, bid=10, kind=224, px=1312, py=896, state=1)#MOVE FREE WORK 
         DBSession.add(buildings)
-        mine = UserBuildings(uid=uid, bid = 11, kind = getParams("MineKind"), px=768, py =352, state = getParams("buildFree"))
-        DBSession.add(mine)
+        #mine = UserBuildings(uid=uid, bid = 11, kind = getParams("MineKind"), px=768, py =352, state = getParams("buildFree"))
+        #DBSession.add(mine)
     def initTreasureBox(self, uid):
         box = UserTreasureBox(uid=uid, helperList='[]', has=False)
         DBSession.add(box)
@@ -160,8 +164,7 @@ class RootController(BaseController):
         uid = user.uid
         sid = 0
 
-        data = calculateStage(0, 0)['healthBoundary']
-        soldier = UserSoldiers(uid=uid, sid=sid, kind=0, name='普通剑士', health = data)
+        soldier = UserSoldiers(uid=uid, sid=sid, kind=0, name='测试士兵')
         DBSession.add(soldier)
         #编号12 的变身技能 暂时没有英雄变身技能
         #skill = UserSkills(uid=uid, soldierId=sid, skillId=12, level=0)
@@ -251,7 +254,7 @@ class RootController(BaseController):
         #res = []
         for i in buildings:
             #res.append([i.bid, i.kind, i.px, i.py, i.state])
-            res[i.bid] = dict(id=i.kind, px=i.px, py=i.py, state=i.state, dir=i.dir, objectId=i.objectId, objectTime=i.objectTime, level=i.level, color=i.color)
+            res[i.bid] = dict(id=i.kind, px=i.px, py=i.py, state=i.state, dir=i.dir, objectId=i.objectId, objectTime=i.objectTime, level=i.level, color=i.color, objectList = json.loads(i.objectList))
         return res
     def getDrugs(self, uid):
         drugs = DBSession.query(UserDrugs).filter_by(uid=uid).all()
@@ -427,8 +430,7 @@ class RootController(BaseController):
         #hid  = hid level = 0 第一个士兵
         #sid = 0
         #hid = 0
-        data = calculateStage(hid, 0)['healthBoundary']
-        soldier = UserSoldiers(uid=uid, sid=sid, kind=hid, name=name, health = data)
+        soldier = UserSoldiers(uid=uid, sid=sid, kind=hid, name=name)
         DBSession.add(soldier)
         #编号15 凤凰变身技能暂时使用 的变身技能 暂时没有英雄变身技能
 

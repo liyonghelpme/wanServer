@@ -2,8 +2,7 @@
 import time
 import pymongo
 import MySQLdb
-con = pymongo.Connection(host='localhost', port=27017)
-db = con['Rank']
+from config import *
 collect = db.inviteRank
 
 #爱心榜每周清理一次本周爱心数据 如何清理

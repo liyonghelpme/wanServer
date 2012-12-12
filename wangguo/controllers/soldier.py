@@ -28,39 +28,8 @@ class SoldierController(BaseController):
         soldier = DBSession.query(UserSoldiers).filter_by(uid=uid, sid=sid).one()
         soldier.health += addHealth
         return dict(id=1)
-    def getBasicAbility(self, id, level):
-        pureData = calculateStage(id, level)
-        cat = getData('soldier', id).get("category")
-        pcoff = datas['soldierKind'][cat][4]
-        mcoff = datas['soldierKind'][cat][5]
-    	phyBasic = int(pureData['healthBoundary']*pureData['physicAttack']/pcoff)
-    	magBasic = int(pureData['healthBoundary']*pureData['magicAttack']/mcoff)
-    	ab = max(phyBasic, magBasic)/(33*13)
-        return ab
 
-    def getAddExp(self, id, level):
-        basic = self.getBasicAbility(id, level)
-        exp = (2*basic-1)*3
-        return exp
-    def getLevelUpExp(self, id, level):
-        exp = self.getAddExp(id, level)
-        return exp
             
-    def getHealthBoundary(self, soldier):
-        healthBoundary = calculateStage(soldier.kind, soldier.level)['healthBoundary']
-        #药品增加的生命值上限
-        if soldier.addHealthBoundaryTime > 0:
-            healthBoundary += soldier.addHealthBoundary
-        equips = DBSession.query(UserEquips).filter_by(uid=soldier.uid).all()
-        #计算装备增加生命值上限
-        for e in equips:
-            if e.owner == soldier.sid:
-                edata = getData('equip', e.equipKind)
-                healthBoundary += edata['healthBoundary']
-        return healthBoundary
-        #data = getData('soldier', soldier.kind)
-        #healthBoundary = data.get("health")+soldier.level*data.get("addHealth")
-        #return healthBoundary
     #接口不再使用 由兵营的beginWork 取代
     @expose('json')
     def buySoldier(self, uid, sid, kind):
@@ -72,7 +41,7 @@ class SoldierController(BaseController):
         if not ret:
             return dict(id=0)
         doCost(uid, cost)
-        soldier = UserSoldiers(uid=uid, sid=sid, kind=kind, name="", health = calculateStage(kind, 0)['healthBoundary'])
+        soldier = UserSoldiers(uid=uid, sid=sid, kind=kind, name="")
         DBSession.add(soldier)
         return dict(id=1)
     @expose('json')
@@ -98,90 +67,7 @@ class SoldierController(BaseController):
         return dict(id=1)
 
         
-    @expose('json')
-    def doRelive(self, uid, sid, crystal):
-        uid = int(uid)
-        sid = int(sid)
-        crystal = int(crystal)
 
-        cost = {'crystal':crystal} 
-        ret = checkCost(uid, cost)
-        if not ret:
-            return dict(id=0)
-        doCost(uid, cost)
-        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
-        soldier.dead = 0
-        healthBoundary = self.getHealthBoundary(soldier)
-        soldier.health = healthBoundary
-        return dict(id=1)
-
-    #检测药水数量是否足够
-    @expose('json')
-    def useDrug(self, uid, sid, tid):
-        uid = int(uid)
-        sid = int(sid)
-        tid = int(tid)
-        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
-        drugs = DBSession.query(UserDrugs).filter_by(uid=uid).filter_by(drugKind = tid).one()
-        if drugs.num <= 0:
-            return dict(id=0)
-
-        pureData = calculateStage(soldier.kind, soldier.level) 
-        purePhyAttack = pureData['physicAttack'];
-        pureMagAttack = pureData['magicAttack'];
-        purePhyDef = pureData['physicDefense'];
-        pureMagDef = pureData['magicDefense'];
-        healthBoundary = self.getHealthBoundary(soldier)
-
-        data = getData('drug', tid)
-        soldier.health += data.get("health", 0)
-        soldier.health = min(healthBoundary, soldier.health)
-        
-        #soldier.exp += data.get("exp", 0)
-        #self.getLevelUp(soldier)
-
-        if data.get("attack") != 0:
-            soldier.addAttack = data.get("attack")
-            soldier.addAttackTime = data.get("effectTime")
-        elif data.get("defense") != 0:
-            soldier.addDefense = data.get("defense")
-            soldier.addDefenseTime = data.get("effectTime")
-        elif data.get("healthBoundary") != 0:
-            soldier.addHealthBoundary = data["healthBoundary"]
-            soldier.addHealthBoundaryTime = data["effectTime"]
-        elif data.get("relive") == 1:#复活药水 回复全部%的生命值
-            soldier.dead = 0
-            soldier.health = healthBoundary
-        elif data.get("percentHealth") != 0:
-            soldier.health += data.get("percentHealth")*healthBoundary/100
-            soldier.health = min(soldier.health, healthBoundary)
-        elif data.get("percentAttack") != 0:
-            soldier.addAttack = data.get("percentAttack")*max(purePhyAttack, pureMagAttack)/100
-            soldier.addAttackTime = data.get("")
-        elif data.get("percentHealthBoundary") != 0:
-            soldier.addHealthBoundary = data.get("percentHealthBoundary")*healthBoundary/100
-            soldier.addHealthBoundaryTime = data.get("effectTime")
-        elif data.get("percentDefense") != 0:
-            soldier.addDefense = data.get("percentDefense")*max(purePhyDef, pureMagDef)/100
-            soldier.addDefenseTime = data.get("effectTime")
-            
-
-        #drugs = DBSession.query(Drugs).filter_by(uid=uid).filter_by(drugKind = tid).one()
-        drugs.num -= 1
-        return dict(id=1)
-    @expose('json')
-    def useState(self, uid, sid):
-        uid = int(uid)
-        sid = int(sid)
-        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
-        soldier.addAttackTime -= 1
-        soldier.addDefenseTime -= 1
-        soldier.addHealthBoundaryTime -= 1
-
-        soldier.addAttackTime = max(soldier.addAttackTime, 0)
-        soldier.addDefenseTime = max(soldier.addDefenseTime, 0)
-        soldier.addHealthBoundaryTime = max(soldier.addHealthBoundaryTime, 0)
-        return dict(id=1)
 
     #ToDo 检测 装备数量是否足够
     #士兵卖出之后 士兵使用的装备 全被归还
@@ -195,65 +81,35 @@ class SoldierController(BaseController):
         equip.owner = sid
         return dict(id=1)
 
-    #奖励之后可能升级
-    @expose('json')
-    def inspireMe(self, uid, sid, exp):
-        uid = int(uid)
-        sid = int(sid)
-        exp = int(exp)
-        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
-        soldier.exp += exp
-        self.getLevelUp(soldier)
-        return dict(id=1)
 
     #转职可能也需要消耗一些资源 类似于直接购买的价格
     @expose('json')
-    def doTransfer(self, uid, sid, crystal):
+    def doTransfer(self, uid, sid):
         uid = int(uid)
         sid = int(sid)
-        crystal = int(crystal)
+        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
+        crystal = datas['soldier'][soldier.kind]['transferCrystal']
+
         cost = {'crystal':crystal}
         ret = checkCost(uid, cost)
         if not ret:
             return dict(id=0)
         doCost(uid, cost)
 
+        soldier.inTransfer = 1
+        soldier.transferStartTime = getTime()
+        return dict(id=1)
+    @expose('json')
+    def finishTransfer(self, uid, sid):
+        uid = int(uid)
+        sid = int(sid)
         soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
-        curKind = soldier.kind%10
-        print curKind, soldier.level
         soldier.kind += 1
-        #if curKind < 3 and (curKind+1)*5 <= soldier.level and soldier.kind < 100:
-        #    soldier.kind += 1
-        #else:
-        #    return dict(id=0)
+        soldier.inTransfer = 0
+        soldier.transferStartTime = 0
         return dict(id=1)
-    def getLevelNeedExp(self, expData, level):
-        return expData[min(len(expData)-1, level)]
-    #正常服务器刷新怪物 客户端 来处理
-    #但是这里只是服务器记录数据
-    #升级需要的经验
-    def getLevelUp(self, soldier):
-        #solData = getData('soldier', soldier.kind)
-        #expData = getData('soldierLevelExp', solData.get("expId"))
-        #expData = json.loads(expData.get("exp"))
-        #expData = getLevelUpExp(soldier.kind, soldier.level)
-        #print expData
 
-        level = False
-        while True:
-            #ne = self.getLevelNeedExp(expData, soldier.level)
-            ne = self.getLevelUpExp(soldier.kind, soldier.level)
-            if soldier.exp >= ne:
-                soldier.level += 1
-                soldier.exp -= ne
-                level = True
-            else:
-                break
-        if level and soldier.dead == 0:
-            healthBoundary = self.getHealthBoundary(soldier)
-            soldier.health = healthBoundary
-            
-        return dict(id=1)
+        
 
     @expose('json')
     def sellSoldier(self, uid, sid):
@@ -283,6 +139,8 @@ class SoldierController(BaseController):
             
     #sid health exp dead level
     #士兵闯关成功升级
+    #士兵闯关失败 更新士兵 数据 dead = 1 的 将被删除
+    #测试： 士兵使用装备 士兵 阵亡 装备消除
     @expose('json')
     def challengeOver(self, uid, sols, reward, star, big, small):
         uid = int(uid)
@@ -290,27 +148,16 @@ class SoldierController(BaseController):
         try:
             reward = json.loads(reward)
         except:
-            reward = []
+            reward = {}
         star = int(star)
         big = int(big)
         small = int(small)
 
         print sols
-        for i in sols:
-            #print i
-            soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=i[0]).one()
-            soldier.health = i[1]
-            soldier.exp = i[2]
-            soldier.dead = i[3]
-            soldier.level = i[4]
+        killSoldiers(uid, sols)
+        #死亡士兵 杀死
         print reward
-        for i in reward:
-            try:
-                herb = DBSession.query(UserHerb).filter_by(uid=uid).filter_by(kind=i[0]).one()
-            except:
-                herb = UserHerb(uid=uid, kind=i[0], num=0)
-                DBSession.add(herb)
-            herb.num += i[1]
+        doGain(uid, reward)
         curStar = DBSession.query(UserChallenge).filter_by(uid=uid).filter_by(big=big).filter_by(small=small).one()
 
         if curStar.star < 2:

@@ -25,37 +25,23 @@ def req(r):
         sys.stderr.write(r+'\n'+s+'\n')
     return l
 
-r = '%slogin/%d/ppp' % (base2, random.randint(10, 100))
+r = '%slogin/%d/ppp' % (base2, random.randint(6000, 8000))
 l = req(r)
 
 uid = l.get('uid')
-sid = random.randint(0, 100)
+#sid = random.randint(0, 100)
+sid = 0
 print uid, sid
 
-r = base+'buySoldier/'+str(uid)+'/'+str(sid)+'/0'
-soldier = req(r)
+#r = base+'buySoldier/'+str(uid)+'/'+str(sid)+'/0'
+#soldier = req(r)
 
-r = base+'setName/'+str(uid)+'/'+str(sid)+'/果果'
-name = req(r)
+#r = base+'setName/'+str(uid)+'/'+str(sid)+'/果果'
+#name = req(r)
 
 r = base+'useDrugInRound/%d/%d' % (uid, 0)
 sell = req(r)
 
-r = base+'useDrug/'+str(uid)+'/'+str(sid)+'/'+str(0)
-drug = req(r)
-
-r = base+'useDrug/'+str(uid)+'/'+str(sid)+'/'+str(1)
-drug = req(r)
-
-#使用药品复活死亡势必功能
-r = base+'useDrug/'+str(uid)+'/'+str(sid)+'/'+str(2)
-drug = req(r)
-
-r = base+'useDrug/'+str(uid)+'/'+str(sid)+'/'+str(3)
-drug = req(r)
-
-r = base+'useDrug/'+str(uid)+'/'+str(sid)+'/'+str(4)
-drug = req(r)
 
 r = base+'useEquip/'+str(uid)+'/'+str(sid)+'/'+str(0)
 equip = req(r)
@@ -63,17 +49,15 @@ equip = req(r)
 r = base+'unloadThing/%d/%d' % (uid, 0)
 unload = req(r)
 
-r = base+'useState/'+str(uid)+'/'+str(sid)
-state = req(r)
 
-r = base+'challengeOver/%d/%s/%s/%d/%d/%d' %(uid, str([[sid, 10, 100, 1, 20]]), str([[0, 2], [1, 2]]), 2, 0, 0)
-over = req(r)
 
-r = base+'inspireMe/'+str(uid)+'/'+str(sid)+'/'+str(100)
-exp = req(r)
+
  
-r = base+'doTransfer/'+str(uid)+'/'+str(sid)+'/'+str(2)
+r = base+'doTransfer/'+str(uid)+'/'+str(sid)
 trans = req(r)
+
+r = base+'finishTransfer/'+str(uid)+'/'+str(sid)
+req(r)
 
 r = base+'trainDouble/%d/%d' % (uid, 10)
 sell = req(r)
@@ -87,8 +71,8 @@ req(r)
 r = base+'game2Over/%d/%d/%d/%d' % (uid, 10, 10, 10)
 req(r)
 
-r = base+'sellSoldier/%d/%d' % (uid, sid)
-sell = req(r)
+#r = base+'sellSoldier/%d/%d' % (uid, sid)
+#sell = req(r)
 
 r = base+'game4Over/%d/%s' % (uid, json.dumps([[0, 100, 10, 1]]))
 req(r)
@@ -97,4 +81,21 @@ r = base+'playGame4/%d/%s' % (uid, json.dumps({'gold':10}))
 req(r)
 
 
+r = base+'useEquip/'+str(uid)+'/'+str(sid)+'/'+str(0)
+equip = req(r)
 
+#士兵挂了之后 不能 再 transfer了
+r = base+'challengeOver/%d/%s/%s/%d/%d/%d' %(uid, json.dumps([0]), json.dumps(dict([["gold", 2], ["silver", 2]])), 2, 0, 0)
+over = req(r)
+
+sid = 1
+r = base+'buySoldier/'+str(uid)+'/'+str(sid)+'/3'
+soldier = req(r)
+
+sid += 1
+r = base+'buySoldier/'+str(uid)+'/'+str(sid)+'/3'
+soldier = req(r)
+
+sid += 1
+r = base+'buySoldier/'+str(uid)+'/'+str(sid)+'/3'
+soldier = req(r)

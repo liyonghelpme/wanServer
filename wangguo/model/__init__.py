@@ -34,14 +34,6 @@ attackCollect = mongoDB.UserAttack
 defenseCollect = mongoDB.UserDefense
 
 con = MySQLdb.connect(host = 'localhost', user='root', passwd=DB_PASSWORD, db='Wan2', charset='utf8')
-#cur = con.cursor()
-"""
-EQUIP = 1
-DRUG = 2
-HERB = 10
-TREASURE_STONE = 15
-MAGIC_STONE = 16
-"""
 
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
@@ -179,47 +171,6 @@ getDataFromDB()
 #print datas
 
 #每种士兵类型和层级对应的各个等级的属性系数
-stagePool = {}
-def getStage(id):
-    soldiers = datas.get("soldier")
-    data = soldiers.get(id)
-    soldierLevel = datas.get("soldierLevel")
-    soldierAttBase = datas.get("soldierAttBase")
-    soldierGrade = datas.get("soldierGrade")
-    soldierKind = datas.get("soldierKind")
-
-    category = soldierKind[data.get("category")]
-    grade = soldierGrade[data.get("grade")]
-    magic = data.get("kind") == 2
-    res = []
-    for i in range(0, len(soldierLevel)):
-        r = []
-        r.append(soldierAttBase[i][0]*category[0]*grade)
-        r.append(soldierAttBase[i][1]*category[1]*grade)
-        r.append(soldierAttBase[i][2]*category[2]*grade)
-        if magic == False:
-            r.append(soldierAttBase[i][3]*category[3]*grade)
-        else:
-            r.append(0)
-        if magic == True:
-            r.append(soldierAttBase[i][3]*category[3]*grade)
-        else:
-            r.append(0)
-        r = [soldierLevel[i], r]
-        res.append(r)
-    stagePool[id] = res
-
-#计算所有士兵的stage
-def initStage():
-    sql = 'select id from soldier'
-    con.query(sql)
-    res = con.store_result()
-    rows = res.fetch_row(0, 1)
-    for r in rows:
-        getStage(r['id'])
-        
-initStage()
-#print "getStagePool", stagePool
 
 con.close()
 

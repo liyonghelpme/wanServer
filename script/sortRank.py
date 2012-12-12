@@ -5,18 +5,19 @@ import MySQLdb
 import json
 import time
 import pymongo
+from config import *
 #mongoDB
-con = None
-
-monCon = pymongo.Connection(host='localhost', port=27017)
-monDb = monCon['Rank']
+#con = None
+monDb = db
+#monCon = pymongo.Connection(host='localhost', port=27017)
+#monDb = monCon['Rank']
 newCollect = monDb.UserNewRank
 oldCollect = monDb.UserGroupRank
 
 def sortRank(tableName):
     sql = 'select * from %s order by score' % (tableName)
-    con.query(sql)
-    res = con.store_result()
+    myCon.query(sql)
+    res = myCon.store_result()
     res = res.fetch_row(0, 1)
 
     rank = 0
@@ -26,12 +27,12 @@ def sortRank(tableName):
         #con.query(sql)
 
         sql = 'select papayaId, name, level from UserInWan where uid = %d' % (i['uid'])
-        con.query(sql)
+        myCon.query(sql)
         try:
-            userData = con.store_result().fetch_row(0, 1)[0]
+            userData = myCon.store_result().fetch_row(0, 1)[0]
             arr.append({'uid':i['uid'], 'score':i['score'], 'rank':rank, 'papayaId':userData['papayaId'], 'name':userData['name'], 'level':userData['level']})
             sql = 'update %s set rank = %d where uid = %d' % (tableName, rank, i['uid'])
-            con.query(sql)
+            myCon.query(sql)
             rank += 1
         except:
             pass
@@ -44,15 +45,15 @@ def sortRank(tableName):
 def main():
     #while True:
     global con
-    con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
+    #myCon = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
     sql = 'delete from UserNewRank where finish = 1'
-    con.query(sql)
-    con.commit()
+    myCon.query(sql)
+    myCon.commit()
     sortRank('UserNewRank')
     sortRank('UserGroupRank')
 
-    con.commit()
-    con.close()
+    myCon.commit()
+    myCon.close()
     #time.sleep(1000)
 main()
     

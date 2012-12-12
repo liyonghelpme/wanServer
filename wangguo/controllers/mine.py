@@ -24,17 +24,19 @@ class MineController(BaseController):
 
     
     @expose('json')
-    def upgradeMine(self, uid, bid):
+    def upgradeMine(self, uid, bid, cost):
         uid = int(uid)
         bid = int(bid)
+        cost = json.loads(cost)
 
         user = getUser(uid)
-        if user.colorCrystal >= getParams("UpgradeMineColorCost"):
-            user.colorCrystal -= getParams("UpgradeMineColorCost")
-            mine = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
-            mine.level += 1
-            return dict(id=1)
-        return dict(id=0)
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
+        mine = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
+        mine.level += 1
+        return dict(id=1)
 
     @expose('json')
     def harvest(self, uid, bid, crystal):

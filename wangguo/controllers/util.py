@@ -78,26 +78,11 @@ def getGain(key, id):
 def doGain(uid, gain):        
     user = DBSession.query(UserInWan).filter_by(uid=uid).one()
     for k in gain:
-        v = getattr(user, k)
+        uk = k.encode('utf8')
+        v = getattr(user, uk)
         v += gain[k]
         #提升经验 提升等级
-        """
-        if k == 'exp':
-            levelExp = datas.get("levelExp")
-            level = user.level
-            oldLevel = level
-            while True:
-                needExp = levelExp[min(level, len(levelExp)-1)]
-                if v >= needExp:
-                    v -= needExp
-                    level += 1
-                else:
-                    break
-            if level != oldLevel:
-                user.level = level
-        """
-
-        setattr(user, k, v)
+        setattr(user, uk, v)
 
 SELL_RATE = 10
 Cry2Sil = 500
@@ -124,20 +109,21 @@ def getSoldiers(uid):
     soldiers = DBSession.query(UserSoldiers).filter_by(uid=uid).all()
     res = dict()
     for i in soldiers:
-        res[i.sid] = dict(id=i.kind, name=i.name, level=i.level, exp=i.exp, health=i.health, addAttack = i.addAttack, addDefense = i.addDefense, addAttackTime=i.addAttackTime, addDefenseTime=i.addDefenseTime, dead=i.dead, addHealthBoundary=i.addHealthBoundary, addHealthBoundaryTime=i.addHealthBoundaryTime)
+        #res[i.sid] = dict(id=i.kind, name=i.name, level=i.level, exp=i.exp, health=i.health, addAttack = i.addAttack, addDefense = i.addDefense, addAttackTime=i.addAttackTime, addDefenseTime=i.addDefenseTime, dead=i.dead, addHealthBoundary=i.addHealthBoundary, addHealthBoundaryTime=i.addHealthBoundaryTime)
+        res[i.sid] = dict(id=i.kind, name=i.name, inTransfer=i.inTransfer, transferStartTime=i.transferStartTime)
     return res
 def getChallengeSoldiers(uid):
     soldiers = DBSession.query(UserSoldiers).filter_by(uid=uid).all()
     res = []
     for i in soldiers:
-        res.append(dict(sid=i.sid, id=i.kind, level=i.level, addAttack = i.addAttack, addDefense = i.addDefense, addAttackTime=i.addAttackTime, addDefenseTime=i.addDefenseTime, addHealthBoundary=i.addHealthBoundary, addHealthBoundaryTime=i.addHealthBoundaryTime))
+        res.append(dict(sid=i.sid, id=i.kind))
     return res
 
 def getEquips(uid):
     equips = DBSession.query(UserEquips).filter_by(uid=uid).all()
     res = {}
     for i in equips:
-        res[i.eid] = {'kind':i.equipKind, 'level':i.level, 'owner':i.owner}
+        res[i.eid] = {'kind':i.equipKind, 'owner':i.owner}
     return res
 #如果对方没有使用某个装备就会导致对方的士兵实力下降
 def getChallengeEquips(uid):
@@ -145,7 +131,7 @@ def getChallengeEquips(uid):
     res = []
     for i in equips:
         if i.owner != -1:
-            res.append({'kind':i.equipKind, 'level':i.level, 'owner':i.owner})
+            res.append({'kind':i.equipKind, 'owner':i.owner})
     return res
     
 #NEW_RANK = 10
@@ -170,28 +156,7 @@ def getRank(uid):
     return rank
 
 def calculateStage(id, level):
-    stage = stagePool.get(id)
-    for i in range(1, len(stage)):
-        if level < stage[i][0]:
-            break
-    begin = stage[i-1]
-    end = stage[i]
-    levelDiff = end[0]-begin[0]
-
-    addHealth = end[1][0]-begin[1][0];
-    addMagicDefense = end[1][1]-begin[1][1];
-    addPhysicDefense = end[1][2]-begin[1][2];
-    addPhysicAttack = end[1][3]-begin[1][3];
-    addMagicAttack = end[1][4]-begin[1][4];
-
-
-    physicAttack = begin[1][3]+(level-begin[0])*addPhysicAttack/levelDiff; 
-    physicDefense = begin[1][2]+(level-begin[0])*addPhysicDefense/levelDiff; 
-
-    magicAttack = begin[1][4]+(level-begin[0])*addMagicAttack/levelDiff; 
-    magicDefense = begin[1][1]+(level-begin[0])*addMagicDefense/levelDiff; 
-    healthBoundary = begin[1][0]+(level-begin[0])*int(addHealth)/levelDiff;
-    return dict(physicAttack=physicAttack, magicAttack=magicAttack, physicDefense=physicDefense, magicDefense=magicDefense, healthBoundary=healthBoundary)
+    return datas['soldier'][id]
     
 def updateDrugNum(uid, tid, num):
     try:
@@ -272,3 +237,17 @@ def getTotalIncome(level):
 
 def getParams(k):
     return datas['PARAMS'][k]
+
+
+def killSoldiers(uid, sols):
+    for i in sols:
+        #print i
+        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=i).one()
+        DBSession.delete(soldier)
+        solEquips = DBSession.query(UserEquips).filter_by(uid=uid).filter_by(owner=i).all()
+        #删除非套装装备
+        for e in solEquips:
+            if getData("equip", e.equipKind)["suit"] == 0:
+                DBSession.delete(e)
+            else:
+                e.owner = -1

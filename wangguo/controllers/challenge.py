@@ -33,32 +33,12 @@ class ChallengeController(BaseController):
         if challenge.challengeNum >= datas['PARAMS']['newRank']:
             ranks = groupRankCollect.find_one()["res"]
             ret = ranks[offset:offset+limit]
-            #ranks = DBSession.query(UserGroupRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
-            #res = [[i.uid, i.papayaId, i.score, i.rank, i.name] for i in ranks]
             res = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name'], i['level']] for i in ret]
         #10次下新手 新手finish 表示不能挑战 在生成新的排名的时候才可以消除这些finish=1 首先删除
         else:
             ranks = newRankCollect.find_one()["res"]
             ret = ranks[offset:offset+limit]
-            #ranks = DBSession.query(UserNewRank).filter("UserNewRank.rank>=%d and UserNewRank.rank<%d" % (offset, offset+limit)).limit(limit).all()
-            #res = [[i.uid, i.papayaId, i.score, i.rank, i.name, i.finish] for i in ranks]
             res = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name'], i['level']] for i in ret]
-
-        #返回的数据按照rank 排好序
-        #数据中没有重复的rank  rank重复则保留uid 为自身的排名数据
-        """
-        res.sort(cmp=lambda x,y: x[3]-y[3])
-        temp = []
-        for i in range(0, len(res)):
-            if len(temp) == 0:
-                temp.append(res[i])
-            else:
-                if temp[-1][3] != res[i][3]:
-                    temp.append(res[i])
-                else:
-                    if res[i][0] == uid:
-                        temp[-1] = res[i]
-        """
         return dict(id=1, res=res)
     #big = 0 small = 0
     @expose('json')
@@ -152,12 +132,16 @@ class ChallengeController(BaseController):
     #胜利积分增级 登录返回用户排名的时候刷新排名
     #排名只在1个小时更新一次
     #士兵状态更新 需要一并发出
+    #挑战普通人 抢走水晶数量
+
     @expose('json')
-    def challengeResult(self, uid, crystal, score, sols): 
+    def challengeResult(self, uid, fid, crystal, score, sols, mid): 
         uid = int(uid)
+        fid = int(fid)
         crystal = int(crystal)
         score = int(score)
         sols = json.loads(sols)
+        mid = int(mid)
 
         user = getUser(uid)
         rank = getRank(uid)
@@ -165,12 +149,10 @@ class ChallengeController(BaseController):
         rank.score = max(0, rank.score)
         user.crystal += crystal
         
-        for i in sols:
-            soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=i[0]).one()
-            soldier.health = i[1]
-            soldier.exp = i[2]
-            soldier.dead = i[3]
-            soldier.level = i[4]
+        killSoldiers(uid, sols)
+
+        msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param=crystal, time=getTime(), mid=mid)
+        DBSession.add(msg)
 
         return dict(id=1)
         
