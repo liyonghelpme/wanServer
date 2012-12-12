@@ -134,8 +134,9 @@ class RootController(BaseController):
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=7, kind=0, px=2496, py=688, state= 1)
         DBSession.add(buildings)
-        buildings = UserBuildings(uid=uid, bid=8, kind=208, px=1824, py=640, state=1)#MOVE FREE WORK 
-        DBSession.add(buildings)
+
+        #buildings = UserBuildings(uid=uid, bid=8, kind=208, px=1824, py=640, state=1)#MOVE FREE WORK 
+        #DBSession.add(buildings)
 
         #buildings = UserBuildings(uid=uid, bid=9, kind=166, px=1760, py=800, state=1)#MOVE FREE WORK 
         #DBSession.add(buildings)
@@ -409,6 +410,12 @@ class RootController(BaseController):
         return dict(id=1)
 
 
+    @expose('json')
+    def finishNewStory(self, uid):
+        uid = int(uid)
+        user = getUser(uid)
+        user.newState = 1
+        return dict(id=1)
 
     #更新 缓存数据表中的 用户名称
     #邻居关系 好友关系 
@@ -575,7 +582,7 @@ class RootController(BaseController):
         for i in res:
             ids.append(i['id'])
         
-        sql = 'select * from soldier'
+        sql = 'select * from soldier where id != -2'
         con.query(sql)
         res = con.store_result().fetch_row(0, 1)
 
@@ -587,46 +594,12 @@ class RootController(BaseController):
             i['name'] = 'soldier' + str(i['id'])
             i.pop('engName')
 
-            """
-            i['initPhysicAttack'] *= 10
-            i['addPhysicAttack'] *= 10
-            i['initMagicAttack'] *= 10
-            i['addMagicAttack'] *= 10
-            i['initPhysicDefense'] *= 10
-            i['addPhysicDefense'] *= 10
-            i['initMagicDefense'] *= 10
-            i['addMagicDefense'] *= 10
-            """
 
             it = list(i.items())
             it = [list(k) for k in it]
             a = [k[1] for k in it]
             key = [k[0] for k in it]
             solDatas.append([i['id'], a])
-        """
-        #添加一个敌人 id = 0 士兵的数据
-        sql = 'select * from soldier where id = 0'
-        con.query(sql)
-        res = con.store_result().fetch_row(0, 1)
-        con.close()
-
-        for i in res:
-            i = dict(i)
-            #i['stage'] = json.loads(i['stage'])
-            i['name'] = 'soldier' + str(i['id'])
-            i.pop('engName')
-            it = list(i.items())
-            it = [list(k) for k in it]
-            a = [k[1] for k in it]
-            key = [k[0] for k in it]
-            solDatas.append([0, a])
-            break
-
-        #names = [['soldier'+str(i['id']), [i['name'], i['engName']]] for i in f]
-        #print 'var', name+'Key', '=', json.dumps(key), ';'
-        #print 'var', name+'Data', '=', 'dict(', json.dumps(solDatas), ');'
-        #return names 
-        """
         return dict(ids=ids, soldierKey=key, soldierData=solDatas)
     @expose('json')
     def setTested(self, sids):
