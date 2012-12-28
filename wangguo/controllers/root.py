@@ -582,7 +582,7 @@ class RootController(BaseController):
         for i in res:
             ids.append(i['id'])
         
-        sql = 'select * from soldier where id != -2'
+        sql = 'select * from soldier'
         con.query(sql)
         res = con.store_result().fetch_row(0, 1)
 
@@ -643,6 +643,15 @@ class RootController(BaseController):
         res = con.store_result().fetch_row(0, 1)
         ani = []
         for i in res:
+            """
+            i = dict()
+            it = list(i.items())
+            it = [list(k) for k in it]
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            ani.append([i['id'], a])
+            """
+
             ani.append([i['id'], [json.loads(i['animation']), i['time'], [0, 0], i['scale']]])
 
 
@@ -654,8 +663,22 @@ class RootController(BaseController):
         for i in magic:
             mgList.append([i['id'], [i['make'], i['fly'], i['bomb']]])
 
+
+        sql = 'select * from particleEffectParameter'
+        con.query(sql)
+        res = con.store_result().fetch_row(0, 1)
+        particles = []
+        for i in res:
+            i = dict(i)
+            it = list(i.items())
+            it = [list(k) for k in it]
+            pkey = [k[0] for k in it]
+            a = [k[1] for k in it]
+            particles.append([i['id'], a])
+        
+
         con.close()
-        return dict(ani=ani, sol=mgList)
+        return dict(ani=ani, sol=mgList, pData = particles, pKey=pkey)
 
     @expose('json')
     def getTaskData(self):
