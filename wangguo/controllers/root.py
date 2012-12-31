@@ -135,6 +135,10 @@ class RootController(BaseController):
         DBSession.add(buildings)
         buildings = UserBuildings(uid=uid, bid=6, kind=0, px=2432, py=656, state= 1)
         DBSession.add(buildings)
+        
+        buildings = UserBuildings(uid=uid, bid=7, kind=10, px=1408, py=752, state= 1)
+        DBSession.add(buildings)
+
         #buildings = UserBuildings(uid=uid, bid=7, kind=0, px=2496, py=688, state= 1)
         #DBSession.add(buildings)
         #爱心树
