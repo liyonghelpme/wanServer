@@ -197,6 +197,21 @@ class BuildingController(BaseController):
         now = getTime()
         building.objectTime = now-needTime-1
         return dict(id=1)
+    @expose('json')
+    def accWork(self, uid, bid, gold, leftTime):
+        uid = int(uid)
+        bid = int(bid)
+        gold = int(gold)
+        leftTime = int(leftTime)
+        cost = {'gold':gold}
+        buyable = checkCost(uid, cost)
+        if not buyable:
+            return dict(id=0)
+        doCost(uid, cost)
+
+        building = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
+        building.objectTime -= leftTime
+        return dict(id=1)
 
     @expose('json')
     def harvestPlant(self, uid, bid):
@@ -221,7 +236,7 @@ class BuildingController(BaseController):
         buildData = getData('building', build.kind)
         rate = buildData['rate']
         for k in gain:
-            gain[k] *= rate;
+            gain[k] *= rate/100;
 
         doGain(uid, gain)
         build.objectId = -1

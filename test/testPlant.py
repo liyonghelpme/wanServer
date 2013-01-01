@@ -100,9 +100,13 @@ print
 print l['buildings'][str(bid)]
 
 
+r = base+'accWork/%d/%d/%d/%d' % (uid, 11, 1, 20)
+l = req(r)
 
 
 r = base2+'login/%d/ppp' % (papa)
 l = req(r)
 print l['soldiers']
 print l['buildings'][str(bid)]
+
+
