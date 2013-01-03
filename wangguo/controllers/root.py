@@ -25,6 +25,7 @@ from wangguo.controllers.fight import FightController
 from wangguo.model import *
 from wangguo.controllers.util import *
 import time
+from random import randint
 
 __all__ = ['RootController']
 
@@ -87,7 +88,7 @@ class RootController(BaseController):
         user.crystal = 1000000
         user.level = 0
         user.people = 5
-        user.cityDefense = 831
+        user.cityDefense = getFullGameParam['initCityDefense']
         user.loginDays = 0
         user.exp = 0
         user.neiborMax = 5
@@ -173,12 +174,14 @@ class RootController(BaseController):
     def initSoldiers(self, user):
         uid = user.uid
         sid = 0
-
-        soldier = UserSoldiers(uid=uid, sid=sid, kind=0, name='测试士兵')
-        DBSession.add(soldier)
-        #编号12 的变身技能 暂时没有英雄变身技能
-        #skill = UserSkills(uid=uid, soldierId=sid, skillId=12, level=0)
-        #DBSession.add(skill)
+        getData('initSoldierList')
+        for i in datas['initSoldierList']:
+            k = i
+            v = datas['initSoldiers'][i]
+            for n in xrange(0, v):
+                soldier = UserSoldiers(uid=uid, sid=sid, kind=k, name=datas['soldierName'][randint(0, len(datas['soldierName']-1))])
+                DBSession.add(soldier)
+                sid += 1
 
     def initDrug(self, user):
         uid = user.uid
@@ -402,20 +405,16 @@ class RootController(BaseController):
 
     #用户升级后提升经验等级城堡防御力其它奖励
     @expose('json')
-    def levelUp(self, uid, exp, level, rew, cityDefense):
+    def levelUp(self, uid, exp, level, rew):
         uid = int(uid)
         exp = int(exp)
         level = int(level)
-        cityDefense = int(cityDefense)
 
         user = getUser(uid)
         user.exp = exp
         user.level = level
-        user.cityDefense += cityDefense
         self.initFriends(user)#升级之后更新好友数据
 
-        #rew = json.loads(rew)
-        #doGain(uid, rew);
         return dict(id=1)
 
 

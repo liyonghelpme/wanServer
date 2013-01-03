@@ -238,6 +238,9 @@ def getTotalIncome(level):
 def getParams(k):
     return datas['PARAMS'][k]
 
+def getFullGameParam(k):
+    return FullGameParam[k]
+
 
 def killSoldiers(uid, sols):
     for i in sols:

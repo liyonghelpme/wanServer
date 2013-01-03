@@ -38,7 +38,15 @@ con = MySQLdb.connect(host = 'localhost', user='root', passwd=DB_PASSWORD, db='W
 name = ['building','crystal', 'drug', 'equip',  'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 
 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',
 'soldierLevelExp', 'allTasks', 'goodsList', 'magicStone', 'skills', 'loveTreeHeart', 'fightingCost', 'newParam', 'TableMap', 'heroSkill',
-'BoxReward']
+'BoxReward', 'initSoldierList', 'soldierName']
+
+sql = 'select * from GameParam'
+con.query(sql)
+gp = con.store_result().fetch_row(0, 1)
+FullGameParams = {}
+for i in gp:
+    FullGameParams[i['key']] = i['value']
+
 
 def getPrescriptionNum():
     sql = 'select * from prescriptionNum'
@@ -89,7 +97,15 @@ def getDataFromDB():
         res = con.store_result()
         allData = res.fetch_row(0, 1)
         datas[i] = dict()
-        if i == 'BoxReward':
+        if i == 'soldierName':
+            if len(datas[i]) == 0:
+                datas[i] = []
+            for a in allData:
+                if FullGameParams['Language'] == 0:
+                    datas[i].append(a['name']) 
+                else:
+                    datas[i].append(a['engName'])
+        elif i == 'BoxReward':
             dic = {}
             for a in allData:
                 a['id'] = datas['Str2IntKind'][a['kind']]['id'] 
