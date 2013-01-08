@@ -88,7 +88,7 @@ class RootController(BaseController):
         user.crystal = 1000000
         user.level = 0
         user.people = 5
-        user.cityDefense = getFullGameParam['initCityDefense']
+        user.cityDefense = getFullGameParam('initCityDefense')
         user.loginDays = 0
         user.exp = 0
         user.neiborMax = 5
@@ -174,12 +174,11 @@ class RootController(BaseController):
     def initSoldiers(self, user):
         uid = user.uid
         sid = 0
-        getData('initSoldierList')
         for i in datas['initSoldierList']:
             k = i
-            v = datas['initSoldiers'][i]
-            for n in xrange(0, v):
-                soldier = UserSoldiers(uid=uid, sid=sid, kind=k, name=datas['soldierName'][randint(0, len(datas['soldierName']-1))])
+            v = datas['initSoldierList'][i]
+            for n in xrange(0, v['num']):
+                soldier = UserSoldiers(uid=uid, sid=sid, kind=k, name=datas['soldierName'][randint(0, len(datas['soldierName'])-1)])
                 DBSession.add(soldier)
                 sid += 1
 
@@ -571,6 +570,7 @@ class RootController(BaseController):
 
     @expose('json')
     def fetchParams(self):
+        print "fetchParams"
         gameParam = DBSession.query(GameParam).all()
         ret = dict()
         for i in gameParam:
@@ -732,6 +732,32 @@ class RootController(BaseController):
             pkey = [k[0] for k in it]
             a = [k[1] for k in it]
             data.append([i['id'], a])
+
+        con.close()
         return dict(MoneyGameGoodsKey=pkey, MoneyGameGoodsData=data)
             
+    @expose('json')
+    def getStaticData(self, did):
+        con = MySQLdb.connect(host = 'localhost', user='root', passwd=DB_PASSWORD, db='Wan2', charset='utf8')
+        sql = 'select * from %s' % (did)
+        con.query(sql)
+
+        res = con.store_result().fetch_row(0, 1)
+        data = []
+        pKey = []
+        for i in res:
+            i = dict(i)
+            if i.get('name') != None and i.get('id') != None:
+                i['name'] = did+str(i['id'])
+            if i.get('engName') != None:
+                i.pop('engName')
+            it = list(i.items())
+            it = [list(k) for k in it]
+            pKey = [k[0] for k in it]
+            a = [k[1] for k in it]
+            data.append([i['id'], a])
+
+        con.close()
+        return dict(key=pKey, data=data)
+        
         

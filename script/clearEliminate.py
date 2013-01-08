@@ -1,8 +1,8 @@
 #coding:utf8
 from config import *
 
-sql = 'update UserInWan set addFriendCryNum = 0, addNeiborCryNum = 0'
-con.query(sql)
+sql = 'update UserInWan set addPapayaCryNum = 0, addFriendCryNum = 0, addNeiborCryNum = 0'
+myCon.query(sql)
 
-con.commit()
-con.close()
+myCon.commit()
+myCon.close()

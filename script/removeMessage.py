@@ -3,7 +3,7 @@ from config import *
 
 now = getTime()-7*24*3600
 sql = 'delete from UserMessage where time < %d' % (now)
-con.query(sql)
+myCon.query(sql)
 
-con.commit()
-con.close()
+myCon.commit()
+myCon.close()

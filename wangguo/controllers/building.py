@@ -30,10 +30,14 @@ class BuildingController(BaseController):
         silver = int(silver)
 
         build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
-        #cost = getCost('building', build.kind)
-        #cost = changeToSilver(cost)
+        #减少人口 和 城墙防御力
+        peopDef = getGain('building', build.kind)
         gain = {'silver':silver}
+        print 'sellBuilding', gain
         doGain(uid, gain)
+        sellCost = getSellBuildData(build.kind)
+        print 'sellBuilding', sellCost
+        doCost(uid, sellCost)
         DBSession.delete(build)
         return dict(id=1)
     @expose('json')
@@ -291,7 +295,7 @@ class BuildingController(BaseController):
     #更新兵营工作时间
     @expose('json')
     def campHarvestSoldier(self, uid, bid, solId, sid, name):
-        print "campHarvestSoldier", name
+        #print "campHarvestSoldier", name
         uid = int(uid)
         bid = int(bid)
         solId = int(solId)

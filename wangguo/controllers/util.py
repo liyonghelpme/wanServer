@@ -63,6 +63,15 @@ def doCost(uid, cost):
         v = getattr(user, k)
         setattr(user, k, v-cost[k])
 
+def getSellBuildData(id):
+    gain = getGain('building', id)
+    SELL_KEY = set(['people', 'cityDefense'])
+    res = {}
+    for k in gain:
+        if k in SELL_KEY:
+            res[k] = gain[k]
+    return res
+            
 
 def getGain(key, id):
     data = getData(key, id)
@@ -239,7 +248,7 @@ def getParams(k):
     return datas['PARAMS'][k]
 
 def getFullGameParam(k):
-    return FullGameParam[k]
+    return FullGameParams[k]
 
 
 def killSoldiers(uid, sols):

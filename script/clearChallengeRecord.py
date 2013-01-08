@@ -2,7 +2,7 @@
 from config import *
 
 sql = 'delete from UserChallengeRecord'
-con.query(sql)
+myCon.query(sql)
 
-con.commit()
-con.close()
+myCon.commit()
+myCon.close()
