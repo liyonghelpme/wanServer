@@ -22,7 +22,7 @@ __all__ = ['TaskController']
 
 class TaskController(BaseController):
     @expose('json')
-    def synNewTask(self, uid, needSyn):
+    def synTask(self, uid, needSyn):
         uid = int(uid)
         needSyn = json.loads(needSyn)
         ret = []
@@ -34,21 +34,8 @@ class TaskController(BaseController):
                 DBSession.add(task)
             ret.append([task.tid, task.number, task.stage])
         return dict(id=1, ret=ret)
+        
 
-    #客户端需要用json_dumps 将needSyn 转化成字符串 
-    @expose('json')
-    def synCycleTask(self, uid, needSyn):
-        uid = int(uid)
-        needSyn = json.loads(needSyn)
-        ret = []
-        for i in needSyn:
-            try:
-                task = DBSession.query(UserTask).filter_by(uid=uid, tid=i).one()
-            except:
-                task = UserTask(uid=uid, tid=i, number=0, stage=0)
-                DBSession.add(task)
-            ret.append([task.tid, task.number, task.stage])
-        return dict(id=1, ret=ret)
     @expose('json')
     def doCycleTask(self, uid, tid, num):
         uid = int(uid)

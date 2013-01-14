@@ -84,21 +84,36 @@ class SoldierController(BaseController):
 
     #转职可能也需要消耗一些资源 类似于直接购买的价格
     @expose('json')
-    def doTransfer(self, uid, sid):
+    def doTransfer(self, uid, sid, cost):
         uid = int(uid)
         sid = int(sid)
-        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
-        crystal = datas['soldier'][soldier.kind]['transferCrystal']
-
-        cost = {'crystal':crystal}
+        cost = json.loads(cost)
         ret = checkCost(uid, cost)
         if not ret:
             return dict(id=0)
         doCost(uid, cost)
 
+        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
         soldier.inTransfer = 1
         soldier.transferStartTime = getTime()
         return dict(id=1)
+    @expose('json')
+    def doAcc(self, uid, sid, leftTime, gold):
+        uid = int(uid)
+        sid = int(sid)
+        leftTime = int(leftTime)
+        gold = int(gold)
+
+        cost = {'gold':gold}
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+
+        doCost(uid, cost)
+        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid, sid=sid).one()
+        soldier.transferStartTime -= leftTime
+        return dict(id=1)
+
     @expose('json')
     def finishTransfer(self, uid, sid):
         uid = int(uid)

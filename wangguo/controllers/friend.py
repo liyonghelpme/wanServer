@@ -138,73 +138,33 @@ class FriendController(BaseController):
                     box.helperList = json.dumps(helperList)
                     return dict(id=1)
         return dict(id=0)
-    #分阶段1 ----》 2 ----》 3
-    #KIND ID NUM
-    def genBoxReward(self, uid):
-        user = getUser(uid)
-
-        rewards = []#kind ID ----> silver crystal number 对应的是 数量 而不是 ID
-        allKinds = ["drug", 'magicStone', "goodsList", "crystal", "gold", "silver"]
-        possible = [datas['BoxReward'][a]['possible'] for a in allKinds]
-        #ids = [datas['BoxReward'][a]['id'] for a in allKinds]
-        totalPossible = sum(possible)
-        eachPossible = [sum(possible[:i]) for i in xrange(1, len(possible)+1)]
-        allDrugs = [i+j for i in xrange(0, 40, 10) for j in [0, 1, 3, 4]]
-        gain = {}
-
-        for i in xrange(0, 3):
-            p = randint(0, totalPossible-1)
-            kind = len(allKinds)-1
-            #kind = allKinds[-1]
-            for e in xrange(0, len(eachPossible)):
-                if p <= eachPossible[e]:
-                    #kind = allKinds[e]
-                    kind = e
-                    break
-            realKind = allKinds[kind]
-
-            allKinds.pop(kind)
-            eachPossible.pop(kind)
-            possible.pop(kind)
-            totalPossible = sum(possible)
-            #allKinds.remove(kind)
-
-            kind = realKind
-            param = 0
-            num = 1
-            if kind == 'magicStone':
-                param = randint(0, 3)
-            elif kind == 'drug':
-                param = allDrugs[randint(0, len(allDrugs)-1)]
-            elif kind == 'goodsList':
-                param = randint(0, 3)
-            elif kind == 'crystal':
-                num = max(int(math.sqrt(user.level)), 5)
-            elif kind == 'gold':
-                num = max(int(math.sqrt(user.level)), 1)
-            elif kind == 'silver':
-                num = getTotalIncome(user.level)/10
-            else:
-                param = 0
-                num = 0
-            rewards.append([getKindId(kind), param, num])
-            updateGoodsNum(uid, getKindId(kind), param, num)
-        return rewards
             
     @expose('json')
-    def openBox(self, uid):
+    def openBox(self, uid, reward):
         uid = int(uid)
+        reward = json.loads(reward)
         box = DBSession.query(UserTreasureBox).filter_by(uid=uid).one()
         try:
             helperList = json.loads(box.helperList)
         except:
             helperList = []
+
         if box.has:
             if len(helperList) >= datas['PARAMS']['maxBoxFriNum']:
-                rewards = self.genBoxReward(uid)
                 box.has = 0
                 box.helperList = '[]'
-                return dict(id=1, rewards=rewards)
+                for i in reward:
+                    kind = i[0] 
+                    tid = i[1]
+                    num = i[2]
+                    kindStr = getKindStr(kind) 
+                    if kindStr == 'equip':
+                        eid = i[3]
+                        equip = UserEquips(uid=uid, eid=eid, equipKind=tid)
+                        DBSession.add(equip)
+                    else:#药品数量
+                        updateGoodsNum(uid, kind, tid, num) 
+                return dict(id=1)
         return dict(id=0)
 
 
@@ -486,7 +446,7 @@ class FriendController(BaseController):
 
         killSoldiers(uid, sols)
 
-        msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param=crystal, time=getTime(), mid=mid)
+        msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param="", time=getTime(), mid=mid)
         DBSession.add(msg)
 
         return dict(id=1)
@@ -501,7 +461,7 @@ class FriendController(BaseController):
         ret = []
         for i in messages:
             sender = getUser(i.uid)
-            ret.append([i.uid, i.kind, i.param, i.time, sender.name, i.mid])
+            ret.append([i.uid, i.kind, i.param, i.time, sender.name, i.mid, sender.level])
         return dict(id=1, msg=ret)
     #发送方 fid time
     @expose('json')
@@ -545,8 +505,7 @@ class FriendController(BaseController):
         heart.liveNum += 1
         #爱心树 升级经验累计爱心
         #heart.heartExp += 1
-        #msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param=crystal, time=getTime())
-        msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_HEART'], param=0, time=getTime(), mid=mid)
+        msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_HEART'], param="", time=getTime(), mid=mid)
         DBSession.add(msg)
         return dict(id=1)
 

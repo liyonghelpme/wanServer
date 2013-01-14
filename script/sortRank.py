@@ -15,7 +15,7 @@ newCollect = monDb.UserNewRank
 oldCollect = monDb.UserGroupRank
 
 def sortRank(tableName):
-    sql = 'select * from %s order by score' % (tableName)
+    sql = 'select * from %s order by score desc' % (tableName)
     myCon.query(sql)
     res = myCon.store_result()
     res = res.fetch_row(0, 1)

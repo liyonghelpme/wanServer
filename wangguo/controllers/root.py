@@ -184,8 +184,9 @@ class RootController(BaseController):
 
     def initDrug(self, user):
         uid = user.uid
-        drug = UserDrugs(uid=uid, drugKind=0, num=1)
+        drug = UserDrugs(uid=uid, drugKind=1, num=1)
         DBSession.add(drug)
+        """
         drug = UserDrugs(uid=uid, drugKind=1, num=1)
         DBSession.add(drug)
         drug = UserDrugs(uid=uid, drugKind=2, num=1)
@@ -194,10 +195,11 @@ class RootController(BaseController):
         DBSession.add(drug)
         drug = UserDrugs(uid=uid, drugKind=4, num=1)
         DBSession.add(drug)
+        """
 
     def initEquip(self, user):
         uid = user.uid
-        equip = UserEquips(uid=uid, eid = 0, equipKind=0)
+        equip = UserEquips(uid=uid, eid = 0, equipKind=1)
         DBSession.add(equip)
 
     #保证rank唯一性
@@ -220,6 +222,10 @@ class RootController(BaseController):
         now = getTime()
         challenge = UserChallengeFriend(uid=user.uid, challengeNum=0, challengeTime=now, lastMinusTime = now)
         DBSession.add(challenge)
+
+        challengeState = UserChallengeState(uid=user.uid, level=user.level, activeScore=getFullGameParam("initActiveScore"), protectTime=0)
+        DBSession.add(challengeState)
+
     def initBuyTask(self, user):
         #task = UserBuyTaskRecord(uid=user.uid)
         #DBSession.add(task)
@@ -383,23 +389,8 @@ class RootController(BaseController):
         user.crystal += crystal
         #奖励都是0 则已经奖励
 
-        """
-        #第一次登录清空邻居挑战信息 登录奖励应该在获取邻居信息之前处理
-        neibors = DBSession.query(UserNeiborRelation).filter_by(uid=uid).all()
-        for i in neibors:
-            i.challengeYet = 0
-            i.heartYet = 0#赠送爱心数据清空
-        """
 
-        #每天剩余的赠送爱心数量
-        #heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
-        #heart.heartYet = 0
-
-        #每周更新增加1
-        #week = time.localtime().tm_wday
-        #if week == 0:
         user.updateState += 1
-
         return dict(id=1, silver=silver, crystal=crystal, loginDays = user.loginDays)
 
     #用户升级后提升经验等级城堡防御力其它奖励
@@ -459,6 +450,9 @@ class RootController(BaseController):
     def getInvite(self, uid):
         invite = DBSession.query(UserInviteRank).filter_by(uid=uid).one()
         return {'inviteCode':invite.inviteCode, 'inviteNum':invite.inviteNum, 'rank':invite.rank, 'inputYet':invite.inputYet}
+    def getChallengeState(self, uid):
+        challengeState = DBSession.query(UserChallengeState).filter_by(uid=uid).one()
+        return dict(protectTime=challengeState.protectTime, activeScore=challengeState.activeScore)
 
 
     global Keys
@@ -552,8 +546,9 @@ class RootController(BaseController):
                 papayaIdName.append([user.papayaId, user.name])
         invite = self.getInvite(user.uid)
 
-        ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, serverTime=now, challengeRecord=challengeRecord, rank=rank,  treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite) 
-        #ret.update(heart)
+        challengeState = self.getChallengeState(user.uid)
+
+        ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, serverTime=now, challengeRecord=challengeRecord, rank=rank,  treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite, challengeState=challengeState) 
         return ret
     @expose('json')
     def reportError(self, uid, errorDetail):
@@ -699,12 +694,17 @@ class RootController(BaseController):
             i = dict(i)
             i['title'] = 'title'+str(i['id'])
             i['des'] = 'des'+str(i['id'])
+
+
             i['commandList'] = json.loads(i['commandList'])
             for c in i['commandList']:
                 if c.get('tip') != None:
                     old = c['tip']
                     c['tip'] = 'taskTip'+str(c['msgId'])
-                
+
+            i['stageArray'] = json.loads(i['stageArray'])
+            i['goldArray'] = json.loads(i['goldArray'])
+            i['expArray'] = json.loads(i['expArray'])
 
             it = list(i.items())
             it = [list(k) for k in it]

@@ -1,3 +1,4 @@
+#coding:utf8
 import MySQLdb
 import urllib
 import json
@@ -45,7 +46,7 @@ task = req(r)
 r = '%slogin/%d/ppp' % (base2, papa)
 l = req(r)
 
-r = base+'synCycleTask/%d/%s' % (uid, json.dumps([1, 2, 3]))
+r = base+'synTask/%d/%s' % (uid, json.dumps([1, 2, 3]))
 req(r)
 
 r = base+'doCycleTask/%d/%d/%d' % (uid, 4, 1)
@@ -61,7 +62,7 @@ req(r)
 r = '%slogin/%d/ppp' % (base2, papa)
 l = req(r)
 
-r = base+'synCycleTask/%d/%s' % (uid, json.dumps([1, 2, 3]))
+r = base+'synTask/%d/%s' % (uid, json.dumps([1, 2, 3]))
 req(r)
 
 r = base+'getDayTask/%d' % (uid)
@@ -71,11 +72,19 @@ r = base+'finishDayTask/%d/%s' % (uid, json.dumps({'gold':10}))
 req(r)
 
 print 'newTaskStage', newTaskStage
-r = base+'synNewTask/%d/%s' % (uid, json.dumps([24]))
+r = base+'synTask/%d/%s' % (uid, json.dumps([24]))
 req(r)
 
 r = base+'updateNewTaskStage/%d/%d' % (uid, 1)
 req(r)
 
 r = base+'finishNewTask/%d/%d/%s' % (uid, 24, json.dumps({'gold':1}))
+req(r)
+
+#完成购买士兵任务
+r = base+'synTask/%d/%s' % (uid, json.dumps([61]))
+req(r)
+r = base+'doCycleTask/%d/%d/%d' % (uid, 61, 1)
+req(r)
+r = base+'finishCycleTask/%d/%d/%s' % (uid, 61, json.dumps({'gold':100}))
 req(r)

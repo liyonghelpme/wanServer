@@ -53,7 +53,7 @@ r = '%slogin/%d/ppp' % (base2, papa)
 l = req(r)
 print l['hasBox'], l['helperList']
 
-r = base+'openBox/%d' %(uid)
+r = base+'openBox/%d/%s' %(uid, json.dumps([[2, 1, 1]]))
 req(r)
 
 r = base+'getFriend/%d/%d' % (uid, papa)
@@ -68,5 +68,5 @@ r = base+'getFriend/%d/%d' % (uid, papa)
 l = req(r)
 print l['hasBox'], l['helperList']
 
-r = base+'openBox/%d' %(uid)
+r = base+'openBox/%d/%s' %(uid, json.dumps([[1, 1, 1, 10]]))
 req(r)

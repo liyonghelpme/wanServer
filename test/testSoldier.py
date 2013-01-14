@@ -39,7 +39,7 @@ print uid, sid
 #r = base+'setName/'+str(uid)+'/'+str(sid)+'/果果'
 #name = req(r)
 
-r = base+'useDrugInRound/%d/%d' % (uid, 0)
+r = base+'useDrugInRound/%d/%d' % (uid, 1)
 sell = req(r)
 
 
@@ -53,8 +53,11 @@ unload = req(r)
 
 
  
-r = base+'doTransfer/'+str(uid)+'/'+str(sid)
+r = base+'doTransfer/'+str(uid)+'/'+str(sid)+'/%s' % (json.dumps({'gold':2}))
 trans = req(r)
+
+r = base+'doAcc/%d/%d/%d/%d' % (uid, sid, 10, 1)
+req(r)
 
 r = base+'finishTransfer/'+str(uid)+'/'+str(sid)
 req(r)
@@ -88,7 +91,7 @@ equip = req(r)
 r = base+'challengeOver/%d/%s/%s/%d/%d/%d' %(uid, json.dumps([0]), json.dumps(dict([["gold", 2], ["silver", 2]])), 2, 0, 0)
 over = req(r)
 
-sid = 1
+sid = 10
 r = base+'buySoldier/'+str(uid)+'/'+str(sid)+'/3'
 soldier = req(r)
 
