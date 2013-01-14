@@ -429,7 +429,9 @@ class RootController(BaseController):
         if len(sameName) > 0 and sameName[0].uid != uid:
             return dict(id=0, status=0, name = sameName[0].name)
 
-        user.newState = 1
+        #测试模式不设置完成新手剧情
+        if not getFullGameParam("DEBUG"):
+            user.newState = 1
         user.name = name
 
         #hid  = hid level = 0 第一个士兵
