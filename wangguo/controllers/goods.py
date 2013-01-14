@@ -69,9 +69,6 @@ class GoodsController(BaseController):
         if not ret:
             return dict(id=0)
 
-        #try:
-        #    equip = DBSession.query(UserEquips).filter_by(uid=uid).filter_by(equipKind=equipKind).one()
-        #except:
         equip = UserEquips(uid=uid, eid=eid, equipKind=equipKind)
         DBSession.add(equip)
 
