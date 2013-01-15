@@ -434,16 +434,14 @@ class RootController(BaseController):
             user.newState = 1
         user.name = name
 
-        #hid  = hid level = 0 第一个士兵
-        #sid = 0
-        #hid = 0
         soldier = UserSoldiers(uid=uid, sid=sid, kind=hid, name=name)
         DBSession.add(soldier)
         #编号15 凤凰变身技能暂时使用 的变身技能 暂时没有英雄变身技能
-
-        skillId = getData('heroSkill', hid)['skillId']
-        skill = UserSkills(uid=uid, soldierId=sid, skillId=skillId, level=0)
-        DBSession.add(skill)
+        
+        #取消英雄技能 由装备 药水 获取技能
+        #skillId = getData('heroSkill', hid)['skillId']
+        #skill = UserSkills(uid=uid, soldierId=sid, skillId=skillId, level=0)
+        #DBSession.add(skill)
         return dict(id=1)
 
     def initInvite(self, user):
@@ -715,7 +713,7 @@ class RootController(BaseController):
             res.append([i['id'], a])
 
         con.close()
-
+        print 'taskData', len(res)
         return dict(taskData=res, taskKey=key)
 
 

@@ -233,9 +233,9 @@ class GoodsController(BaseController):
         gid = int(gid)
 
         equip = DBSession.query(UserEquips).filter_by(uid=uid, eid=eid).one()
-        gift = UserGift(uid=uid, fid=fid, kind = getKindId('equip'), tid=equip.equipKind, level=equip.level, time=getTime(), gid=gid)
+        #装备取消等级
+        gift = UserGift(uid=uid, fid=fid, kind = getKindId('equip'), tid=equip.equipKind, level=0, time=getTime(), gid=gid)
         DBSession.add(gift)
-
         DBSession.delete(equip)
         return dict(id=1)
     @expose('json')

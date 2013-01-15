@@ -88,33 +88,32 @@ class ChallengeController(BaseController):
             #首先获取用户范围
             #接着获取随机的用户 开始位置
             twoUid = DBSession.execute("select max(uid), min(uid) from UserChallengeState where uid != %d and protectTime <= %d and level >= %d and level <= %d and activeScore > %d " % (uid, lastProtectTime, (userLevel-levOff), userLevel+levOff, getFullGameParam("activeThresh"))).fetchall()
+            
+            twoFind = False
             if len(twoUid) > 0:
                 maxUid = twoUid[0][0]
                 minUid = twoUid[0][1]
-                print "maxUid", maxUid, minUid
-            else:
-                continue
-
-            #>= UID
-            cut = random.randint(minUid, maxUid)
-            
-            #limit产生1个即可
-            possibles = DBSession.query(UserChallengeState).filter("uid >= %d and uid != %d and protectTime <= %d and level >= %d and level <= %d and activeScore > %d " % (cut, uid, lastProtectTime, (userLevel-levOff), userLevel+levOff, getFullGameParam("activeThresh"))).limit(1).all()
-            #print 'possibles', possibles, lastProtectTime, userLevel-levOff, userLevel+levOff, getFullGameParam("activeThresh")
-            if len(possibles) > 0:
-                other = possibles[0]
-                try:
-                    exist = DBSession.query(UserChallengeRecord).filter_by(uid=uid, oid=other.uid).one()
-                except:
-                    userRank = getRank(other.uid)
-                    otherUser = getUser(other.uid)
-                    #参考客户端的 data/constant 中定义的ChallengeRankKey
-                    find = True
-                    break
-
-
+                #集合为空
+                if maxUid != None and minUid != None:
+                    print "maxUid", maxUid, minUid
+                    twoFind = True
+                    #>= UID
+                    cut = random.randint(minUid, maxUid)
+                    
+                    #limit产生1个即可
+                    possibles = DBSession.query(UserChallengeState).filter("uid >= %d and uid != %d and protectTime <= %d and level >= %d and level <= %d and activeScore > %d " % (cut, uid, lastProtectTime, (userLevel-levOff), userLevel+levOff, getFullGameParam("activeThresh"))).limit(1).all()
+                    #print 'possibles', possibles, lastProtectTime, userLevel-levOff, userLevel+levOff, getFullGameParam("activeThresh")
+                    if len(possibles) > 0:
+                        other = possibles[0]
+                        try:
+                            exist = DBSession.query(UserChallengeRecord).filter_by(uid=uid, oid=other.uid).one()
+                        except:
+                            userRank = getRank(other.uid)
+                            otherUser = getUser(other.uid)
+                            #参考客户端的 data/constant 中定义的ChallengeRankKey
+                            find = True
+                            break
             levOff *= 2
-
         if not find:
             #没有活跃用户可打 攻击非活跃用户
             possibles = DBSession.query(UserChallengeState).filter("activeScore <= %d and protectTime <= %d and uid != %d" % (getFullGameParam("activeThresh"), lastProtectTime, uid)).limit(20).all()

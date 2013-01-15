@@ -174,17 +174,11 @@ class SoldierController(BaseController):
         print reward
         doGain(uid, reward)
         curStar = DBSession.query(UserChallenge).filter_by(uid=uid).filter_by(big=big).filter_by(small=small).one()
-
-        if curStar.star < 2:
-            addCry = 0
-            if star == 2:
-                addCry = 1
-            if star == 3:
-                addCry = 3
-            user = DBSession.query(UserInWan).filter_by(uid=uid).one()
-            user.crystal += addCry
-        curStar.star = star
+        #只有获取更多星才更新数据
+        if curStar.star < star:
+            curStar.star = star
         return dict(id=1)
+
     @expose('json')
     def unloadThing(self, uid, eid):
         uid = int(uid)
