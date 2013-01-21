@@ -41,13 +41,14 @@ class BuildingController(BaseController):
         DBSession.delete(build)
         return dict(id=1)
     @expose('json')
-    def finishBuild(self, uid, bid, kind, px, py, dir, color=0):
+    def finishBuild(self, uid, bid, kind, px, py, dir, state, color):
         uid = int(uid)
         bid = int(bid)
         kind = int(kind)
         px = int(px)
         py = int(py)
         dir = int(dir)
+        state = int(state)
         color = int(color)
 
         cost = getCost('building', kind)
@@ -57,7 +58,7 @@ class BuildingController(BaseController):
         doCost(uid, cost)
         gain = getGain('building', kind)
         doGain(uid, gain)
-        buildings = UserBuildings(uid=uid, bid=bid, kind=kind, px=px, py=py, state = getParams('buildFree'), color = color)
+        buildings = UserBuildings(uid=uid, bid=bid, kind=kind, px=px, py=py, state = state, color = color)
         buildings.dir = dir
         if kind == getParams('MineKind'):
             buildings.objectTime = getTime()
@@ -86,11 +87,11 @@ class BuildingController(BaseController):
         objectId = int(objectId)
         build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
         if build.state != datas['PARAMS']['buildFree']:#可能处于 移动状态吗？
-            return dict(id=0)
+            return dict(id=0, status='not free')
         cost = getCost('plant', objectId)
         ret = checkCost(uid, cost)
         if not ret:
-            return dict(id=0)
+            return dict(id=0, status='cost too much')
 
         doCost(uid, cost)
         build.state = datas['PARAMS']['buildWork']
@@ -217,30 +218,15 @@ class BuildingController(BaseController):
         building.objectTime -= leftTime
         return dict(id=1)
 
+    #新手任务需要传入农作物ID 
     @expose('json')
-    def harvestPlant(self, uid, bid):
+    def harvestPlant(self, uid, bid, gain):
         print "harvestPlant"
         uid = int(uid)
         bid = int(bid)
-        #time.sleep(3)
+        gain = json.loads(gain)
+
         build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
-        data = getData('plant', build.objectId)
-        need = data['time']
-        cur = getTime()
-        passTime = cur - build.objectTime
-        gain = getGain('plant', build.objectId)
-        if passTime < need:
-            return dict(id=0, passTime=passTime, need=need)
-        #rot 只收获经验
-        if passTime > 3*need:
-            gain = {'exp': gain['exp']}
-            #for k in gain:
-            #    gain[k] /= 2
-        
-        buildData = getData('building', build.kind)
-        rate = buildData['rate']
-        for k in gain:
-            gain[k] *= rate/100;
 
         doGain(uid, gain)
         build.objectId = -1
@@ -291,15 +277,13 @@ class BuildingController(BaseController):
         self.addSol(build, solId)
         return dict(id=1)
 
-    #兵营收获一个士兵 
-    #更新兵营工作时间
+    #做收获士兵的工作
+    #调整工作时间
     @expose('json')
-    def campHarvestSoldier(self, uid, bid, solId, sid, name):
-        #print "campHarvestSoldier", name
+    def campReadySoldier(self, uid, bid, solId):
         uid = int(uid)
         bid = int(bid)
         solId = int(solId)
-        sid = int(sid)
 
         build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
         objectList = json.loads(build.objectList)
@@ -314,13 +298,31 @@ class BuildingController(BaseController):
         if index == None:
             return dict(id=0, reason="no such kind soldier")
         build.objectList = json.dumps(objectList)
-
-        soldier = UserSoldiers(uid=uid, sid=sid, kind=solId, name=name)
-        DBSession.add(soldier)
-        
+        readyList = json.loads(build.readyList)
+        num = readyList.get(solId, 0)
+        num += 1
+        build.readyList = json.dumps(readyList)
         build.objectTime += getData('soldier', solId)['time']#工作时间 向后推迟
         return dict(id=1)
+        
 
+    #清空readyList 生成所有的士兵
+    #sid, kind, name
+    @expose('json')
+    def campHarvestSoldier(self, uid, bid, sols):
+        uid = int(uid)
+        bid = int(bid)
+        sols = json.loads(sols)
+        build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
+        build.readyList = '{}'
+        for s in sols:
+            sol = UserSoldiers(uid=uid, sid=s[0], kind=s[1], name=s[2])
+            DBSession.add(sol)
+        return dict(id=1)
+    #1 次发送所有请求
+    #客户端逐个显示士兵
+    
+            
     #加速兵营生产
     #重设生产时间 为当前预期时间 startTime - needTime
     #客户端传递需要时间
@@ -338,7 +340,3 @@ class BuildingController(BaseController):
         build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
         build.objectTime -= needTime
         return dict(id=1)
-
-
-        
-

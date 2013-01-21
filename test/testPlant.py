@@ -35,7 +35,7 @@ bid = random.randint(100, 200)
 #req(r)
 
 
-r = base+'finishBuild/'+str(uid)+'/'+str(bid)+'/'+str(0)+'/10/10/0'
+r = base+'finishBuild/'+str(uid)+'/'+str(bid)+'/'+str(0)+'/10/10/0/1/1'
 build = req(r)
 
 r = base+'beginPlant/'+str(uid)+'/'+str(bid)+'/0'
@@ -57,7 +57,7 @@ r = base+'sellBuilding/'+str(uid)+'/'+str(bid)+'/100'
 sell = req(r)
 
 bid = bid+1
-r = base+'finishBuild/%d/%d/%d/%d/%d/%d' % (uid, bid, 224, 0, 0, 0)
+r = base+'finishBuild/%d/%d/%d/%d/%d/%d/1/1' % (uid, bid, 224, 0, 0, 0)
 req(r)
 
 r = base+'campUpdateWorkTime/%d/%d' %(uid, bid)
@@ -74,8 +74,15 @@ l = req(r)
 print
 print l['buildings'][str(bid)]
 
-r = base+'campHarvestSoldier/%d/%d/%d/%d/%s' % (uid, bid, 0, 3, "name3")
+#将1个 类型0 士兵放到建筑的ready列表中去
+r = base+'campReadySoldier/%d/%d/%d' % (uid, bid, 0)
 req(r)
+
+
+maxSid = 10
+r = base+'campHarvestSoldier/%d/%d/%s' % (uid, bid, json.dumps([[maxSid, 0, "name3"]]))
+req(r)
+maxSid += 1
 import json
 
 r = base2+'login/%d/ppp' % (papa)
@@ -91,8 +98,9 @@ l = req(r)
 print "acc"
 print l['buildings'][str(bid)]
 
-r = base+'campHarvestSoldier/%d/%d/%d/%d/%s' % (uid, bid, 1, 4, "name4")
+r = base+'campHarvestSoldier/%d/%d/%s' % (uid, bid, json.dumps([[maxSid, 1, "name4"]]))
 req(r)
+maxSid += 1
 
 r = base2+'login/%d/ppp' % (papa)
 l = req(r)

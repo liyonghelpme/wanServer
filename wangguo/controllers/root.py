@@ -272,7 +272,7 @@ class RootController(BaseController):
         #res = []
         for i in buildings:
             #res.append([i.bid, i.kind, i.px, i.py, i.state])
-            res[i.bid] = dict(id=i.kind, px=i.px, py=i.py, state=i.state, dir=i.dir, objectId=i.objectId, objectTime=i.objectTime, level=i.level, color=i.color, objectList = json.loads(i.objectList))
+            res[i.bid] = dict(id=i.kind, px=i.px, py=i.py, state=i.state, dir=i.dir, objectId=i.objectId, objectTime=i.objectTime, level=i.level, color=i.color, objectList = json.loads(i.objectList), readyList=json.loads(i.readyList))
         return res
     def getDrugs(self, uid):
         drugs = DBSession.query(UserDrugs).filter_by(uid=uid).all()
@@ -430,7 +430,7 @@ class RootController(BaseController):
             return dict(id=0, status=0, name = sameName[0].name)
 
         #测试模式不设置完成新手剧情
-        if not getFullGameParam("DEBUG"):
+        if not getFullGameParam("debugStory"):
             user.newState = 1
         user.name = name
 
@@ -760,4 +760,25 @@ class RootController(BaseController):
         con.close()
         return dict(key=pKey, data=data)
         
+        
+    @expose('json')
+    def getMapMonster(self):
+        con = MySQLdb.connect(host = 'localhost', user='root', passwd=DB_PASSWORD, db='Wan2', charset='utf8')
+        sql = 'select * from mapMonster'
+        con.query(sql)
+        f = con.store_result().fetch_row(0, 1)
+        res = {}
+        for i in f:
+            k = i['big']*10+i['small']
+            mons = res.get(k, [])
+            i.pop('big')
+            i.pop('small')
+            key = i.keys()
+            it = i.values()
+            mons.append(it)
+            res[k] = mons
+        res = res.items()
+
+        con.close()
+        return dict(mapMonsterData=res, mapMonsterKey=key)
         

@@ -43,7 +43,7 @@ req(r)
 r = base+'harvest/%d/%d/%d' % (uid, mine, 2)
 req(r)
 
-r = buildBase+'finishBuild/%d/%d/%d/%d/%d/%d' % (uid, 20, 300, 50, 50, 0)
+r = buildBase+'finishBuild/%d/%d/%d/%d/%d/%d/%d/%d' % (uid, 20, 300, 50, 50, 0, 1, 1)
 req(r)
 
 mine = 20
