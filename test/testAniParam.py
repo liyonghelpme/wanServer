@@ -47,3 +47,6 @@ req(r)
 
 r = '%sgetMapMonster'%(base2)
 req(r)
+
+r = '%sgetString' % (base2)
+req(r)

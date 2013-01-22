@@ -783,3 +783,15 @@ class RootController(BaseController):
         con.close()
         return dict(mapMonsterData=res, mapMonsterKey=key)
         
+    @expose('json')
+    def getString(self):
+        myCon = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+        sql = 'select * from Strings'
+        myCon.query(sql)
+
+        rows = myCon.store_result().fetch_row(0, 1)
+        res = []
+        for i in rows:
+            ch = i['chinese'].replace('\\n', '\n')
+            res.append([i['key'], ch])
+        return dict(WORDS=res)
