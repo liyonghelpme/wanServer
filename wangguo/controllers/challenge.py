@@ -50,16 +50,8 @@ class ChallengeController(BaseController):
         challengeState.protectTime = 0
         return dict(id=1)
     
-    @expose('json')
-    def getRevenge(self, uid, oid):
-        uid = int(uid)
-        oid = int(oid)
-
-        userRank = getRank(oid)
-        otherUser = getUser(oid)
-
-        return dict(id=1, user=
-            {'uid':otherUser.uid, 
+    def getUserInfo(self, userRank, otherUser):
+        return {'uid':otherUser.uid, 
                 'id':otherUser.papayaId, 
                 'score':userRank.score, 
                 'rank':userRank.rank, 
@@ -67,8 +59,18 @@ class ChallengeController(BaseController):
                 'level':otherUser.level, 
                 'cityDefense':otherUser.cityDefense, 
                 "silver":otherUser.silver, 
-                "crystal":otherUser.crystal}
-        )
+                "crystal":otherUser.crystal,
+                "heroId":otherUser.heroId}
+    @expose('json')
+    def getRevenge(self, uid, oid):
+        uid = int(uid)
+        oid = int(oid)
+
+        userRank = getRank(oid)
+        otherUser = getUser(oid)
+        user = self.getUserInfo(userRank, otherUser)
+
+        return dict(id=1, user= user)
 
     #足够活跃的用户随机生成1个
     #等级区间内 活跃用户随机生成1个 作为挑战对象
@@ -132,17 +134,8 @@ class ChallengeController(BaseController):
                     
                 #return dict(id=1, uid=other.uid)
         if find:
-            return dict(id=1, oid=otherUser.uid, user=
-                {'uid':otherUser.uid, 
-                    'id':otherUser.papayaId, 
-                    'score':userRank.score, 
-                    'rank':userRank.rank, 
-                    'name':otherUser.name, 
-                    'level':otherUser.level, 
-                    'cityDefense':otherUser.cityDefense, 
-                    "silver":otherUser.silver, 
-                    "crystal":otherUser.crystal}
-        )
+            user = self.getUserInfo(userRank, otherUser)
+            return dict(id=1, user=user)
 
         #没有用户可用
         return dict(id=0)

@@ -130,7 +130,7 @@ class FriendController(BaseController):
             helperList = []
         if box.has:
             if len(helperList) < datas['PARAMS']['maxBoxFriNum']:
-                cost = {'gold':datas['PARAMS']['selfOpenGold']}
+                cost = {'gold':getFullGameParam('selfOpenGold')}
                 ret = checkCost(uid, cost)
                 if ret:
                     doCost(uid, cost)
