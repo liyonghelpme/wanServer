@@ -263,3 +263,456 @@ def killSoldiers(uid, sols):
                 DBSession.delete(e)
             else:
                 e.owner = -1
+
+
+def hanData(name, data):
+    names = []
+    key = []
+    res = []
+    f = data.fetch_row(0, 1)
+    for i in f:
+        i = dict(i)
+        if i.get('name') != None and i.get('id') != None:
+            i['name'] = name+str(i['id'])
+        if i.get('engName') != None:
+            i.pop('engName')
+        it = list(i.items())
+        it = [list(k) for k in it]
+        #it[4][1] = 'build'+str(i['id'])
+        key = [k[0] for k in it]
+        a = [k[1] for k in it]
+        if i.get('id') != None:
+            res.append([i['id'], a])
+
+        if i.get('id') == None:
+            return names
+        if f[0].get('name', None) != None:
+            if f[0].get('engName') != None:
+                names = [ [name+str(i['id']), [i['name'], i.get('engName')]] for i in f]
+            else:
+                names = [ [name+str(i['id']), i['name']] for i in f]
+                
+        else:
+            names = []
+
+
+    if name == 'StoreAttWords':
+        names = []
+        res = []
+        for i in f:
+            k = i['key']
+            n = 'StoreAttWords%s' % k
+            res.append([k, n]);
+            names.append([n, i['word']])
+        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return names
+
+    if name == 'StoreWords':
+        names = []
+        res = []
+        for i in f:
+            k = i['kind']*10000+i['id']
+            n = 'StoreWord%d' % k
+            res.append([k,  n])
+            names.append([n, i['words']])
+
+        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return names
+    if name == 'newParam':
+        res = {}
+        for i in f:
+            res[i['key']] = i['value']
+        res = res.items()
+        #print 'var', 'PARAMS', '=', 'dict(', json.dumps(res), ');'
+        return []
+    if name == 'PARAMS':
+        res = {}
+        for i in f:
+            for k in i:
+                res[k] = i[k]
+        res = res.items()
+        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return []
+    if name == 'heroSkill':
+        res = []
+        for i in f:
+            res.append([i['hid'], i['skillId']])
+        #print 'var', name, '=', 'dict(',json.dumps(res), ');'
+        return []
+    #if name == 'fightCost':
+    #    res = []
+    #    return []
+
+
+    if name == 'loveTreeHeart':
+        res = []
+        for i in f:
+            res = json.loads(i['num'])
+        #print 'var', name, '=', json.dumps(res), ';'
+        return []
+    if name == 'statusPossible':
+        res = []
+        reward = []
+        for i in f:
+            res.append([i['id'], i['possible']])
+            reward.append([i['id'], [i['gainsilver'], i['gaincrystal'], i['gaingold'], [i['sunflower'], i['sun'], i['flower'], i['star'], i['moon']]] ])
+        #print 'var', name, '=', json.dumps(res), ';'
+        key = ['gainsilver', 'gaincrystal', 'gaingold', 'nums']
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(reward), ');'
+        return []
+
+
+    #bigId--->monsterId
+    if name == 'monsterAppear':
+        res = dict()
+        for i in f:
+            r = res.get(i['firstNum']/10, [])
+            r.append(i['id'])
+            res[i['firstNum']/10] = r
+        res = res.items()
+        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return []
+
+    """
+    if name == 'mineProduction':
+        res = []
+        keys = []
+        for i in f:
+            keys = i.keys()
+            res.append(i.items())
+        #print 'var', name+'Key', '=', json.dumps(keys), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+        return []
+    """
+    if name == 'equipLevel':
+        for i in f:
+            res = json.loads(i['levelCoff'])
+        #print 'var', name, '=', json.dumps(res), ';'
+        return []
+    if name == 'levelDefense':
+        res = []
+        for i in f:
+            res.append([i['level'], i['defense']])
+        #print 'var', name, '=', json.dumps(res), ';'
+        return []
+    
+    if name == 'mapReward':
+        res = []
+        for i in f:
+            res.append([i['id'], json.loads(i['reward'])])
+        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return []
+
+            
+    if name == 'challengeReward':
+        for i in f:
+            res = json.loads(i['reward'])
+        #print 'var', name, '=', json.dumps(res), ';'
+        return []
+
+    if name == 'soldierTransfer':
+        res = []
+        for i in f:
+            res = json.loads(i['level'])
+        #print 'var', name, '=', json.dumps(res), ';'
+        return []
+    if name == 'soldierAttBase':
+        res = []
+        for i in f:
+            res = json.loads(i['base'])
+        #print 'var', name, '=', json.dumps(res), ';'
+        return []
+    if name == 'soldierGrade':
+        res = []
+        for i in f:
+            res.append([i['id'], int(i['level']*100)])
+        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return []
+    if name == 'soldierKind':
+        res = []
+        for i in f:
+            i['attribute'] = [int(at*100) for at in json.loads(i['attribute'])]
+            res.append([i['id'], i['attribute']])
+
+        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return []
+    if name == 'soldierLevel':
+        res = []
+        for i in f:
+            res = json.loads(i['levelData'])
+        #print 'var', name, '=', json.dumps(res), ';'
+        return []
+        
+
+    if name == 'mapDefense':
+        res = []
+        for i in f:
+            res.append([i['id'], i['defense']])
+        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return []
+            
+
+    if name == 'levelExp':
+        res = []
+        for i in f:
+            res = json.loads(i['exp'])
+        #print 'var', name, '=', json.dumps(res), ';'
+        return [] 
+     
+    if name == 'RoundMonsterNum':
+        res = {}
+        key = ['id', 'mons']
+        for i in f:
+            k = i['id']
+            v = [
+                [i['kind0'], i['num0']],
+                [i['kind1'], i['num1']],
+                [i['kind2'], i['num2']],
+                [i['kind3'], i['num3']],
+                [i['kind4'], i['num4']],
+            ]
+            temp = []
+            for p in v:
+                if p[0] != -1:
+                    temp.append(p)
+            res[k] = [k, temp]
+        res = res.items()
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+        return []
+
+    
+    if name == 'mapMonster':#大地图 小关的怪兽位置 类型 等级
+        res = {}
+        key = []
+        for i in f:
+            k = i['big']*10+i['small']
+            mons = res.get(k, [])
+            i.pop('big')
+            i.pop('small')
+            key = i.keys()
+            it = i.values()
+            mons.append(it)
+            res[k] = mons
+        res = res.items()
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+        return []
+    if name == 'soldierLevelExp':
+        res = []
+        for i in f:
+            i = dict(i)
+            res.append([i['id'], json.loads(i['exp'])])
+        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
+        return []
+
+    #名字 描述desc 出现复活药水的数据
+    if name == 'drug' or name == 'equip' or name == 'skills':
+        res = []
+        keys = []
+        names = []
+        #药品有商店名字和全名
+        hasStoreName = False
+        hasLevelName = False
+        for i in f:
+            i = dict(i)
+            i['name'] = name+str(i['id'])
+            i['des'] = name+'Des'+str(i['id'])
+            i.pop('engName')
+            if i.get('storeName') != None:
+                hasStoreName = True
+                i['storeName'] = name+'StoreName'+str(i['id'])
+            if i.get('levelName') != None:
+                hasLevelName = True
+                i['levelName'] = name+'LevelName'+str(i['id'])
+            if i.get('engDes') != None:
+                i.pop('engDes')
+
+            it = list(i.items())
+            it = [list(k) for k in it]
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            res.append([i['id'], a])
+
+        
+        names = [[name+str(i['id']), [i['name'], i['engName']]] for i in f]
+        names += [[name+'Des'+str(i['id']), [i['des'], i.get('engDes', "")]] for i in f ]
+        if hasStoreName:
+            names += [[name+'StoreName'+str(i['id']), i['storeName']] for i in f]
+        if hasLevelName:
+            names += [[name+'LevelName'+str(i['id']), i['levelName']] for i in f]
+        
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+        return names
+
+    #if name == 'skills':
+         
+    if name == 'magicStone':
+        res = []
+        keys = []
+        names = []
+        for i in f:
+            i = dict(i)
+            i['name'] = name+str(i['id'])
+            i['des'] = name+'Des'+str(i['id'])
+            i.pop('engName')
+            i.pop('pos0')
+            i.pop('pos14')
+            i.pop('pos29')
+            i.pop('pos44')
+            i.pop('pos59')
+            i['possible'] = json.loads(i['possible'])
+            it = list(i.items())
+            it = [list(k) for k in it]
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            res.append([i['id'], a])
+
+        names = [[name+str(i['id']), [i['name'], i['engName']]] for i in f]
+        names += [[name+'Des'+str(i['id']), i['des']] for i in f ]
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+        return names
+
+    if name == 'goodsList':
+        res = []
+        keys = []
+        names = []
+        for i in f:
+            i = dict(i)
+            i['name'] = name+str(i['id'])
+            i['des'] = name+'Des'+str(i['id'])
+            i.pop('engName')
+            i.pop('maxFail')
+            i.pop('minFail')
+            i.pop('maxBreak')
+            i.pop('minBreak')
+            i['possible'] = json.loads(i['possible'])
+
+            it = list(i.items())
+            it = [list(k) for k in it]
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            res.append([i['id'], a])
+
+        names = [[name+str(i['id']), [i['name'], i['engName']]] for i in f]
+        names += [[name+'Des'+str(i['id']), i['des']] for i in f ]
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+        return names
+        
+        
+    if name == 'herb':#药材中 描述
+        res = []
+        key = []
+        for i in f:
+            i = dict(i)
+            i['name'] = 'herb'+str(i['id'])
+            i['des'] = 'herbDes'+str(i['id'])
+            i.pop('engName')
+            it = list(i.items())
+            it = [list(k) for k in it]
+            #it[4][1] = 'build'+str(i['id'])
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            res.append([i['id'], a])
+        names = [['herb'+str(i['id']), [i['name'], i['engName']]] for i in f]
+        names += [ ['herbDes'+str(i['id']), i['des']] for i in f]
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+        return names
+            
+
+
+    if name == 'smallMapInfo':
+        res = []
+        key = ['rewards']
+        for i in f:
+            i = dict(i)
+            rewards = []
+            if i['reward0Pos'] > 0:
+                rewards.append([i['reward0'], i['reward0Pos']])
+            if i['reward1Pos'] > 0:
+                rewards.append([i['reward1'], i['reward1Pos']])
+            res.append([i['id'], rewards])
+
+    #Words 存放对话框字符串
+    #strings 中存放物品名字 任务字符串 之类 来自其它数据表的字符串
+
+    
+    #name list [name, [chinese, english]]
+    #res key key = [k[0] for k in it]
+    #res data data = [ [id, [k[1] for k in it]] ]
+    if name == 'soldier':
+        res = []
+        key = []
+        for i in f:
+            i = dict(i)
+            #i['stage'] = json.loads(i['stage'])
+            i['name'] = 'soldier' + str(i['id'])
+            i.pop('engName')
+            it = list(i.items())
+            it = [list(k) for k in it]
+            a = [k[1] for k in it]
+            key = [k[0] for k in it]
+            res.append([i['id'], a])
+
+        names = [['soldier'+str(i['id']), [i['name'], i['engName']]] for i in f]
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(res).replace('0.0', '0'), ');'
+        return names 
+    if name == 'allTasks':
+        res = []
+        for i in f:
+            i = dict(i)
+            i['title'] = 'title'+str(i['id'])
+            i['des'] = 'des'+str(i['id'])
+            i['commandList'] = json.loads(i['commandList'])
+            newCom = []
+            for c in i['commandList']:
+                if c.get('tip') != None:
+                    old = c['tip']
+                    c['tip'] = 'taskTip'+str(c['msgId'])
+                newCom.append(c.items())
+            i['commandList'] = newCom
+
+            i['stageArray'] = json.loads(i['stageArray'])
+            i['goldArray'] = json.loads(i['goldArray'])
+            i['expArray'] = json.loads(i['expArray'])
+
+            it = list(i.items())
+            it = [list(k) for k in it]
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            res.append([i['id'], a])
+
+        names = [['title'+str(i['id']), [i['title'], i['engTitle']]] for i in f]
+        names += [ ['des'+str(i['id']), [i['des'], i['engDes']]] for i in f]
+        #print 'var', name+'Key', '=', json.dumps(key), ';'
+        #print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+        print 'task title'
+        return names
+
+
+    ##print json.dumps(names)
+    #for n in names:
+    #    #print '[','"'+n[0]+'"', ',','"'+ n[1]+'"','],'
+
+    #print 'var', name+'Key', '=', json.dumps(key), ';'
+    #print 'var', name+'Data', '=', 'dict(', json.dumps(res), ');'
+    return names
+
+def getAllNames():
+    con = MySQLdb.connect(host = 'localhost', user='root', passwd=DB_PASSWORD, db='Wan2', charset='utf8')
+    sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',  'allTasks', 'mapDefense',  'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood', 'fightingCost', 'newParam', 'StoreWords', 'StoreAttWords', 'MoneyGameGoods', 'ExpGameGoods', 'equipSkill', 'levelMaxFallGain', 'RoundMonsterNum', 'RoundMapReward', 'mapMonster']
+    allNames = []
+    for i in sqlName:
+        sql = 'select * from '+i
+        con.query(sql)
+        res = con.store_result()
+        allNames += hanData(i, res)
+    con.close()
+    return allNames
+

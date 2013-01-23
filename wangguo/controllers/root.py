@@ -782,6 +782,8 @@ class RootController(BaseController):
 
         con.close()
         return dict(mapMonsterData=res, mapMonsterKey=key)
+
+
         
     @expose('json')
     def getString(self):
@@ -793,5 +795,9 @@ class RootController(BaseController):
         res = []
         for i in rows:
             ch = i['chinese'].replace('\\n', '\n')
-            res.append([i['key'], ch])
-        return dict(WORDS=res)
+            eng = i['english'].replace('\\n', '\n')
+            res.append([i['key'], [ch, eng]])
+
+        names = getAllNames() 
+        myCon.close()
+        return dict(WORDS=res, names=names)
