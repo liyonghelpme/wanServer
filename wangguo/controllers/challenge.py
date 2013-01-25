@@ -225,23 +225,6 @@ class ChallengeController(BaseController):
             msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param=json.dumps(reward), time=getTime(), mid=mid)
             DBSession.add(msg)
         return dict(id=1)
-        
-
-    @expose('json')
-    def enableDif(self, uid, big, gold):
-        uid = int(uid)
-        big = int(big)
-        gold = int(gold)
-        #small = int(small)
-        cost = {'gold':gold}
-        ret = checkCost(uid, cost)
-        if not ret:
-            return dict(id=1, status=0)
-        doCost(uid, cost)
-
-        chaLevel = UserUnlockLevel(uid=uid, levelId=big)
-        DBSession.add(chaLevel)
-        return dict(id=1)
 
     #客户端读取 抢劫消息
     @expose('json')

@@ -124,29 +124,6 @@ class BuildingController(BaseController):
         build.objectTime = getTime()
         return dict(id=1)
 
-    @expose('json')
-    def accWork(self, uid, bid, objectKind, gold):
-        uid = int(uid)
-        bid = int(bid)
-        objectKind = int(objectKind)
-        gold = int(gold)
-
-        build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
-        if build.state != datas['PARAMS']['buildWork']:#没有工作
-            return dict(id=0)
-        cost = {'gold':gold}
-        ret = checkCost(uid, cost)
-        if not ret:
-            return dict(id=0)
-        doCost(uid, cost)
-
-        table = datas['TableMap'][objectKind]['name']
-        sol = getData(table, build.objectId)
-        #startTime = build.objectTime
-        needTime = sol['time']
-        now = getTime()
-        build.objectTime = now - needTime-1
-        return dict(id=1)
     
     #收获士兵
     #招募英雄需要有初始技能

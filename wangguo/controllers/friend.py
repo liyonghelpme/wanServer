@@ -417,39 +417,6 @@ class FriendController(BaseController):
         DBSession.delete(rel)
         return dict(id=1)
 
-    #每天第一次用户登录 自动发送清理 挑战记录的请求 getLoginReward 
-    @expose('json')
-    def challengeNeibor(self, uid, fid):
-        uid = int(uid)
-        fid = int(fid)
-        try:
-            rel = DBSession.query(UserNeiborRelation).filter_by(uid=uid, fid=fid).one()
-            rel.challengeYet = 1
-        except:
-            print "neibor relaition broken", uid, fid
-
-        oData = getOtherData(fid)
-        oData.update({'id':1})
-        return oData
-        
-    #只有胜利才需要同步数据
-    @expose('json')
-    def challengeNeiborOver(self, uid, fid, sols, crystal, mid):
-        uid = int(uid)
-        fid = int(fid)
-        sols = json.loads(sols)
-        crystal = int(crystal)
-        mid = int(mid)
-
-        user = getUser(uid)
-        user.crystal += crystal
-
-        killSoldiers(uid, sols)
-
-        msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param="", time=getTime(), mid=mid)
-        DBSession.add(msg)
-
-        return dict(id=1)
 
     #读取之后删除消息
     #消息的接受方是我
@@ -473,86 +440,8 @@ class FriendController(BaseController):
         DBSession.delete(msg)
         return dict(id=1)
 
-        
             
-    #自己的爱心数量由自己修改 
-    #其他用户不能修改
 
-    #总的爱心累计数量   其他用户赠送
-    #每周的爱心累计数量 服务器每周清空
-    #未收获的爱行数量 其他用户赠送 自己清空
-    #自己爱心经验 其他用户赠送 自己清空
-
-    #可能自己在清空的时候其他用户还在赠送需要注意
-    @expose('json')
-    def sendHeart(self, uid, fid, mid):
-        uid = int(uid)
-        fid = int(fid)
-        mid = int(mid)
-
-        nei = DBSession.query(UserNeiborRelation).filter_by(uid=uid, fid=fid).one()
-        if nei.heartYet == 1:
-            return dict(id=0)
-        nei.heartYet = 1
-
-        #sendHeart = DBSession.query(UserHeart).filter_by(uid=uid).one()
-        #if sendHeart.heartYet == 1:
-        #    return dict(id=1)
-
-        heart = DBSession.query(UserHeart).filter_by(uid=fid).one()
-        heart.accNum += 1
-        heart.weekNum += 1
-        heart.liveNum += 1
-        #爱心树 升级经验累计爱心
-        #heart.heartExp += 1
-        msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_HEART'], param="", time=getTime(), mid=mid)
-        DBSession.add(msg)
-        return dict(id=1)
-
-    
-    #每周第一次登录 收集没有收获的爱心数量
-    @expose('json')
-    def collectHeart(self, uid):
-        uid = int(uid)
-        heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
-        user = getUser(uid)
-        user.crystal += heart.liveNum
-        heart.liveNum = 0
-        return dict(id=1)
-
-    #登录时发现 可以根据当前的等级需要的 升级已有的爱心爱心数量
-    #来提升爱心树等级 则 客户端发送等级提升消息 
-    #修改爱心树ID
-
-    #不再检测爱心经验只 检测 爱心总量
-    @expose('json')
-    def upgradeLoveTree(self, uid, bid, level):
-        uid = int(uid)
-        bid = int(bid)
-        level = int(level)
-        #lostHeart = int(lostHeart)
-
-        building = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
-        building.level = level
-
-        #heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
-        #heart.heartExp -= lostHeart
-        return dict(id=1)
-    
-    #从mongodb 的中的排行数据中获取数据 按照每周爱心数量
-    #清空每周爱心数量
-    @expose('json')
-    def getHeartRank(self, uid, offset, limit):
-        uid = int(uid)
-        offset = int(offset)
-        limit = int(limit)
-        try:
-            result = mongoCollect.find_one()['res']  
-            ret = result[offset:offset+limit]
-            ret = [[i['uid'], i['papayaId'], i['score'], i['rank'], i['name'], i['level']] for i in ret]
-        except:
-            ret = []
-        return dict(id=1, res=ret)
     @expose('json')
     def getInviteRank(self, uid, offset, limit):
         uid = int(uid)
