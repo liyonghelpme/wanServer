@@ -20,38 +20,6 @@ __all__ = ['SoldierController']
 
 
 class SoldierController(BaseController):
-    @expose('json')
-    def recoverHealth(self, uid, sid, addHealth):
-        uid = int(uid)
-        sid = int(sid)
-        addHealth = int(addHealth)
-        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid, sid=sid).one()
-        soldier.health += addHealth
-        return dict(id=1)
-
-            
-    #接口不再使用 由兵营的beginWork 取代
-    @expose('json')
-    def buySoldier(self, uid, sid, kind):
-        uid = int(uid)
-        sid = int(sid)
-        kind = int(kind)
-        cost = getCost("soldier", kind)
-        ret = checkCost(uid, cost)
-        if not ret:
-            return dict(id=0)
-        doCost(uid, cost)
-        soldier = UserSoldiers(uid=uid, sid=sid, kind=kind, name="")
-        DBSession.add(soldier)
-        return dict(id=1)
-    @expose('json')
-    def setName(self, uid, sid, name):
-        uid = int(uid)
-        sid = int(sid)
-        print "setName", uid, sid, name
-        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
-        soldier.name = name
-        return dict(id=1)
     #增加生命值 和 经验的药水
     #增加攻击力 和 防御力 的药水 如何使用 用户闯关一次 之后 作用消失 使用之后 作用若干回合 只能使用一次
     #在所有士兵页面 点击 某个士兵 选择复活药水 复活士兵 购买药水
@@ -124,33 +92,6 @@ class SoldierController(BaseController):
         soldier.transferStartTime = 0
         return dict(id=1)
 
-        
-
-    @expose('json')
-    def sellSoldier(self, uid, sid):
-        uid = int(uid)
-        sid = int(sid)
-        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
-        DBSession.delete(soldier)
-        cost = getCost('soldier', soldier.kind)
-        cost = changeToSilver(cost)
-        doGain(uid, cost)
-        equips = DBSession.query(UserEquips).filter_by(uid=uid, owner=sid).all()
-        for i in equips:
-            equips.owner = -1
-        return dict(id=1)
-    @expose('json')
-    def trainOver(self, uid, sols):
-        uid = int(uid)
-        sols = json.loads(sols)
-
-        for i in sols:#经验 等级 生命值 死亡
-            soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=i[0]).one()
-            soldier.health = i[1]
-            soldier.exp = i[2]
-            soldier.dead = i[3]
-            soldier.level = i[4]
-        return dict(id=1)
             
     #sid health exp dead level
     #士兵闯关成功升级
@@ -187,63 +128,6 @@ class SoldierController(BaseController):
         equip.owner = -1
         return dict(id=1)
 
-    @expose('json')
-    def buySkill(self, uid, soldierId, skillId):
-        uid = int(uid)
-        soldierId = int(soldierId)
-        skillId = int(skillId)
-
-        cost = getCost('skills', skillId)
-        if not checkCost(uid, cost):
-            return dict(id=0)
-        doCost(uid, cost)
-        
-        skill = UserSkills(uid=uid, soldierId=soldierId, skillId=skillId, level=0)
-        DBSession.add(skill)
-        return dict(id=1)
-
-    @expose('json')
-    def upgradeSkill(self, uid, soldierId, skillId, stoneId):
-        uid = int(uid)
-        soldierId = int(soldierId)
-        skillId = int(skillId)
-        stoneId = int(stoneId)
-       
-        num = getGoodsNum(uid, getKindId('magicStone'), stoneId)
-        if num < 1:
-            return dict(id=0)
-        updateGoodsNum(uid, getKindId('magicStone'), stoneId, -1)
-        gData = getData('magicStone', stoneId)
-        possible = gData.get('possible')
-        
-        skill = DBSession.query(UserSkills).filter_by(uid=uid, soldierId=soldierId, skillId=skillId).one()
-        suc = possible[min(skill.level, len(possible)-1)]
-        rv = random.randint(0, 100)
-        print rv, suc
-        if rv < suc:
-            skill.level += 1
-            return dict(id=1, suc=1)
-        return dict(id=1, suc=0)
-
-    @expose('json')
-    def giveupSkill(self, uid, soldierId, skillId):
-        uid = int(uid)
-        soldierId = int(soldierId)
-        skillId = int(skillId)
-
-        skill = DBSession.query(UserSkills).filter_by(uid=uid, soldierId=soldierId, skillId=skillId).one()
-        DBSession.delete(skill)
-        return dict(id=1)
-    @expose('json')
-    def trainDouble(self, uid, gold):
-        uid = int(uid)
-        gold = int(gold)
-        cost = {'gold': gold}
-        ret = checkCost(uid, cost)
-        if ret:
-            doCost(uid, cost)
-            return dict(id=1)
-        return dict(id=0)
     @expose('json')
     def game1Over(self, uid, sid, health, exp, level):
         uid = int(uid)
