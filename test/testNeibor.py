@@ -39,6 +39,6 @@ oid = l.get('uid')
 #r = base+'doTask/%d/%d/%d' % (uid, 0, 50)
 #task = req(r)
 
-r = base+'sendNeiborRequest/%d/%d' % (oid, 2088)
+r = base+'sendNeiborRequest/%d/%d' % (oid,  uid)
 req(r)
 

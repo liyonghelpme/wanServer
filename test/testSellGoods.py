@@ -33,7 +33,7 @@ l = req(r)
 
 oid = l.get('uid')
 
-r = '%s/sellDrug/%d/%d/%d' % (base, uid, 0, 10)
+r = '%ssellDrug/%d/%d/%d' % (base, uid, 1, 10)
 req(r)
 
 

@@ -31,19 +31,12 @@ uid = l.get('uid')
 sid = random.randint(0, 100)
 print uid, sid
 
-r = base+'buyDrug/%d/%d' % (uid, 0)
+r = base+'buyDrug/%d/%d' % (uid, 1)
 drug = req(r)
 
-r = base+'buyEquip/%d/%d/%d' % (uid, 2, 0)
+r = base+'buyEquip/%d/%d/%d' % (uid, 2, 1)
 equip = req(r)
 
-
-
-r = base+'makeDrug/%d/%d' % (uid, 0)
-res = req(r)
-
-r = base+'makeEquip/%d/%d/%d' % (uid, 5, 20)
-res = req(r)
 
 
 sql = 'insert into UserHerb (uid, kind, num) values (%d, %d, %d)' % (uid, 0, 10)
@@ -57,35 +50,12 @@ sql = 'insert into UserHerb (uid, kind, num) values (%d, %d, %d)' % (uid, 107, 1
 con.query(sql)
 con.commit()
 
-r = base+'makeDrug/%d/%d' % (uid, 0)
-res = req(r)
-
-r = base+'makeEquip/%d/%d/%d' % (uid, 5, 20)
-res = req(r)
-
-r = base+'buyTreasureStone/%d/%d' % (uid, 0)
-req(r)
-
-r = base+'buyTreasureStone/%d/%d' % (uid, 0)
-req(r)
-
 
 
 r = '%slogin/%d/ppp' % (base2, papaid)
 l = req(r)
 print l['treasure']
 
-r = '%supgradeEquip/%d/%d/%d' % (base, uid, 0, 0)
-req(r)
-
-r = '%supgradeEquip/%d/%d/%d' % (base, uid, 0, 0)
-req(r)
-
-r = '%supgradeEquip/%d/%d/%d' % (base, uid, 0, 0)
-req(r)
-
-r = '%supgradeEquip/%d/%d/%d' % (base, uid, 0, 0)
-req(r)
 
 r = base+'buyResource/%d/%d/%d' % (uid, 5, 0)
 drug = req(r)

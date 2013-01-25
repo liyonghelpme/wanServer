@@ -45,7 +45,6 @@ maxMsgId = l['maxMessageId']
 r = '%slogin/%d/ppp' % (base2, papa)
 l = req(r)
 
-print l['heart']
 
 papa2 = random.randint(2000, 3000)
 r = '%slogin/%d/ppp' % (base2, papa2)
@@ -110,48 +109,27 @@ r = base+'getNeibors/%d' % (oid)
 req(r)
 
 
-r = base+'sendHeart/%d/%d/%d' % (uid, oid, maxMsgId)
-req(r)
 maxMsgId += 1
 
 
 r = '%slogin/%d/ppp' % (base2, papa2)
 l = req(r)
 
-print l['heart']
 
-r = base+'sendHeart/%d/%d/%d' % (uid, oid, maxMsgId)
-req(r)
 maxMsgId += 1
 
 r = base+'getNeibors/%d' % (uid)
 req(r)
 
-r = base+'collectHeart/%d' % (oid)
-req(r)
 
 r = '%slogin/%d/ppp' % (base2, papa2)
 l = req(r)
 
-print l['heart']
-
-
-r = base+'collectHeart/%d' % (oid)
-req(r)
 
 r = base+'getNeibors/%d' % (uid)
 req(r)
 
-r = base+'upgradeLoveTree/%d/%d/%d' % (uid, 8, 1)
-req(r)
 
-
-
-r = base+'challengeNeibor/%d/%d' % (uid, oid)
-req(r)
-
-r = base+'challengeNeiborOver/%d/%d/%s/%d/%d' % (uid, oid, json.dumps([0]), 2, maxMsgId)
-req(r)
 maxMsgId += 1
 
 r = base+'removeNeibor/%d/%d' % (uid, oid)
@@ -163,11 +141,6 @@ req(r)
 r = base+'getNeibors/%d' % (oid)
 req(r)
 
-r = base+'getHeartRank/%d/%d/%d' % (uid, 0, 5)
-req(r)
-
-r = base+'getHeartRank/%d/%d/%d' % (uid, 5, 10)
-req(r)
 
 r= base+'sendNeiborInviteRequest/%d/%d' % (uid, otherInCode)
 req(r)

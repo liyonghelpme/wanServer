@@ -92,7 +92,6 @@ class RootController(BaseController):
         user.loginDays = 0
         user.exp = 0
         user.neiborMax = 5
-        user.colorCrystal = 5
 
     """初始化好友的UID"""
     def initFriends(self, user):
@@ -226,21 +225,11 @@ class RootController(BaseController):
         challengeState = UserChallengeState(uid=user.uid, level=user.level, activeScore=getFullGameParam("initActiveScore"), protectTime=0)
         DBSession.add(challengeState)
 
-    def initBuyTask(self, user):
-        #task = UserBuyTaskRecord(uid=user.uid)
-        #DBSession.add(task)
-        pass
     #state == 0 Moving
     #1 Free
     #2 Working
 
-    def initHeart(self, user):
-        heart = UserHeart(uid=user.uid, weekNum=0, liveNum = 0, accNum = 0)
-        DBSession.add(heart)
 
-    def getHeart(self, uid):
-        heart = DBSession.query(UserHeart).filter_by(uid=uid).one()
-        return dict(weekNum=heart.weekNum, accNum=heart.accNum, liveNum=heart.liveNum, rank=heart.rank)#, heartExp=heart.heartExp
 
 
     #闯关保存在本地就可以了
@@ -265,7 +254,7 @@ class RootController(BaseController):
     #
     def getUserData(self, user):
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=user.uid).one()
-        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, colorCrystal=user.colorCrystal, newTaskStage=user.newTaskStage, heroId=user.heroId) 
+        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, newTaskStage=user.newTaskStage, heroId=user.heroId) 
     def getBuildings(self, uid):
         buildings = DBSession.query(UserBuildings).filter_by(uid=uid).all()
         res = {}
@@ -287,14 +276,6 @@ class RootController(BaseController):
         for i in herbs:
             res[i.kind] = i.num
         return res
-    """
-    def getTask(self, uid):
-        tasks = DBSession.query(UserTask).filter_by(uid=uid).all()
-        res = dict()
-        for i in tasks:
-            res[i.tid] = [i.number, i.finish, i.stage]#当前累计任务的阶段
-        return res
-    """
 
     def getSkills(self, uid):
         skills = DBSession.query(UserSkills).filter_by(uid=uid).all()
@@ -480,10 +461,8 @@ class RootController(BaseController):
             self.initEquip(user)
             self.initRank(user)
             self.initChallengeFriend(user)
-            self.initBuyTask(user)
             #水晶矿 按照正常建筑初始化 经营页面不显示而已 检测类型
             #self.initCrystalMine(user)
-            self.initHeart(user)
             self.initFriends(user)
             self.initNeibor(user)
             self.initTreasureBox(user.uid)
@@ -527,7 +506,6 @@ class RootController(BaseController):
         now = getTime()
         thisWeek = getWeekNum(now)
 
-        heart = self.getHeart(user.uid)
         hour = time.localtime().tm_hour
         #hour = 11
         #starNum = stars,
@@ -549,7 +527,7 @@ class RootController(BaseController):
 
         challengeState = self.getChallengeState(user.uid)
 
-        ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, serverTime=now, challengeRecord=challengeRecord, rank=rank,  treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, heart=heart, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite, challengeState=challengeState) 
+        ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, serverTime=now, challengeRecord=challengeRecord, rank=rank,  treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite, challengeState=challengeState) 
         return ret
     @expose('json')
     def reportError(self, uid, errorDetail):

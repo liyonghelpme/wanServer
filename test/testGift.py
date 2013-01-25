@@ -39,10 +39,10 @@ fid = l.get('uid')
 beginTime = [2012, 1, 1, 0, 0, 0, 0, 0, 0]
 #t = int(time.mktime(time.localtime())-time.mktime(beginTime))
 
-r = base+'buyEquip/%d/%d/%d' % (uid, 10, 0)
+r = base+'buyEquip/%d/%d/%d' % (uid, 10, 1)
 req(r)
 
-r = base+'buyDrug/%d/%d' % (uid, 0)
+r = base+'buyDrug/%d/%d' % (uid, 1)
 req(r)
 
 sql = 'insert into UserHerb (uid, kind, num) values (%d, %d, %d)' % (uid, 0, 10)
@@ -50,30 +50,18 @@ print sql
 con.query(sql)
 con.commit()
 
-r = base+'buyTreasureStone/%d/%d' % (uid, 0)
-req(r)
-#登录返回最大的礼物ID
-r = base+'buyMagicStone/%d/%d' % (uid, 0)
-req(r)
-
 r = base+'sendEquip/%d/%d/%d/%d' % (uid, fid, 10, t)
 req(r)
 t += 1
 
-r = base+'sendDrug/%d/%d/%d/%d' % (uid, fid, 0, t)
+r = base+'sendDrug/%d/%d/%d/%d' % (uid, fid, 1, t)
 req(r)
 t += 1
 
-r = base+'sendHerb/%d/%d/%d/%d' % (uid, fid, 0, t)
-req(r)
 t += 1
 
-r = base+'sendTreasureStone/%d/%d/%d/%d' % (uid, fid, 0, t)
-req(r)
 t += 1
 
-r = base+'sendMagicStone/%d/%d/%d/%d' % (uid, fid, 0, t)
-req(r)
 t += 1
 
 r = base+'getGift/%d' % (fid)

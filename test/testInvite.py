@@ -48,7 +48,7 @@ req(r)
 r = base+'finishInvite/%d/%d' % (uid, oInvite)
 req(r)
 
-r = '%slevelUp/%d/%d/%d/%s/%d' % (base2, oid, 0, 3, '{}', 100)
+r = '%slevelUp/%d/%d/%d/%s' % (base2, oid, 0, 3, '{}')
 req(r)
 
 r = base+'finishInvite/%d/%d' % (oid, inviteCode)

@@ -109,14 +109,11 @@ for i in range(1, OTHER_NUM):
     r = base+'challengeOther/%d/%d' % (uid, oids[i])
     req(r)
 
-r = base+'challengeResult/%d/%d/%s/%d/%s/%d/1/1' % (uid, oids[1], json.dumps([]), 10, json.dumps([0]), 5)
+r = base+'challengeResult/%d/%d/%s/%d/%s/%d/1/1' % (uid, oids[1], json.dumps([]), 10, json.dumps([]), 5)
 req(r)
 r = '%slogin/%d/ppp' % (base2, papaya2[1])
 l = req(r)
 #保护时间
 print 'fail ones protectTime', l['challengeState']
 
-
-r = base+'enableDif/%d/%d/%d' % (uid, 0, 1)
-req(r)
 

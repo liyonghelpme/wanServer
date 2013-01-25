@@ -33,14 +33,6 @@ uid = l.get('uid')
 sid = random.randint(0, 100)
 print uid, sid
 
-r = base+'getBuyTask/%d' % (uid)
-task = req(r)
-
-r = base+'finishBuyTask/%d/%d/%s' % (uid, 1, json.dumps({'gold':10}))
-req(r)
-
-r = base+'getBuyTask/%d' % (uid)
-task = req(r)
 
 
 r = '%slogin/%d/ppp' % (base2, papa)
@@ -65,11 +57,6 @@ l = req(r)
 r = base+'synTask/%d/%s' % (uid, json.dumps([1, 2, 3]))
 req(r)
 
-r = base+'getDayTask/%d' % (uid)
-req(r)
-
-r = base+'finishDayTask/%d/%s' % (uid, json.dumps({'gold':10}))
-req(r)
 
 print 'newTaskStage', newTaskStage
 r = base+'synTask/%d/%s' % (uid, json.dumps([24]))

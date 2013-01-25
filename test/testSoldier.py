@@ -62,11 +62,6 @@ req(r)
 r = base+'finishTransfer/'+str(uid)+'/'+str(sid)
 req(r)
 
-r = base+'trainDouble/%d/%d' % (uid, 10)
-sell = req(r)
-
-r = base+'trainOver/%d/%s' % (uid, json.dumps([[sid, 10, 10, 0, 4]]))
-req(r)
 
 r = base+'game1Over/%d/%d/%d/%d/%d' % (uid, sid, 10, 10, 0)
 req(r)
@@ -92,13 +87,6 @@ r = base+'challengeOver/%d/%s/%s/%d/%d/%d' %(uid, json.dumps([0]), json.dumps(di
 over = req(r)
 
 sid = 10
-r = base+'buySoldier/'+str(uid)+'/'+str(sid)+'/3'
-soldier = req(r)
+sid += 1
 
 sid += 1
-r = base+'buySoldier/'+str(uid)+'/'+str(sid)+'/3'
-soldier = req(r)
-
-sid += 1
-r = base+'buySoldier/'+str(uid)+'/'+str(sid)+'/3'
-soldier = req(r)
