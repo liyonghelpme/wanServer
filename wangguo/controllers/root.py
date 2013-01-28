@@ -116,44 +116,17 @@ class RootController(BaseController):
     def initBuildings(self, user):
         uid = user.uid
         bid = 0
-        #城堡
-        buildings = UserBuildings(uid=uid, bid=0, kind=200, px=1504, py=640, state = 1)
-        DBSession.add(buildings)
-        #神像
-        buildings = UserBuildings(uid=uid, bid=1, kind=202, px=1664, py=656, state = 1)
-        DBSession.add(buildings)
-        #药店
-        buildings = UserBuildings(uid=uid, bid=2, kind=204, px=1280, py=720, state = 1)
-        DBSession.add(buildings)
-        #铁匠铺
-        buildings = UserBuildings(uid=uid, bid=3, kind=206, px=1536, py=880, state = 1)
-        DBSession.add(buildings)
-        #农田
-        buildings = UserBuildings(uid=uid, bid=4, kind=0, px=2496, py=624, state= 1)
-        DBSession.add(buildings)
-        buildings = UserBuildings(uid=uid, bid=5, kind=0, px=2560, py=656, state= 1)
-        DBSession.add(buildings)
-        buildings = UserBuildings(uid=uid, bid=6, kind=0, px=2432, py=656, state= 1)
-        DBSession.add(buildings)
-        
-        buildings = UserBuildings(uid=uid, bid=7, kind=10, px=1408, py=752, state= 1)
-        DBSession.add(buildings)
 
-        #buildings = UserBuildings(uid=uid, bid=7, kind=0, px=2496, py=688, state= 1)
-        #DBSession.add(buildings)
-        #爱心树
-        #buildings = UserBuildings(uid=uid, bid=8, kind=208, px=1824, py=640, state=1)#MOVE FREE WORK 
-        #DBSession.add(buildings)
-        #格斗场
-        #buildings = UserBuildings(uid=uid, bid=9, kind=166, px=1760, py=800, state=1)#MOVE FREE WORK 
-        #DBSession.add(buildings)
-        #兵营
-        buildings = UserBuildings(uid=uid, bid=10, kind=224, px=1312, py=896, state=1)#MOVE FREE WORK 
-        DBSession.add(buildings)
+        con = MySQLdb.connect(host = 'localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+        sql = 'select * from initBuildingList'
+        con.query(sql)
+        rows = con.store_result().fetch_row(0, 1)
+        con.close()
+
+        for i in rows:
+            buildings = UserBuildings(uid=uid, bid=i['bid'], kind=i['kind'], px=i['px'], py=i['py'], state=i['state'])
+            DBSession.add(buildings)
         
-        #水晶矿
-        mine = UserBuildings(uid=uid, bid = 11, kind = 300, px=2368, py =880, state =2)
-        DBSession.add(mine)
     def initTreasureBox(self, uid):
         box = UserTreasureBox(uid=uid, helperList='[]', has=False)
         DBSession.add(box)
@@ -779,3 +752,13 @@ class RootController(BaseController):
         names = getAllNames() 
         myCon.close()
         return dict(WORDS=res, names=names)
+    @expose('json')
+    def updateCurrentSoldierId(self, sid):
+        sid = int(sid)
+        myCon = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+        sql = 'update GameParam set value = %d where `key` = "%s"' % (sid, "currentSoldier")
+        myCon.query(sql)
+        myCon.commit()
+        myCon.close()
+        return dict(id=1)
+        

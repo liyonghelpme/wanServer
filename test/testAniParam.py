@@ -50,3 +50,6 @@ req(r)
 
 r = '%sgetString' % (base2)
 req(r)
+
+r = '%supdateCurrentSoldierId/%d'%(base2, 20)
+req(r)
