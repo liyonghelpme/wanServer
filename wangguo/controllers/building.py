@@ -41,7 +41,7 @@ class BuildingController(BaseController):
         DBSession.delete(build)
         return dict(id=1)
     @expose('json')
-    def finishBuild(self, uid, bid, kind, px, py, dir, state, color):
+    def finishBuild(self, uid, bid, kind, px, py, dir, state, color, cost):
         uid = int(uid)
         bid = int(bid)
         kind = int(kind)
@@ -50,12 +50,14 @@ class BuildingController(BaseController):
         dir = int(dir)
         state = int(state)
         color = int(color)
+        cost = json.loads(cost)
+        print cost
 
-        cost = getCost('building', kind)
         ret = checkCost(uid, cost)
         if not ret:
             return dict(id=0)
         doCost(uid, cost)
+
         gain = getGain('building', kind)
         doGain(uid, gain)
         buildings = UserBuildings(uid=uid, bid=bid, kind=kind, px=px, py=py, state = state, color = color)

@@ -82,9 +82,7 @@ req(r)
 r = base+'useEquip/'+str(uid)+'/'+str(sid)+'/'+str(0)
 equip = req(r)
 
-#士兵挂了之后 不能 再 transfer了
-r = base+'challengeOver/%d/%s/%s/%d/%d/%d' %(uid, json.dumps([0]), json.dumps(dict([["gold", 2], ["silver", 2]])), 2, 0, 0)
-over = req(r)
+
 
 sid = 10
 sid += 1

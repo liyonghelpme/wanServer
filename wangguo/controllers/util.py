@@ -118,8 +118,7 @@ def getSoldiers(uid):
     soldiers = DBSession.query(UserSoldiers).filter_by(uid=uid).all()
     res = dict()
     for i in soldiers:
-        #res[i.sid] = dict(id=i.kind, name=i.name, level=i.level, exp=i.exp, health=i.health, addAttack = i.addAttack, addDefense = i.addDefense, addAttackTime=i.addAttackTime, addDefenseTime=i.addDefenseTime, dead=i.dead, addHealthBoundary=i.addHealthBoundary, addHealthBoundaryTime=i.addHealthBoundaryTime)
-        res[i.sid] = dict(id=i.kind, name=i.name, inTransfer=i.inTransfer, transferStartTime=i.transferStartTime)
+        res[i.sid] = dict(id=i.kind, name=i.name, inTransfer=i.inTransfer, transferStartTime=i.transferStartTime, inDead=i.inDead, deadStartTime=i.deadStartTime)
     return res
 def getChallengeSoldiers(uid):
     soldiers = DBSession.query(UserSoldiers).filter_by(uid=uid).all()
@@ -263,6 +262,13 @@ def killSoldiers(uid, sols):
                 DBSession.delete(e)
             else:
                 e.owner = -1
+def killHero(uid, hero):
+    curTime = getTime()
+    for i in hero:
+        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=i).one()
+        soldier.inDead = 1
+        soldier.deadStartTime = curTime
+        
 
 
 def hanData(name, data):

@@ -40,10 +40,10 @@ for i in buildings:
 r = base+'upgradeMine/%d/%d/%s' % (uid, mine, json.dumps(dict([["silver", 100]])))
 req(r)
 
-r = base+'harvest/%d/%d/%d' % (uid, mine, 2)
+r = base+'harvest/%d/%d/%s' % (uid, mine, json.dumps({'crystal':10, 'exp':2}))
 req(r)
 
-r = buildBase+'finishBuild/%d/%d/%d/%d/%d/%d/%d/%d' % (uid, 20, 300, 50, 50, 0, 1, 1)
+r = buildBase+'finishBuild/%d/%d/%d/%d/%d/%d/%d/%d/%s' % (uid, 20, 300, 50, 50, 0, 1, 1, json.dumps({'gold':10}))
 req(r)
 
 mine = 20

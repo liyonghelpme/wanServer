@@ -5,7 +5,6 @@ import json
 import sys
 import random
 from config import *
-con = MySQLdb.connect(host='localhost', db='Wan2', user='root', passwd='badperson3')
 base = '%schallengeC/' % (base2)
 
 def exe(sql):
@@ -117,3 +116,6 @@ l = req(r)
 print 'fail ones protectTime', l['challengeState']
 
 
+#士兵挂了之后 不能 再 transfer了
+r = base+'challengeOver/%d/%s/%s/%d/%d/%d/%s' %(uid, json.dumps([0]), json.dumps(dict([["gold", 2], ["silver", 2]])), 2, 0, 0, json.dumps([{'eid':20, 'kind':61}]))
+over = req(r)

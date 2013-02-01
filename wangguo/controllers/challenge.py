@@ -101,6 +101,7 @@ class ChallengeController(BaseController):
                     twoFind = True
                     #>= UID
                     cut = random.randint(minUid, maxUid)
+                    print "cut is", cut
                     
                     #limit产生1个即可
                     possibles = DBSession.query(UserChallengeState).filter("uid >= %d and uid != %d and protectTime <= %d and level >= %d and level <= %d and activeScore > %d " % (cut, uid, lastProtectTime, (userLevel-levOff), userLevel+levOff, getFullGameParam("activeThresh"))).limit(1).all()
@@ -111,6 +112,7 @@ class ChallengeController(BaseController):
                             exist = DBSession.query(UserChallengeRecord).filter_by(uid=uid, oid=other.uid).one()
                         except:
                             userRank = getRank(other.uid)
+                            #避免只有UserChallengeState 但是没有该用户的数据
                             otherUser = getUser(other.uid)
                             #参考客户端的 data/constant 中定义的ChallengeRankKey
                             find = True
@@ -171,7 +173,7 @@ class ChallengeController(BaseController):
             pass
         #增加挑战活跃度
         challengeState = DBSession.query(UserChallengeState).filter_by(uid=uid).one()
-        challengeState.activeScore += 3
+        challengeState.activeScore += getFullGameParam("challengeScore")
         #增加挑战次数
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=uid).one()
         challenge.challengeNum += 1
@@ -191,7 +193,8 @@ class ChallengeController(BaseController):
         return dict(id=1)
 
     @expose('json')
-    def challengeResult(self, uid, fid, reward, score, sols, mid, win, revenge): 
+    def challengeResult(self, uid, fid, reward, score, sols, mid, win, revenge, deadHero): 
+        #print "challengeResult",uid, fid, reward, score, sols, mid, win, revenge, hero
         uid = int(uid)
         fid = int(fid)
         reward = json.loads(reward)
@@ -200,6 +203,7 @@ class ChallengeController(BaseController):
         mid = int(mid)
         win = int(win)
         revenge = int(revenge)
+        deadHero = json.loads(deadHero)
 
         user = getUser(uid)
         rank = getRank(uid)
@@ -209,9 +213,9 @@ class ChallengeController(BaseController):
 
         challengeState = DBSession.query(UserChallengeState).filter_by(uid=fid).one()
         if win:
-            challengeState.activeScore -= 3
+            challengeState.activeScore -= getFullGameParam("winScore")
         else:
-            challengeState.activeScore -= 1
+            challengeState.activeScore -= getFullGameParam("lostScore")
         
         #小于保护阈值 且 没有开启保护状态
         now = getTime()
@@ -224,6 +228,7 @@ class ChallengeController(BaseController):
         if win == 1 and revenge == 0:#不是复仇 则 记录 消息 用于扣除资源
             msg = UserMessage(uid=uid, fid=fid, kind=datas['PARAMS']['MSG_CHALLENGE'], param=json.dumps(reward), time=getTime(), mid=mid)
             DBSession.add(msg)
+        killHero(uid, deadHero)
         return dict(id=1)
 
     #客户端读取 抢劫消息
@@ -240,6 +245,40 @@ class ChallengeController(BaseController):
         return dict(id=1)
     
 
+    #sid health exp dead level
+    #士兵闯关成功升级
+    #士兵闯关失败 更新士兵 数据 dead = 1 的 将被删除
+    #测试： 士兵使用装备 士兵 阵亡 装备消除
+    @expose('json')
+    def challengeOver(self, uid, sols, reward, star, big, small, rewardEquip, deadHero):
+        uid = int(uid)
+        sols = json.loads(sols)
+        try:
+            reward = json.loads(reward)
+        except:
+            reward = {}
+        star = int(star)
+        big = int(big)
+        small = int(small)
+        rewardEquip = json.loads(rewardEquip)
+        deadHero = json.loads(deadHero)
+
+        print sols
+        killSoldiers(uid, sols)
+        #死亡士兵 杀死
+        print reward
+        doGain(uid, reward)
+        curStar = DBSession.query(UserChallenge).filter_by(uid=uid).filter_by(big=big).filter_by(small=small).one()
+        #只有获取更多星才更新数据
+        if curStar.star < star:
+            curStar.star = star
+
+        for i in rewardEquip:
+            equip = UserEquips(uid=uid, eid=i['eid'], equipKind=i['kind'])
+            DBSession.add(equip)
+        killHero(uid, deadHero)
+
+        return dict(id=1)
             
             
 

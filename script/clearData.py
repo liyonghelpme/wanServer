@@ -17,4 +17,6 @@ os.system('python removeMessage.py')
 #排序 挑战好友记录
 print 'sortRank'
 os.system('python sortRank.py')
+print 'inviteRank'
+os.system('python genInviteRank.py')
 

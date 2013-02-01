@@ -27,7 +27,7 @@ class FriendController(BaseController):
         uid = int(uid)
         inviteCode = int(inviteCode)
         user = getUser(uid)
-        if user.level >= getParams('inviteLevel'):
+        if user.level >= getFullGameParam('inviteLevel'):
             return dict(id=0, status=0)
         inviteRank = DBSession.query(UserInviteRank).filter_by(uid=uid).one()
         if inviteRank.inputYet:

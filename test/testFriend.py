@@ -37,6 +37,9 @@ uid = l['uid']
 uInCode = l['invite']['inviteCode']
 maxMsgId = l['maxMessageId']
 
+r = base+'getNeibors/%d' % (uid)
+req(r)
+
 #r = '%schooseFirstHero/%d/%d/%s' % (base2, uid, 440, 'hero'+str(papa))
 #req(r)
 

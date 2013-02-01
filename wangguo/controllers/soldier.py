@@ -48,6 +48,29 @@ class SoldierController(BaseController):
         equip = DBSession.query(UserEquips).filter_by(uid=uid, eid=eid).one()
         equip.owner = sid
         return dict(id=1)
+    
+    @expose('json')
+    def reliveHero(self, uid, sid):
+        uid = int(uid)
+        sid = int(sid)
+        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
+        soldier.inDead = 0
+        soldier.deadStartTime = 0
+        return dict(id=1)
+    @expose('json')
+    def accReliveHero(self, uid, sid, leftTime, cost):
+        uid = int(uid)
+        sid = int(sid)
+        leftTime = int(leftTime)
+        cost = json.loads(cost)
+        ret = checkCost(uid, cost)
+        if not ret:
+            return dict(id=0)
+        doCost(uid, cost)
+
+        soldier = DBSession.query(UserSoldiers).filter_by(uid=uid).filter_by(sid=sid).one()
+        soldier.deadStartTime -= leftTime
+        return dict(id=1)
 
 
     #转职可能也需要消耗一些资源 类似于直接购买的价格
@@ -93,32 +116,7 @@ class SoldierController(BaseController):
         return dict(id=1)
 
             
-    #sid health exp dead level
-    #士兵闯关成功升级
-    #士兵闯关失败 更新士兵 数据 dead = 1 的 将被删除
-    #测试： 士兵使用装备 士兵 阵亡 装备消除
-    @expose('json')
-    def challengeOver(self, uid, sols, reward, star, big, small):
-        uid = int(uid)
-        sols = json.loads(sols)
-        try:
-            reward = json.loads(reward)
-        except:
-            reward = {}
-        star = int(star)
-        big = int(big)
-        small = int(small)
 
-        print sols
-        killSoldiers(uid, sols)
-        #死亡士兵 杀死
-        print reward
-        doGain(uid, reward)
-        curStar = DBSession.query(UserChallenge).filter_by(uid=uid).filter_by(big=big).filter_by(small=small).one()
-        #只有获取更多星才更新数据
-        if curStar.star < star:
-            curStar.star = star
-        return dict(id=1)
 
     @expose('json')
     def unloadThing(self, uid, eid):
@@ -173,7 +171,7 @@ class SoldierController(BaseController):
         doCost(uid, cost)
         return dict(id=1)
 
-
+    
 
 
 

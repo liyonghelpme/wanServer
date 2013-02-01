@@ -104,13 +104,21 @@ class RootController(BaseController):
     #state = 1 Free
     #单向好友关系
     def initNeibor(self, user):
-        pass
-        """
-        server = getUser(0)
-        neibor = UserNeiborRelation(uid=user.uid, fid=0,  name=server.name,  level=server.level)
-        neibor.papayaId = server.papayaId
-        DBSession.add(neibor)
-        """
+        if getFullGameParam("debugNeibor"):
+            twoUid = DBSession.execute("select min(uid) from UserInWan where uid != %d" % (user.uid)).fetchall()
+            if len(twoUid) > 0:
+                minUid = twoUid[0][0]
+                if minUid != None:
+                    uid = minUid
+                    server = getUser(uid)
+                    neibor = UserNeiborRelation(uid=user.uid, fid=uid,  name=server.name,  level=server.level)
+                    neibor.papayaId = server.papayaId
+                    DBSession.add(neibor)
+
+                    neibor = UserNeiborRelation(uid=uid, fid=user.uid,  name=user.name,  level=user.level)
+                    neibor.papayaId = user.papayaId
+                    DBSession.add(neibor)
+
 
         
     def initBuildings(self, user):
@@ -124,7 +132,7 @@ class RootController(BaseController):
         con.close()
 
         for i in rows:
-            buildings = UserBuildings(uid=uid, bid=i['bid'], kind=i['kind'], px=i['px'], py=i['py'], state=i['state'])
+            buildings = UserBuildings(uid=uid, bid=i['bid'], kind=i['kind'], px=i['px'], py=i['py'], state=i['state'], color=i['color'])
             DBSession.add(buildings)
         
     def initTreasureBox(self, uid):
@@ -703,6 +711,11 @@ class RootController(BaseController):
                 i['name'] = did+str(i['id'])
             if i.get('engName') != None:
                 i.pop('engName')
+            if i['hasNum']:
+                i['numCost'] = json.loads(i['numCost'])
+            else:
+                i['numCost'] = '[]'
+
             it = list(i.items())
             it = [list(k) for k in it]
             pKey = [k[0] for k in it]
@@ -762,3 +775,10 @@ class RootController(BaseController):
         myCon.close()
         return dict(id=1)
         
+    @expose('json')
+    def finishPay(self, uid, tid, gain):
+        uid = int(uid)
+        tid = int(tid)
+        gain = json.loads(gain)
+        doGain(uid, gain)
+        return dict(id=1)

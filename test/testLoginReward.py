@@ -61,3 +61,6 @@ print l['lastWeek'], l['thisWeek']
 
 r = '%slevelUp/%d/%d/%d/%s' % (base2, uid, 0, 2, '{}')
 req(r)
+
+r = '%sfinishPay/%d/%d/%s' % (base2, uid, 0, json.dumps({'gold':10}))
+req(r)

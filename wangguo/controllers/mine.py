@@ -39,14 +39,13 @@ class MineController(BaseController):
         return dict(id=1)
 
     @expose('json')
-    def harvest(self, uid, bid, crystal):
+    def harvest(self, uid, bid, gain):
         uid = int(uid)
         bid = int(bid)
-        crystal = int(crystal)
+        gain = json.loads(gain)
 
         mine = DBSession.query(UserBuildings).filter_by(uid=uid, bid=bid).one()
         now = getTime()
         mine.objectTime = now
-        user = getUser(uid)
-        user.crystal += crystal
+        doGain(uid, gain)
         return dict(id=1)
