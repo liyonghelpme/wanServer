@@ -27,6 +27,7 @@ from wangguo.model import *
 from wangguo.controllers.util import *
 import time
 from random import randint
+import logging
 
 __all__ = ['RootController']
 
@@ -87,7 +88,7 @@ class RootController(BaseController):
     """Start the user login."""
     def initUserData(self, user):
         user.silver = 1000000
-        user.gold = 1000000
+        user.gold = getFullGameParam("initGold")
         user.crystal = 1000000
         user.level = 0
         user.people = 5
@@ -427,8 +428,9 @@ class RootController(BaseController):
         DBSession.add(log)
     def setSecondLogin(self, user):
         ulog = DBSession.query(UserLog).filter_by(uid=user.uid).one()
+        now = getTime()
+        ulog.loginTime = now
         if ulog.newStage == 3:#完成新手任务
-            now = getTime()
             if now - ulog.registerTime < 3600*24:
                 ulog.secondLoginTime = now #第二次登录时间
 
@@ -793,9 +795,14 @@ class RootController(BaseController):
         return dict(id=1)
         
     @expose('json')
-    def finishPay(self, uid, tid, gain):
+    def finishPay(self, uid, tid, gain, papaya):
         uid = int(uid)
         tid = int(tid)
         gain = json.loads(gain)
+        papaya = int(papaya)
         doGain(uid, gain)
+        chargeLog = UserChargeLog(uid=uid, papaya=papaya, time=getTime())
+        DBSession.add(chargeLog)
+        log = logging.getLogger(__name__)
+        log.debug("finishPay %d %d %d %d" % (uid, tid, papaya, getTime()))
         return dict(id=1)

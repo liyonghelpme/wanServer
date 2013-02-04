@@ -16,6 +16,8 @@ from wangguo.controllers.error import ErrorController
 from wangguo.model import *
 import time
 import random
+import inspect
+import logging
 
 addKey = ["people", "cityDefense", "attack", "defense", "health", "gainsilver", "gaincrystal", "gaingold", "exp"]
 costKey = ["silver", "gold", "crystal", "papaya", "free"]
@@ -28,6 +30,8 @@ weekDiffTime = 5*24*3600
 aWeek = 7*24*3600
 #+ loginTime + weekDiffTime / 7*24*3600 = weekTimes 
 #lastLoginTime nowLoginTime--->weekNum weekNum >= 1 firstLogin In this Week
+
+
 def getWeekNum(t):
     t += weekDiffTime
     t /= aWeek
@@ -58,10 +62,26 @@ def checkCost(uid, cost):
     return True
     
 def doCost(uid, cost):
+    goldLog = logging.getLogger("wangguo.goldLog")
+
     user = DBSession.query(UserInWan).filter_by(uid=uid).one()
     for k in cost:
         v = getattr(user, k)
         setattr(user, k, v-cost[k])
+        #消费金币的数量统计
+        #消费完初始金币时的用户等级
+        if k == 'gold':
+            try:
+                stack = inspect.stack()[1]
+                param = inspect.getargvalues(stack[0])
+                goldLog.debug("goldCost %s %s %d" % (stack[3], str(param.locals), v))
+            except:
+                goldLog.debug("goldCost error %s" % (str(inspect.stack())))
+
+            goldCost = DBSession.query(UserLog).filter_by(uid=uid).one()
+            goldCost.costGold += v
+            if goldCost.goldLevel == -1 and goldCost.costGold >= getFullGameParam("initGold"):
+                goldCost.goldLevel = user.level
 
 def getSellBuildData(id):
     gain = getGain('building', id)

@@ -13,10 +13,11 @@ import MySQLdb
 import json
 from threading import Thread
 import time
-
 import pymongo
 
 DB_PASSWORD = 'badperson3'
+
+
 
 mongoCon = pymongo.Connection(host='localhost', port=27017)
 mongoDB = mongoCon['WanRank']
@@ -343,6 +344,9 @@ def init_model(engine):
     UserLogTable = Table("UserLog", metadata, autoload=True, autoload_with=engine)
     mapper(UserLog, UserLogTable)
 
+    UserChargeLogTable = Table("UserChargeLog", metadata, autoload=True, autoload_with=engine)
+    mapper(UserChargeLog, UserChargeLogTable)
+
     #userHeartRankTable = Table("UserHeartRank", metadata, autoload=True, autoload_with=engine)
     #mapper(UserHeartRank, userHeartRankTable)
 
@@ -389,3 +393,4 @@ from wangguo.model.userBuyTaskRecord import UserBuyTaskRecord
 from wangguo.model.gameParam import GameParam
 from wangguo.model.userChallengeState import UserChallengeState
 from wangguo.model.userLog import UserLog
+from wangguo.model.userChargeLog import UserChargeLog
