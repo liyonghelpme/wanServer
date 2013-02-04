@@ -271,9 +271,13 @@ class FriendController(BaseController):
         if len(invite) == 0:
             return dict(id=0, status=1)
 
+        #多个用户有相同的邀请码 UserInviteRank 放置用户的邀请码
         for i in invite:
             neiborNum = DBSession.query(UserNeiborRelation).filter_by(uid=i.uid).count()
-            invFri = getUser(i.uid)
+            try:
+                invFri = getUser(i.uid)
+            except:
+                continue
             if neiborNum >= invFri.neiborMax:
                 return dict(id=0, status=3)
 
@@ -289,6 +293,7 @@ class FriendController(BaseController):
             except:
                 req = UserNeiborRequest(uid=uid, fid=i.uid, time=getTime())
                 DBSession.add(req)
+            break
         return dict(id=1)
 
 
@@ -456,15 +461,17 @@ class FriendController(BaseController):
         return dict(id=1, res=ret)
 
     @expose('json')
-    def inviteFriend(self, uid, oid):
+    def inviteFriend(self, uid, oid, silver):
         uid = int(uid)
         oid = int(oid)
+        silver = int(silver)
+
         record = inviteCollect.find_one({'uid':uid, 'oid':oid})
         if record != None:
             return dict(id=0)
         record = {'uid':uid, 'oid':oid}
         inviteCollect.insert(record)
-        gain = {'silver': datas['PARAMS']['inviteSilver']}
+        gain = {'silver': silver}
         doGain(uid, gain)
         return dict(id=1)
 

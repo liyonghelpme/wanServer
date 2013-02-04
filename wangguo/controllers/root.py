@@ -20,6 +20,7 @@ from wangguo.controllers.soldier import SoldierController
 from wangguo.controllers.friend import FriendController
 from wangguo.controllers.mine import MineController
 from wangguo.controllers.fight import FightController
+from wangguo.controllers.log import LogController
 
 #from wangguo.model import DBSession, metadata
 from wangguo.model import *
@@ -41,8 +42,10 @@ class RootController(BaseController):
     friendC = FriendController()
     mineC = MineController()
     fightC = FightController()
+    logC = LogController()
 
     error = ErrorController()
+
 
     @expose('wangguo.templates.index')
     def index(self):
@@ -418,6 +421,17 @@ class RootController(BaseController):
         return dict(protectTime=challengeState.protectTime, activeScore=challengeState.activeScore)
 
 
+    #生成日志的查询操作比较消耗时间  registerTime  可以加索引
+    def initLog(self, user):
+        log = UserLog(uid=user.uid, registerTime=getTime())
+        DBSession.add(log)
+    def setSecondLogin(self, user):
+        ulog = DBSession.query(UserLog).filter_by(uid=user.uid).one()
+        if ulog.newStage == 3:#完成新手任务
+            now = getTime()
+            if now - ulog.registerTime < 3600*24:
+                ulog.secondLoginTime = now #第二次登录时间
+
     global Keys
     Keys = ['uid', 'silver', 'gold', 'crystal', 'level', 'people', 'cityDefense', 'loginDays', 'exp']
     #登录时新手依然返回英雄数据 只是英雄 人物 采用临时图片方法
@@ -448,6 +462,7 @@ class RootController(BaseController):
             self.initNeibor(user)
             self.initTreasureBox(user.uid)
             self.initInvite(user)
+            self.initLog(user)
             #self.initSolEquip(user)
         
         #初次登录玩家 需要注册英雄和名称
@@ -507,6 +522,8 @@ class RootController(BaseController):
         invite = self.getInvite(user.uid)
 
         challengeState = self.getChallengeState(user.uid)
+
+        self.setSecondLogin(user)
 
         ret = dict(id=1, uid = user.uid, name = user.name, resource = userData,  buildings = buildings, soldiers = soldiers, drugs=drugs, equips=equips,  herbs=herbs, serverTime=now, challengeRecord=challengeRecord, rank=rank,  treasure=treasure, maxGiftId=maxGiftId, skills = skills, newState = user.newState, week=week, updateState=updateState, lastWeek = lastWeek, thisWeek=thisWeek, registerTime=user.registerTime, hour = hour, maxMessageId=maxMessageId, hasBox=box.has, helperList=helperList, papayaIdName=papayaIdName, invite=invite, challengeState=challengeState) 
         return ret
@@ -752,7 +769,7 @@ class RootController(BaseController):
     @expose('json')
     def getString(self):
         myCon = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
-        sql = 'select * from Strings'
+        sql = 'select * from Strings where deleted = 0'
         myCon.query(sql)
 
         rows = myCon.store_result().fetch_row(0, 1)

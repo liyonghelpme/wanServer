@@ -340,6 +340,8 @@ def init_model(engine):
     UserChallengeStateTable = Table("UserChallengeState", metadata, autoload=True, autoload_with=engine)
     mapper(UserChallengeState, UserChallengeStateTable)
 
+    UserLogTable = Table("UserLog", metadata, autoload=True, autoload_with=engine)
+    mapper(UserLog, UserLogTable)
 
     #userHeartRankTable = Table("UserHeartRank", metadata, autoload=True, autoload_with=engine)
     #mapper(UserHeartRank, userHeartRankTable)
@@ -386,3 +388,4 @@ from wangguo.model.userInviteRank import UserInviteRank
 from wangguo.model.userBuyTaskRecord import UserBuyTaskRecord
 from wangguo.model.gameParam import GameParam
 from wangguo.model.userChallengeState import UserChallengeState
+from wangguo.model.userLog import UserLog

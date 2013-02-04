@@ -155,10 +155,10 @@ time.sleep(2)
 r= base+'sendNeiborInviteRequest/%d/%d' % (oid, uInCode)
 req(r)
 
-r= base+'inviteFriend/%d/%d' % (uid, 1234)
+r= base+'inviteFriend/%d/%d/10' % (uid, 1234)
 req(r)
 
-r= base+'inviteFriend/%d/%d' % (uid, 1234)
+r= base+'inviteFriend/%d/%d/10' % (uid, 1234)
 req(r)
 
 r = base+'getFriendUpdate/%d' % (1613)

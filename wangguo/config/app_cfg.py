@@ -27,8 +27,8 @@ base_config.package = wangguo
 #Enable json in expose
 base_config.renderers.append('json')
 #Set the default renderer
-base_config.default_renderer = 'mako'
-base_config.renderers.append('mako')
+base_config.default_renderer = 'genshi'
+base_config.renderers.append('genshi')
 #Configure the base SQLALchemy Setup
 base_config.use_sqlalchemy = True
 base_config.model = wangguo.model
