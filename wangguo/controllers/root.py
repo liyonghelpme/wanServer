@@ -91,7 +91,7 @@ class RootController(BaseController):
         user.gold = getFullGameParam("initGold")
         user.crystal = 1000000
         user.level = 0
-        user.people = 5
+        user.people = getFullGameParam("initPeople")
         user.cityDefense = getFullGameParam('initCityDefense')
         user.loginDays = 0
         user.exp = 0
@@ -730,10 +730,11 @@ class RootController(BaseController):
                 i['name'] = did+str(i['id'])
             if i.get('engName') != None:
                 i.pop('engName')
-            if i['hasNum']:
-                i['numCost'] = json.loads(i['numCost'])
-            else:
-                i['numCost'] = '[]'
+            if i.get('hasNum') != None:
+                if i['hasNum']:
+                    i['numCost'] = json.loads(i['numCost'])
+                else:
+                    i['numCost'] = []
 
             it = list(i.items())
             it = [list(k) for k in it]

@@ -45,6 +45,9 @@ req(r)
 r = '%sgetStaticData/%s' % (base2, 'building')
 req(r)
 
+r = '%sgetStaticData/%s' % (base2, 'mapBlood')
+req(r)
+
 r = '%sgetMapMonster'%(base2)
 req(r)
 
