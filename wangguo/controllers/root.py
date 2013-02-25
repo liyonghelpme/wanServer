@@ -87,9 +87,9 @@ class RootController(BaseController):
 
     """Start the user login."""
     def initUserData(self, user):
-        user.silver = 1000000
+        user.silver = getFullGameParam("initSilver")
         user.gold = getFullGameParam("initGold")
-        user.crystal = 1000000
+        user.crystal = getFullGameParam("initCrystal")
         user.level = 0
         user.people = getFullGameParam("initPeople")
         user.cityDefense = getFullGameParam('initCityDefense')
@@ -794,6 +794,20 @@ class RootController(BaseController):
         myCon.commit()
         myCon.close()
         return dict(id=1)
+
+    @expose('json')
+    def getSkillAnimate(self):
+        myCon = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+        sql = 'select * from skillAnimate'
+        myCon.query(sql)
+        res = myCon.store_result().fetch_row(0, 1)
+        skillAnimate = []
+        
+        for i in res:
+            skillAnimate.append([i['id'], [json.loads(i['ani']), i['time'], i['plist']]])
+        myCon.close()
+
+        return dict(data=skillAnimate)
         
     @expose('json')
     def finishPay(self, uid, tid, gain, papaya):
@@ -807,3 +821,25 @@ class RootController(BaseController):
         log = logging.getLogger(__name__)
         log.debug("finishPay %d %d %d %d" % (uid, tid, papaya, getTime()))
         return dict(id=1)
+    
+    @expose('json')
+    def checkData(self, uid, cmd, data):
+        uid = int(uid)
+        data = json.loads(data)
+
+        user = DBSession.query(UserInWan).filter_by(uid=uid).one()
+        failData = []
+        for k in data:
+            v = getattr(user, k)
+            if v != data[k]:
+                failData.append([k, data[k], v])
+        if len(failData) == 0:
+            return dict(id=1)
+
+        myCon = MySQLdb.connect(host='localhost', user='root', passwd='badperson3', db='Wan2', charset='utf8')
+        sql = 'insert into dataBug (uid, cmd, content) values (%d, "%s", \'%s\')' % (uid, cmd, json.dumps(failData))
+        myCon.query(sql)
+        myCon.commit()
+        myCon.close()
+        return dict(id=0)
+

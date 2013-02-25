@@ -278,8 +278,13 @@ class BuildingController(BaseController):
             return dict(id=0, reason="no such kind soldier")
         build.objectList = json.dumps(objectList)
         readyList = json.loads(build.readyList)
+        readyList = dict(readyList)
+
         num = readyList.get(solId, 0)
         num += 1
+        readyList[solId] = num
+        readyList = readyList.items()
+
         build.readyList = json.dumps(readyList)
         build.objectTime += getData('soldier', solId)['time']#工作时间 向后推迟
         return dict(id=1)
@@ -293,7 +298,7 @@ class BuildingController(BaseController):
         bid = int(bid)
         sols = json.loads(sols)
         build = DBSession.query(UserBuildings).filter_by(uid=uid).filter_by(bid=bid).one()
-        build.readyList = '{}'
+        build.readyList = '[]'
         for s in sols:
             sol = UserSoldiers(uid=uid, sid=s[0], kind=s[1], name=s[2])
             DBSession.add(sol)

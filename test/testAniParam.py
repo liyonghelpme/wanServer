@@ -56,3 +56,14 @@ req(r)
 
 r = '%supdateCurrentSoldierId/%d'%(base2, 20)
 req(r)
+
+r = '%sgetSkillAnimate' % (base2)
+req(r)
+
+papa = random.randint(5000, 6000)
+r = '%slogin/%d/ppp' % (base2, papa)
+l = req(r)
+uid = l['uid']
+
+r = '%scheckData/%d/doAcc/%s' % (base2, uid, json.dumps({'gold':10000}))
+req(r)
