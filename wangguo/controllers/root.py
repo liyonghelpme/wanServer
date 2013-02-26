@@ -187,9 +187,10 @@ class RootController(BaseController):
         DBSession.add(equip)
 
     #保证rank唯一性
+    #新用户的排名
     def initRank(self, user):
-        #num = DBSession.query(UserNewRank).filter("score >= 100").count()
-        rank = UserNewRank(uid=user.uid, score=100, rank=0, papayaId = user.papayaId, name=user.name, finish=0)
+        num = DBSession.query(UserNewRank).filter("score >= 100").count()
+        rank = UserNewRank(uid=user.uid, score=100, rank=num, papayaId = user.papayaId, name=user.name, finish=0)
         DBSession.add(rank)
 
         attackRank = UserAttack(uid=user.uid, total=0, suc=0, rank=0)
@@ -198,6 +199,7 @@ class RootController(BaseController):
         defenseRank = UserDefense(uid=user.uid, total=0, suc=0, rank=0)
         DBSession.add(defenseRank)
         """
+
         num = DBSession.query(UserGroupRank).filter("score >= 100").count()
         rank = UserGroupRank(uid=user.uid, score=100, rank=num, papayaId = user.papayaId, papayaName=user.papayaName)
         DBSession.add(rank)
