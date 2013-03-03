@@ -64,7 +64,7 @@ req(r)
 r = base+'getRevenge/%d/%d' % (uid, oids[0])
 req(r)
 
-r = base+'getRandChallenge/%d' % (uid)
+r = base+'getRandChallenge/%d/%d' % (uid, 5)
 req(r)
 
 
@@ -73,7 +73,7 @@ mid = 5
 for i in xrange(0, 20):
     r = base+'challengeOther/%d/%d' % (uid, oids[0])
     req(r)
-    r = base+'challengeResult/%d/%d/%s/%d/%s/%d/1/0' % (uid, oids[0], json.dumps([]), 10, json.dumps([]), mid)
+    r = base+'challengeResult/%d/%d/%s/%d/%s/%d/1/0/%s' % (uid, oids[0], json.dumps([]), 10, json.dumps([]), mid, json.dumps([]))
     req(r)
 
     r = base+'realChallenge/%d/%d' % (uid, oids[0])
@@ -108,7 +108,7 @@ for i in range(1, OTHER_NUM):
     r = base+'challengeOther/%d/%d' % (uid, oids[i])
     req(r)
 
-r = base+'challengeResult/%d/%d/%s/%d/%s/%d/1/1' % (uid, oids[1], json.dumps([]), 10, json.dumps([]), 5)
+r = base+'challengeResult/%d/%d/%s/%d/%s/%d/1/1/%s' % (uid, oids[1], json.dumps([]), 10, json.dumps([]), 5, json.dumps([]))
 req(r)
 r = '%slogin/%d/ppp' % (base2, papaya2[1])
 l = req(r)
@@ -117,5 +117,5 @@ print 'fail ones protectTime', l['challengeState']
 
 
 #士兵挂了之后 不能 再 transfer了
-r = base+'challengeOver/%d/%s/%s/%d/%d/%d/%s' %(uid, json.dumps([0]), json.dumps(dict([["gold", 2], ["silver", 2]])), 2, 0, 0, json.dumps([{'eid':20, 'kind':61}]))
+r = base+'challengeOver/%d/%s/%s/%d/%d/%d/%s/%s' %(uid, json.dumps([0]), json.dumps(dict([["gold", 2], ["silver", 2]])), 2, 0, 0, json.dumps([{'eid':20, 'kind':61}]), json.dumps([]))
 over = req(r)

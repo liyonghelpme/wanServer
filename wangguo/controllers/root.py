@@ -803,13 +803,24 @@ class RootController(BaseController):
         sql = 'select * from skillAnimate'
         myCon.query(sql)
         res = myCon.store_result().fetch_row(0, 1)
-        skillAnimate = []
-        
+
+        data = []
+        key = []
         for i in res:
-            skillAnimate.append([i['id'], [json.loads(i['ani']), i['time'], i['plist']]])
+            i = dict(i)
+            i.pop('name')
+            i['ani'] = json.loads(i['ani'])
+
+            it = list(i.items())
+            it = [list(k) for k in it]
+            #it[4][1] = 'build'+str(i['id'])
+            key = [k[0] for k in it]
+            a = [k[1] for k in it]
+            if i.get('id') != None:
+                data.append([i['id'], a])
         myCon.close()
 
-        return dict(data=skillAnimate)
+        return dict(data=data, key=key)
         
     @expose('json')
     def finishPay(self, uid, tid, gain, papaya):

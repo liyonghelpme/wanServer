@@ -75,17 +75,20 @@ class ChallengeController(BaseController):
     #足够活跃的用户随机生成1个
     #等级区间内 活跃用户随机生成1个 作为挑战对象
     @expose('json')
-    def getRandChallenge(self, uid):
+    def getRandChallenge(self, uid, levelOff):
         uid = int(uid)
         user = getUser(uid)
+        levelOff = int(levelOff) #客户端提供初始的等级偏移范围
+
         #获取某个等级范围的用户
         userLevel = user.level
-        levOff = 2#+-2 +-4 +-8
+        levOff = levelOff#+-2 +-4 +-8
         #寻找活跃用户
         now = getTime()
         lastProtectTime = now - getFullGameParam("ProtectTime")
         find = False
         while levOff < getFullGameParam("maxLevelOff"):
+            print "levOff", uid, levOff
             #print 'levOff', levOff, lastProtectTime
             #首先获取用户范围
             #接着获取随机的用户 开始位置
