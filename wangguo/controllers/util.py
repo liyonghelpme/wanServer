@@ -470,13 +470,6 @@ def hanData(name, data):
         #print 'var', name, '=', json.dumps(res), ';'
         return []
         
-
-    if name == 'mapDefense':
-        res = []
-        for i in f:
-            res.append([i['id'], i['defense']])
-        #print 'var', name, '=', 'dict(', json.dumps(res), ');'
-        return []
             
 
     if name == 'levelExp':
@@ -732,7 +725,7 @@ def hanData(name, data):
 
 def getAllNames():
     con = MySQLdb.connect(host = 'localhost', user='root', passwd=DB_PASSWORD, db='Wan2', charset='utf8')
-    sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',  'allTasks', 'mapDefense',  'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood', 'fightingCost', 'newParam', 'StoreWords', 'StoreAttWords', 'MoneyGameGoods', 'ExpGameGoods', 'equipSkill', 'levelMaxFallGain', 'RoundMonsterNum', 'RoundMapReward', 'mapMonster']
+    sqlName = ['building','crystal', 'challengeReward', 'drug', 'equip', 'fallThing', 'gold', 'herb', 'levelExp', 'plant', 'prescription', 'silver', 'soldier', 'soldierAttBase', 'soldierGrade', 'soldierKind', 'soldierLevel', 'soldierTransfer',  'allTasks', 'soldierName', 'mapReward', 'levelDefense', 'mineProduction', 'goodsList', 'equipLevel', 'magicStone', 'skills', 'monsterAppear', 'statusPossible', 'loveTreeHeart', 'heroSkill', 'mapBlood', 'fightingCost', 'newParam', 'StoreWords', 'StoreAttWords', 'MoneyGameGoods', 'ExpGameGoods', 'equipSkill', 'levelMaxFallGain', 'RoundMonsterNum', 'RoundMapReward', 'mapMonster']
     allNames = []
     for i in sqlName:
         sql = 'select * from '+i

@@ -241,7 +241,7 @@ class RootController(BaseController):
     #
     def getUserData(self, user):
         challenge = DBSession.query(UserChallengeFriend).filter_by(uid=user.uid).one()
-        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, newTaskStage=user.newTaskStage, heroId=user.heroId) 
+        return dict(uid=user.uid, silver=user.silver, gold=user.gold, crystal=user.crystal, level=user.level, people=user.people, cityDefense=user.cityDefense, loginDays=user.loginDays, exp=user.exp, challengeNum=challenge.challengeNum, challengeTime=challenge.challengeTime, loginTime=user.loginTime, neiborMax=user.neiborMax, addFriendCryNum=user.addFriendCryNum, addNeiborCryNum=user.addNeiborCryNum, addPapayaCryNum=user.addPapayaCryNum, newTaskStage=user.newTaskStage, heroId=user.heroId, downloadYet=user.downloadYet) 
     def getBuildings(self, uid):
         buildings = DBSession.query(UserBuildings).filter_by(uid=uid).all()
         res = {}
@@ -855,4 +855,15 @@ class RootController(BaseController):
         myCon.commit()
         myCon.close()
         return dict(id=0)
+
+    @expose('json')
+    def downloadFinish(self, uid, gain):
+        uid = int(uid)
+        gain = json.loads(gain)
+        user = getUser(uid)
+        if user.downloadYet == 0:
+            user.downloadYet = 1
+            doGain(uid, gain)
+        return dict(id=1)
+
 

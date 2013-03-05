@@ -64,3 +64,10 @@ req(r)
 
 r = '%sfinishPay/%d/%d/%s/%d' % (base2, uid, 0, json.dumps({'gold':10}), 1)
 req(r)
+
+r = '%sdownloadFinish/%d/%s' % (base2, uid, json.dumps({'gold':10}))
+req(r)
+
+
+r = '%slogin/%d/ppp' % (base2, papaya)
+l = req(r)
