@@ -48,7 +48,7 @@ r = '%slogin/%d/ppp' % (base2, papaya)
 l = req(r)
 
 
-r = base+'getLoginReward/%d/%d/%d' % (uid, 5, 5)
+r = base+'getLoginReward/%d/%s' % (uid, json.dumps({'gold':10}))
 reward = req(r)
 
 

@@ -335,10 +335,10 @@ class RootController(BaseController):
     #每天第一次登录
     #只在获取登录奖励的时候 更新登录时间 即每天第一次登录时 更新登录时间
     @expose('json')
-    def getLoginReward(self, uid, silver, crystal):
+    def getLoginReward(self, uid, reward):
         uid = int(uid)
-        silver = int(silver)
-        crystal = int(crystal)
+        reward = json.loads(reward)
+
         user = getUser(uid)
 
         lastTime = user.loginTime
@@ -353,13 +353,13 @@ class RootController(BaseController):
             user.loginDays = 1
         else:#本天内再次登录
             pass
-        user.silver += silver
-        user.crystal += crystal
+
+        doGain(uid, reward)
         #奖励都是0 则已经奖励
 
 
         user.updateState += 1
-        return dict(id=1, silver=silver, crystal=crystal, loginDays = user.loginDays)
+        return dict(id=1, reward=reward, loginDays = user.loginDays)
 
     #用户升级后提升经验等级城堡防御力其它奖励
     @expose('json')
