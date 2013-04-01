@@ -36,6 +36,7 @@ class LogController(BaseController):
         
     @expose('wangguo.templates.flot')
     def registerNum(self):
+        u"注册人数"
         tmpl_context.flot = flot
         print tmpl_context
         #最近一周的每天打开游戏的人数打开游戏的人数
@@ -54,8 +55,10 @@ class LogController(BaseController):
         userLog = DBSession.query(UserLog).filter_by(uid=uid).one()
         userLog.newStage = stage
         return dict(id=1)
+
     @expose('wangguo.templates.flot')
     def newRoundWin(self):
+        u"新手任务完成人数"
         tmpl_context.flot = flot
         week = self.getWeekStartTime()
         data1 = []
@@ -73,6 +76,7 @@ class LogController(BaseController):
         return dict(data=[data1, data2, data3], options={})
     @expose('wangguo.templates.flot')
     def secondLogin(self):
+        u"第二天登录用户数量"
         tmpl_context.flot = flot
         week = self.getWeekStartTime()
         data = []
@@ -82,6 +86,7 @@ class LogController(BaseController):
         return dict(data=[data], options={})
     @expose('wangguo.templates.flot')
     def getGoldCost(self):
+        u"金币消费"
         tmpl_context.flot = flot
         data = DBSession.execute("select goldLevel, count(*) from UserLog where goldLevel > -1 group by goldLevel").fetchall()
         data = [(int(i[0]), int(i[1])) for i in data]
@@ -89,6 +94,7 @@ class LogController(BaseController):
         return dict(data=[data], options=options)
     @expose('json')
     def getHalfGoldUserLost(self):
+        u"花费掉一半金币的流失用户数量"
         tmpl_context.flot = flot
         now = getTime()-3600*24
 
@@ -96,6 +102,7 @@ class LogController(BaseController):
         return dict(data=data[0][0])
     @expose('wangguo.templates.flot')
     def chargeUserNum(self):
+        u"用户充值记录总数"
         tmpl_context.flot = flot
         week = self.getWeekStartTime()
         data = []
@@ -106,6 +113,7 @@ class LogController(BaseController):
 
     @expose('wangguo.templates.flot')
     def chargePapayaNum(self):
+        u"用户购买木瓜币总数量"
         tmpl_context.flot = flot
         week = self.getWeekStartTime()
         data = []
@@ -121,6 +129,7 @@ class LogController(BaseController):
 
     @expose('wangguo.templates.flot')
     def DAU(self):
+        u"DAU 每日活跃用户"
         tmpl_context.flot = flot
         week = self.getWeekStartTime()
         data = []
@@ -131,6 +140,7 @@ class LogController(BaseController):
     #income 
     @expose('wangguo.templates.flot')
     def ARPU(self):
+        u"ARPU 每用户平均收入"
         tmpl_context.flot = flot
         week = self.getWeekStartTime()
         data = []
@@ -145,6 +155,7 @@ class LogController(BaseController):
 
     @expose('wangguo.templates.flot')
     def ARPPU(self):
+        u"付费用户每人平均付费数"
         tmpl_context.flot = flot
         week = self.getWeekStartTime()
         data = []
@@ -159,12 +170,14 @@ class LogController(BaseController):
 
     @expose('json')
     def lostUser(self):
+        u"目前为止流失的用户数量"
         now = getTime()-3600*24*3
         lostNum = DBSession.query(UserLog).filter("loginTime < %d" % (now)).count()
         return dict(data=lostNum)
 
     @expose('wangguo.templates.flot')
     def lostLevelUser(self):
+        u"3天没有登录的流失用户的等级分布"
         tmpl_context.flot = flot
         now = getTime()-3600*24*3
         lostNum = DBSession.execute("select level, count(*) from UserInWan where loginTime < %d group by level" % (now)).fetchall()
@@ -182,10 +195,24 @@ class LogController(BaseController):
 
     @expose('wangguo.templates.flot')
     def solNum(self):
+        u"各种类型士兵购买数量"
         tmpl_context.flot = flot
         buySol = DBSession.execute("select kind, count(*) from UserSoldiers group by kind").fetchall()
         buySol = [(int(i[0]), int(i[1]))for i in buySol]
         return dict(data=[buySol], options={})
+
+    @expose('wangguo.templates.logEntry')
+    def log(self):
+        interfaces = [self.registerNum, self.newRoundWin, self.secondLogin, 
+                self.getGoldCost, self.getHalfGoldUserLost, self.chargeUserNum, 
+                self.chargePapayaNum, self.DAU, self.ARPU,
+                self.ARPPU, self.lostUser, self.lostLevelUser, 
+                self.solNum]
+        passData = []
+        for i in interfaces:
+            passData.append([i.__name__, i.__doc__])
+
+        return dict(passData=passData)
 
      
 
